@@ -24,11 +24,11 @@ export default function TenantCatalogsPage() {
         const data = await apiGet<{ items?: CatalogRow[] }>('/api/v1/catalogs');
         const list = Array.isArray(data) ? data : data?.items ?? [];
         setCatalogs(
-          list.map((c: Record<string, unknown>) => ({
+          (list as CatalogRow[]).map((c) => ({
             id: String(c.id ?? ''),
             name: String(c.name ?? c.id ?? ''),
-            description: c.description as string | undefined,
-            type: c.type as string | undefined,
+            description: c.description,
+            type: c.type,
           }))
         );
       } catch {
@@ -62,7 +62,7 @@ export default function TenantCatalogsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-app">
       <div className="max-w-full px-3 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

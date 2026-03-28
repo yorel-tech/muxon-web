@@ -33,11 +33,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       <motion.div
         ref={ref}
         className={`
-          bg-white rounded-lg
+          bg-surface rounded-lg
           ${paddingStyles[padding]}
-          ${bordered ? 'border border-gray-200' : ''}
+          ${bordered ? 'border border-border' : ''}
           ${shadowStyles[shadow]}
-          ${hover ? 'hover:shadow-lg hover:border-gray-300' : ''}
+          ${hover ? 'hover:shadow-lg hover:border-primary-200 dark:hover:border-primary-700' : ''}
           transition-all duration-200
           ${className}
         `}
@@ -60,7 +60,7 @@ export interface CardHeaderProps {
 
 export const CardHeader = ({ children, className = '' }: CardHeaderProps) => {
   return (
-    <div className={`px-6 py-4 border-b border-gray-200 ${className}`}>
+    <div className={`px-6 py-4 border-b border-border ${className}`}>
       {children}
     </div>
   );
@@ -86,8 +86,26 @@ export interface CardFooterProps {
 
 export const CardFooter = ({ children, className = '' }: CardFooterProps) => {
   return (
-    <div className={`px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg ${className}`}>
+    <div className={`px-6 py-4 border-t border-border bg-app rounded-b-lg ${className}`}>
       {children}
     </div>
   );
 };
+
+export interface CardTitleProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export const CardTitle = ({ children, className = '' }: CardTitleProps) => (
+  <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>{children}</h3>
+);
+
+export interface CardDescriptionProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export const CardDescription = ({ children, className = '' }: CardDescriptionProps) => (
+  <p className={`text-sm text-[color:var(--text-secondary)] mt-1 ${className}`}>{children}</p>
+);

@@ -21,13 +21,15 @@ export interface ButtonProps {
   name?: string;
   value?: string;
   id?: string;
+  title?: string;
   'aria-label'?: string;
   'aria-disabled'?: boolean;
 }
 
 const variantStyles: Record<string, string> = {
   primary: 'bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500',
-  secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400',
+  secondary:
+    'bg-primary-50 text-primary-800 hover:bg-primary-100 focus:ring-primary-400 dark:bg-primary-900/30 dark:text-primary-100 dark:hover:bg-primary-900/50',
   ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400',
   danger: 'bg-error-500 text-white hover:bg-error-600 focus:ring-error-500',
 };
@@ -57,6 +59,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       name,
       value,
       id,
+      title,
       'aria-label': ariaLabel,
       'aria-disabled': ariaDisabled,
     }: ButtonProps,
@@ -85,6 +88,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         name={name}
         value={value}
         id={id}
+        title={title}
         aria-label={ariaLabel}
         aria-disabled={ariaDisabled || disabled || isLoading}
       >

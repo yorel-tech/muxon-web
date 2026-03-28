@@ -4,8 +4,18 @@ import { motion } from 'framer-motion';
 import { forwardRef } from 'react';
 
 export interface BadgeProps {
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'nexus' | 'secondary';
+  variant?:
+    | 'default'
+    | 'success'
+    | 'warning'
+    | 'error'
+    | 'destructive'
+    | 'info'
+    | 'nexus'
+    | 'secondary'
+    | 'outline';
   size?: 'sm' | 'md' | 'lg';
+  className?: string;
   children: React.ReactNode;
   dot?: boolean;
 }
@@ -15,9 +25,11 @@ const variantStyles: Record<string, string> = {
   success: 'bg-success-100 text-success-700',
   warning: 'bg-warning-100 text-warning-700',
   error: 'bg-error-100 text-error-700',
+  destructive: 'bg-error-100 text-error-700',
   info: 'bg-info-100 text-info-700',
   nexus: 'bg-nexus-100 text-nexus-700',
   secondary: 'bg-gray-200 text-gray-600',
+  outline: 'bg-transparent ring-1 ring-inset ring-gray-300 text-gray-700',
 };
 
 const sizeStyles: Record<string, string> = {
@@ -27,7 +39,7 @@ const sizeStyles: Record<string, string> = {
 };
 
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ variant = 'default', size = 'md', children, dot = false }, ref) => {
+  ({ variant = 'default', size = 'md', className = '', children, dot = false }, ref) => {
     return (
       <motion.span
         ref={ref}
@@ -35,6 +47,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
           inline-flex items-center gap-1.5 rounded-full font-medium
           ${variantStyles[variant]}
           ${sizeStyles[size]}
+          ${className}
         `}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

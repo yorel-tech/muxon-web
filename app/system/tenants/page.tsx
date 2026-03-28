@@ -399,7 +399,7 @@ export default function TenantsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-app">
       <div className="max-w-full px-3 py-8">
         {/* Header */}
         <motion.div

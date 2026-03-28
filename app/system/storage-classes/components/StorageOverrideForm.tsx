@@ -1,200 +1,247 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState, useEffect, useMemo } from "react";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { Label } from "@/components/ui/atoms/label";
+import { Select } from "@/components/ui/atoms/select";
+import { Modal } from "@/components/ui/molecules/modal";
 import { useStorageClasses } from "../hooks/useStorageClasses";
 import { useProviderStorage } from "../hooks/useProviderStorage";
-import { useCreateStorageOverride, useUpdateStorageOverride } from "../hooks/useStorageOverrides";
-import { Badge } from "@/components/ui/badge";
+import { storageApi } from "@/lib/api/storage";
+import { useReplaceStorageClassOverrides } from "../hooks/useStorageOverrides";
+import { Badge } from "@/components/ui/atoms/badge";
 import { X } from "lucide-react";
+import type { StorageClassOverride, StorageOverrideRow } from "@/lib/types/storage";
+import { useToast } from "@/lib/toast";
 
 interface StorageOverrideFormProps {
-  override?: any;
+  editRow?: StorageOverrideRow | null;
+  defaultStorageClassName?: string;
   onClose: () => void;
 }
 
-export default function StorageOverrideForm({ override, onClose }: StorageOverrideFormProps) {
-  const [formData, setFormData] = useState({
-    storageClassName: "",
-    providerType: "libvirt",
-    providerStorageNames: [] as string[],
-    priority: 100,
-  });
+export default function StorageOverrideForm({
+  editRow = null,
+  defaultStorageClassName = "",
+  onClose,
+}: StorageOverrideFormProps) {
+  const [storageClassName, setStorageClassName] = useState("");
+  const [providerType, setProviderType] = useState("libvirt");
+  const [providerStorageNames, setProviderStorageNames] = useState<string[]>([]);
+  const [priority, setPriority] = useState(100);
+  const [datacenterId, setDatacenterId] = useState("");
+  const [addPickerKey, setAddPickerKey] = useState(0);
 
-  const { data: storageClasses } = useStorageClasses();
-  const { data: providerStorage } = useProviderStorage(null);
-  const createMutation = useCreateStorageOverride();
-  const updateMutation = useUpdateStorageOverride();
+  const { data: storageClasses = [] } = useStorageClasses();
+  const { data: allProviderStorage = [] } = useProviderStorage(null);
+  const replaceMutation = useReplaceStorageClassOverrides();
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (override) {
-      setFormData({
-        storageClassName: override.storageClassName || "",
-        providerType: override.providerType || "libvirt",
-        providerStorageNames: override.providerStorageNames || [],
-        priority: override.priority || 100,
-      });
+    if (editRow) {
+      setStorageClassName(editRow.storageClassName);
+      setProviderType(editRow.override.providerType);
+      setProviderStorageNames([...editRow.override.providerStorageNames]);
+      setPriority(editRow.override.priority ?? 100);
+      setDatacenterId(editRow.override.datacenterId ?? "");
+    } else {
+      setStorageClassName(defaultStorageClassName || "");
+      setProviderType("libvirt");
+      setProviderStorageNames([]);
+      setPriority(100);
+      setDatacenterId("");
     }
-  }, [override]);
+  }, [editRow, defaultStorageClassName]);
 
-  const availableStorage = providerStorage?.filter(
-    (s: any) => s.providerType === formData.providerType
-  ) || [];
+  const availableStorage = useMemo(
+    () => allProviderStorage.filter((s) => s.providerType === providerType),
+    [allProviderStorage, providerType],
+  );
 
-  const handleAddStorage = (storageName: string) => {
-    if (!formData.providerStorageNames.includes(storageName)) {
-      setFormData({
-        ...formData,
-        providerStorageNames: [...formData.providerStorageNames, storageName],
-      });
+  const addStorageOptions = useMemo(
+    () =>
+      availableStorage.map((storage) => ({
+        value: storage.name ?? storage.externalId ?? storage.id,
+        label: `${storage.name ?? storage.externalId ?? storage.id} (${storage.storageType})`,
+      })),
+    [availableStorage],
+  );
+
+  const handleAddStorage = (raw: string) => {
+    if (!raw) return;
+    if (!providerStorageNames.includes(raw)) {
+      setProviderStorageNames([...providerStorageNames, raw]);
     }
+    setAddPickerKey((k) => k + 1);
   };
 
   const handleRemoveStorage = (storageName: string) => {
-    setFormData({
-      ...formData,
-      providerStorageNames: formData.providerStorageNames.filter((n) => n !== storageName),
-    });
+    setProviderStorageNames(providerStorageNames.filter((n) => n !== storageName));
+  };
+
+  const buildOverridePayload = (): StorageClassOverride => {
+    const o: StorageClassOverride = {
+      providerType,
+      providerStorageNames,
+      priority,
+    };
+    const dc = datacenterId.trim();
+    if (dc) o.datacenterId = dc;
+    else o.datacenterId = null;
+    return o;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!storageClassName) {
+      toast.error("Validation", "Select a storage class");
+      return;
+    }
+    if (providerStorageNames.length === 0) {
+      toast.error("Validation", "Add at least one provider storage target");
+      return;
+    }
 
     try {
-      if (override) {
-        await updateMutation.mutateAsync({ id: override.id, data: formData });
+      const current = await storageApi.getStorageClassOverrides(storageClassName).catch(() => ({
+        storageClassName,
+        overrides: [] as StorageClassOverride[],
+      }));
+      const overrides = [...(current.overrides ?? [])];
+      const payload = buildOverridePayload();
+
+      if (editRow) {
+        overrides[editRow.index] = payload;
       } else {
-        await createMutation.mutateAsync(formData);
+        overrides.push(payload);
       }
+
+      await replaceMutation.mutateAsync({
+        storageClassName,
+        body: { storageClassName, overrides },
+      });
       onClose();
     } catch (error) {
-      console.error("Failed to save storage override:", error);
+      console.error("Failed to save storage overrides:", error);
     }
   };
 
+  const classOptions = storageClasses.map((sc) => ({ value: sc.name, label: sc.name }));
+
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>
-            {override ? "Edit Storage Override" : "Create Storage Override"}
-          </DialogTitle>
-          <DialogDescription>
-            Manually map a storage class to specific provider storage
-          </DialogDescription>
-        </DialogHeader>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={editRow ? "Edit override rule" : "Create override rule"}
+      size="xl"
+      showClose
+    >
+      <p className="text-sm text-gray-600 mb-4">
+        Maps a storage class to preferred provider storage names (
+        <code className="text-xs">PUT /api/v1/storage-classes/&#123;name&#125;/storage-overrides</code>).
+      </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="storageClassName">Storage Class</Label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="sc">Storage class</Label>
+            <Select
+              id="sc"
+              placeholder={storageClasses.length ? "Select storage class" : "No classes yet"}
+              options={classOptions}
+              value={storageClassName}
+              onChange={(v) => setStorageClassName(v)}
+              disabled={!!editRow || classOptions.length === 0}
+              fullWidth
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="pt">Provider type</Label>
+            <Select
+              id="pt"
+              placeholder=""
+              options={[
+                { value: "libvirt", label: "Libvirt" },
+                { value: "proxmox", label: "Proxmox" },
+              ]}
+              value={providerType}
+              onChange={(v) => {
+                setProviderType(v);
+                setProviderStorageNames([]);
+              }}
+              fullWidth
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="datacenterId">Datacenter ID (optional)</Label>
+            <Input
+              id="datacenterId"
+              value={datacenterId}
+              onChange={(e) => setDatacenterId(e.target.value)}
+              placeholder="UUID for scoped overrides"
+              fullWidth
+            />
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-gray-700 mb-1">Provider storage names</span>
+            {addStorageOptions.length === 0 ? (
+              <p className="text-sm text-gray-500 border rounded-md px-3 py-2 border-gray-200">
+                No inventory for this provider type. Sync storage from provider details or the Provider
+                storage tab.
+              </p>
+            ) : (
               <Select
-                value={formData.storageClassName}
-                onValueChange={(value) => setFormData({ ...formData, storageClassName: value })}
-                disabled={!!override}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select storage class" />
-                </SelectTrigger>
-                <SelectContent>
-                  {storageClasses?.map((sc: any) => (
-                    <SelectItem key={sc.name} value={sc.name}>
-                      {sc.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="providerType">Provider Type</Label>
-              <Select
-                value={formData.providerType}
-                onValueChange={(value) => setFormData({ ...formData, providerType: value, providerStorageNames: [] })}
-                disabled={!!override}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="libvirt">Libvirt</SelectItem>
-                  <SelectItem value="proxmox">Proxmox</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Provider Storage Names</Label>
-              <div className="space-y-2">
-                <Select onValueChange={handleAddStorage}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Add storage..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableStorage.map((storage: any) => (
-                      <SelectItem key={storage.id} value={storage.name}>
-                        {storage.name} ({storage.storageType})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <div className="flex gap-2 flex-wrap min-h-[40px] border rounded-md p-2">
-                  {formData.providerStorageNames.length === 0 ? (
-                    <span className="text-sm text-muted-foreground">No storage selected</span>
-                  ) : (
-                    formData.providerStorageNames.map((name) => (
-                      <Badge key={name} variant="secondary" className="gap-1">
-                        {name}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => handleRemoveStorage(name)}
-                        />
-                      </Badge>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="priority">Priority</Label>
-              <Input
-                id="priority"
-                type="number"
-                value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) || 100 })}
+                key={addPickerKey}
+                id="add-storage"
+                placeholder="Add from inventory…"
+                options={addStorageOptions}
+                onChange={(v) => handleAddStorage(v)}
+                fullWidth
               />
+            )}
+
+            <div className="flex gap-2 flex-wrap min-h-[40px] border border-gray-200 rounded-md p-2 mt-2">
+              {providerStorageNames.length === 0 ? (
+                <span className="text-sm text-gray-500">No storage selected</span>
+              ) : (
+                providerStorageNames.map((name) => (
+                  <Badge key={name} variant="secondary" className="gap-1 flex items-center">
+                    {name}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => handleRemoveStorage(name)}
+                    />
+                  </Badge>
+                ))
+              )}
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-              {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <div>
+            <Label htmlFor="priority">Priority</Label>
+            <Input
+              id="priority"
+              type="number"
+              value={priority}
+              onChange={(e) => setPriority(parseInt(e.target.value, 10) || 0)}
+              fullWidth
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-gray-200">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={replaceMutation.isPending}>
+            {replaceMutation.isPending ? "Saving…" : "Save"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

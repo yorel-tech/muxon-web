@@ -1106,14 +1106,14 @@ export default function SystemDashboardPage() {
   // Show loading state while checking bootstrap status
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-app flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-app">
       <div className="max-w-full px-3 py-8">
         {/* Header */}
         <motion.div

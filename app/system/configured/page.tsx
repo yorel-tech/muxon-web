@@ -19,6 +19,7 @@ import {
   RefreshCw,
   KeyRound,
   Eye,
+  MoreHorizontal,
 } from 'lucide-react';
 import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
 import { RowActionsTrigger } from '@/components/DynamicContextMenu';
@@ -269,7 +270,7 @@ export default function ConfiguredSystemDashboardPage() {
   };
  
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-app">
       <div className="max-w-full px-3 py-8">
         {/* Header */}
         <motion.div

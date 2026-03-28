@@ -25,11 +25,11 @@ export default function TenantRolesPage() {
         const data = await apiGet<{ items?: RoleRow[] }>('/api/v1/roles');
         const list = Array.isArray(data) ? data : data?.items ?? [];
         setRoles(
-          list.map((r: Record<string, unknown>) => ({
+          (list as RoleRow[]).map((r) => ({
             id: String(r.id ?? r.name ?? ''),
             name: String(r.name ?? r.id ?? ''),
-            description: r.description as string | undefined,
-            permissions: (r.permissions as string[]) ?? [],
+            description: r.description,
+            permissions: r.permissions ?? [],
           }))
         );
       } catch {
@@ -80,7 +80,7 @@ export default function TenantRolesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-app">
       <div className="max-w-full px-3 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

@@ -1,50 +1,46 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { storageApi } from "@/lib/api/storage";
+import { useToast } from "@/lib/toast";
 
-const API_BASE = "/api/v1/provider-storage";
-
-export function useProviderStorage(providerId: string | null) {
+/**
+ * When providerId is set, lists storage for that provider.
+ * When null/undefined, lists global provider-storage inventory.
+ */
+export function useProviderStorage(providerId: string | null | undefined) {
   return useQuery({
-    queryKey: ["provider-storage", providerId],
+    queryKey: ["provider-storage", providerId ?? "global"],
     queryFn: async () => {
-      if (!providerId) return [];
-      const res = await fetch(`${API_BASE}/provider/${providerId}`);
-      if (!res.ok) throw new Error("Failed to fetch provider storage");
-      return res.json();
+      if (providerId) {
+        return storageApi.listProviderStorageByProvider(providerId);
+      }
+      return storageApi.listProviderStorageGlobal();
     },
-    enabled: !!providerId,
+  });
+}
+
+export function useProviderStorageById(id: string | null | undefined) {
+  return useQuery({
+    queryKey: ["provider-storage-item", id],
+    queryFn: () => storageApi.getProviderStorage(id!),
+    enabled: !!id,
   });
 }
 
 export function useSyncProviderStorage() {
   const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (providerId: string) => {
-      const res = await fetch(`${API_BASE}/provider/${providerId}/sync`, {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error("Failed to sync provider storage");
-      return res.json();
-    },
-    onSuccess: (_, providerId) => {
-      queryClient.invalidateQueries({ queryKey: ["provider-storage", providerId] });
-    },
-  });
-}
+  const { toast } = useToast();
 
-export function useSyncAllProviders() {
-  const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`${API_BASE}/sync-all`, {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error("Failed to sync all providers");
-      return res.json();
-    },
-    onSuccess: () => {
+    mutationFn: async (providerId: string) => storageApi.syncProviderStorage(providerId),
+    onSuccess: (data, providerId) => {
       queryClient.invalidateQueries({ queryKey: ["provider-storage"] });
+      toast.success(
+        "Sync started",
+        data?.message ?? `Storage sync for provider ${providerId} (${data?.status ?? "accepted"})`,
+      );
+    },
+    onError: (err: Error) => {
+      toast.error("Sync failed", err.message);
     },
   });
 }

@@ -21,8 +21,10 @@ import {
   ChevronRight,
   LogOut,
   SlidersHorizontal,
+  HardDrive,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandMark } from '@/components/BrandMark';
 
 export interface SidebarItem {
   id: string;
@@ -55,6 +57,12 @@ const baseSystemUserItems: Omit<SidebarItem, 'badge'>[] = [
     label: 'Providers',
     icon: <Cloud size={20} />,
     href: '/system/providers',
+  },
+  {
+    id: 'storage',
+    label: 'Storage',
+    icon: <HardDrive size={20} />,
+    href: '/system/storage-classes',
   },
   {
     id: 'tenants',
@@ -164,7 +172,8 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
       });
     };
 
-    const isActive = (href: string) => pathname === href;
+    const isActive = (href: string) =>
+      pathname === href || (href.length > 1 && pathname.startsWith(`${href}/`));
 
     const renderSidebarItem = (item: SidebarItem, depth = 0) => {
       const hasChildren = item.children && item.children.length > 0;
@@ -176,9 +185,11 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
             href={item.href}
             className={cn(
               'flex items-center gap-3 py-2.5 rounded-lg transition-colors',
-              'hover:bg-gray-700',
+              'hover:bg-sidebar-hover',
               isOpen ? 'px-3' : 'justify-center px-0',
-              isActive(item.href) ? 'bg-primary-600 text-white' : 'text-gray-400',
+              isActive(item.href)
+                ? 'bg-sidebar-active text-sidebar-active-fg'
+                : 'text-sidebar-item',
               depth > 0 && 'ml-4',
             )}
           >
@@ -204,7 +215,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0 }}
                 transition={{ duration: 0.2 }}
-                className="ml-auto bg-primary-600 text-white text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0"
+                className="ml-auto bg-sidebar-active text-sidebar-active-fg text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0"
               >
                 {item.badge}
               </motion.span>
@@ -240,21 +251,21 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
         animate={{ width: isOpen ? 256 : 64 }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         className={cn(
-          'fixed inset-y-0 left-0 z-40 bg-gray-800 border-r border-gray-700',
+          'fixed inset-y-0 left-0 z-40 bg-sidebar border-r border-sidebar-border',
           className,
         )}
       >
         <div className="flex flex-col h-full">
           {/* Logo / Brand */}
           <div className={cn(
-            'flex items-center justify-center border-b border-gray-700',
+            'flex items-center justify-center border-b border-sidebar-border',
             isOpen ? 'p-6 justify-between' : 'py-4'
           )}>
             <div className={cn(
               'flex items-center gap-2 overflow-hidden',
               isOpen ? '' : 'justify-center'
             )}>
-              <div className="flex-shrink-0 h-8 w-8 rounded-lg" style={{ background: 'linear-gradient(to bottom right, #3b82f6, #a855f7)' }} />
+              <BrandMark size={32} className="h-8 w-8 rounded-lg" />
               <AnimatePresence mode="wait">
                 {isOpen && (
                   <motion.div
@@ -264,9 +275,9 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
                     transition={{ duration: 0.2 }}
                     className="flex items-center gap-2 overflow-hidden"
                   >
-                    <span className="text-lg font-bold text-white whitespace-nowrap">infron</span>
+                    <span className="text-lg font-bold text-[color:var(--text-primary)] whitespace-nowrap">infron</span>
                     {isEnterprise && (
-                      <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-nexus-100 text-nexus-700 rounded-full whitespace-nowrap">
+                      <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-sidebar-badge text-sidebar-badge-fg rounded-full whitespace-nowrap">
                         Enterprise
                       </span>
                     )}
@@ -301,8 +312,8 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
                   className="flex-shrink-0 h-8 w-8 rounded-full object-cover"
                 />
               ) : (
-                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center">
-                  <span className="text-sm font-medium text-gray-300">
+                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary-200/80 dark:bg-primary-900/40 flex items-center justify-center">
+                  <span className="text-sm font-medium text-sidebar-item">
                     {user?.name?.charAt(0).toUpperCase() || 'U'}
                   </span>
                 </div>
@@ -316,8 +327,8 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
                     transition={{ duration: 0.2 }}
                     className="flex-1 overflow-hidden"
                   >
-                    <p className="text-sm font-medium text-gray-300 whitespace-nowrap">{user?.name || 'User'}</p>
-                    <p className="text-xs text-gray-500 whitespace-nowrap capitalize">
+                    <p className="text-sm font-medium text-[color:var(--text-primary)] whitespace-nowrap">{user?.name || 'User'}</p>
+                    <p className="text-xs text-sidebar-item-muted whitespace-nowrap capitalize">
                       {userRole === 'system' ? 'System Admin' : 'Tenant User'}
                     </p>
                   </motion.div>
@@ -325,7 +336,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
               </AnimatePresence>
             </div>
             <button className={cn(
-              'flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 transition-colors',
+              'flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-sidebar-item hover:bg-sidebar-hover transition-colors',
               isOpen ? 'px-3' : 'justify-center px-0'
             )}>
               <Settings size={16} className="flex-shrink-0" />
@@ -346,7 +357,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
             <button
               onClick={handleSignOut}
               className={cn(
-                'flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 transition-colors',
+                'flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-sidebar-item hover:bg-sidebar-hover transition-colors',
                 isOpen ? 'px-3' : 'justify-center px-0'
               )}
             >
@@ -371,10 +382,10 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
         {/* Toggle Button */}
         <button
           onClick={onToggle}
-          className="absolute top-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center shadow bg-gray-600 hover:bg-gray-700 transition-colors z-50"
+          className="absolute top-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center shadow-md bg-surface border border-border text-sidebar-item hover:bg-sidebar-hover transition-colors z-50"
           aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
-          {isOpen ? <ChevronLeft size={12} className="text-gray-300" /> : <ChevronRight size={12} className="text-gray-300" />}
+          {isOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
         </button>
       </motion.div>
     );

@@ -1,86 +1,83 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/atoms/label";
+import { Select } from "@/components/ui/atoms/select";
+
+import type { StorageCapabilities } from "@/lib/types/storage";
 
 interface CapabilityEditorProps {
-  capabilities: any;
-  onChange: (capabilities: any) => void;
+  capabilities: StorageCapabilities;
+  onChange: (capabilities: StorageCapabilities) => void;
 }
 
 export default function CapabilityEditor({ capabilities, onChange }: CapabilityEditorProps) {
-  const updateCapability = (key: string, value: any) => {
+  const updateCapability = <K extends keyof StorageCapabilities>(key: K, value: StorageCapabilities[K]) => {
     onChange({ ...capabilities, [key]: value });
   };
 
   return (
-    <div className="space-y-4 border rounded-lg p-4">
+    <div className="space-y-4 border rounded-lg p-4 border-gray-200">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="performance">Performance</Label>
           <Select
-            value={capabilities.performance || "medium"}
-            onValueChange={(value) => updateCapability("performance", value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-            </SelectContent>
-          </Select>
+            id="performance"
+            placeholder=""
+            options={[
+              { value: "high", label: "High" },
+              { value: "medium", label: "Medium" },
+              { value: "low", label: "Low" },
+            ]}
+            value={(capabilities.performance as string) || "medium"}
+            onChange={(value) =>
+              updateCapability("performance", value as StorageCapabilities["performance"])
+            }
+          />
         </div>
 
         <div>
           <Label htmlFor="media">Media</Label>
           <Select
-            value={capabilities.media || "any"}
-            onValueChange={(value) => updateCapability("media", value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ssd">SSD</SelectItem>
-              <SelectItem value="hdd">HDD</SelectItem>
-              <SelectItem value="nvme">NVMe</SelectItem>
-              <SelectItem value="any">Any</SelectItem>
-            </SelectContent>
-          </Select>
+            id="media"
+            placeholder=""
+            options={[
+              { value: "ssd", label: "SSD" },
+              { value: "hdd", label: "HDD" },
+              { value: "nvme", label: "NVMe" },
+              { value: "any", label: "Any" },
+            ]}
+            value={(capabilities.media as string) || "any"}
+            onChange={(value) => updateCapability("media", value as StorageCapabilities["media"])}
+          />
         </div>
 
         <div>
           <Label htmlFor="redundancy">Redundancy</Label>
           <Select
-            value={capabilities.redundancy || "none"}
-            onValueChange={(value) => updateCapability("redundancy", value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="replicated">Replicated</SelectItem>
-              <SelectItem value="none">None</SelectItem>
-            </SelectContent>
-          </Select>
+            id="redundancy"
+            placeholder=""
+            options={[
+              { value: "replicated", label: "Replicated" },
+              { value: "none", label: "None" },
+            ]}
+            value={(capabilities.redundancy as string) || "none"}
+            onChange={(value) =>
+              updateCapability("redundancy", value as StorageCapabilities["redundancy"])
+            }
+          />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
+        <div className="flex items-center gap-2 pt-6">
+          <input
             id="shared"
-            checked={capabilities.shared || false}
-            onCheckedChange={(checked) => updateCapability("shared", checked)}
+            type="checkbox"
+            className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            checked={Boolean(capabilities.shared)}
+            onChange={(e) => updateCapability("shared", e.target.checked)}
           />
-          <Label htmlFor="shared">Shared Storage</Label>
+          <Label htmlFor="shared" className="!inline !mb-0">
+            Shared storage
+          </Label>
         </div>
       </div>
     </div>

@@ -22,8 +22,12 @@ export interface InputProps {
   onFocus?: (event: FocusEvent<HTMLInputElement>) => void;
   onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
   type?: 'text' | 'password' | 'email' | 'search' | 'number' | 'color';
+  min?: number;
+  max?: number;
+  step?: number | string;
   name?: string;
   id?: string;
+  required?: boolean;
   'aria-label'?: string;
   'aria-invalid'?: boolean;
   className?: string;
@@ -60,8 +64,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       onFocus,
       onBlur,
       type = 'text',
+      min,
+      max,
+      step,
       name,
       id,
+      required,
       'aria-label': ariaLabel,
       'aria-invalid': ariaInvalid,
       className = '',
@@ -93,8 +101,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             onChange={onChange}
             onFocus={onFocus}
             onBlur={onBlur}
+            min={min}
+            max={max}
+            step={step}
             name={name}
             id={id}
+            required={required}
             aria-label={ariaLabel}
             aria-invalid={ariaInvalid || !!error}
             className={`

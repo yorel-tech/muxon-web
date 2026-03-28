@@ -273,8 +273,8 @@ export default function SystemDashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-nexus-50 dark:bg-nexus-900/30">
-                    <Database className="h-6 w-6 text-nexus-600 dark:text-nexus-400" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
+                    <Database className="h-6 w-6 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">VMs</p>

@@ -5,11 +5,17 @@ import { useRouter } from 'next/navigation';
 import { fetchOidcConfigIfNeeded, getUserManager, OIDC_NOT_CONFIGURED_MESSAGE } from '@lib/oidc';
 import { Input } from '@/components/ui/atoms/input';
 import { Button } from '@/components/ui/atoms/button';
+import { useProductInfo } from '@lib/product-info-context';
+import { BrandMark } from '@/components/BrandMark';
 
 const TENANT_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export default function TenantLoginPage() {
   const router = useRouter();
+  const { edition, loading: editionLoading } = useProductInfo();
+  const isNexus =
+    !editionLoading &&
+    (edition.toLowerCase() === 'nexus' || edition.toLowerCase() === 'enterprise');
   const [tenantName, setTenantName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,24 +83,41 @@ export default function TenantLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-violet-900 px-4">
-      <div className="max-w-md w-full bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl p-8">
+    <div
+      className={`min-h-screen flex items-center justify-center px-4 ${
+        isNexus
+          ? 'bg-gradient-to-br from-[#0F0A1F] via-[#1A1333] to-[#0B0320]'
+          : 'bg-gradient-to-br from-[#E0F2FE] via-[#F8FAFC] to-[#BAE6FD]'
+      }`}
+    >
+      <div
+        className={`max-w-md w-full rounded-2xl shadow-2xl p-8 ${
+          isNexus
+            ? 'bg-white/10 backdrop-blur-xl border border-white/10'
+            : 'bg-surface border border-border'
+        }`}
+      >
         <div className="flex items-center mb-6">
-          <div
-            className="h-10 w-10 rounded-xl flex items-center justify-center mr-3"
-            style={{ background: 'linear-gradient(to bottom right, #8b5cf6, #3b82f6)' }}
-          >
-            <span className="text-white font-bold text-lg">I</span>
-          </div>
+          <BrandMark size={40} className="h-10 w-10 rounded-xl mr-3" priority />
           <div>
-            <h1 className="text-xl font-semibold text-white">Infron Tenant Login</h1>
-            <p className="text-sm text-slate-300">Enter your tenant name to continue</p>
+            <h1
+              className={`text-xl font-semibold ${isNexus ? 'text-white' : 'text-[color:var(--text-primary)]'}`}
+            >
+              Infron Tenant Login
+            </h1>
+            <p
+              className={`text-sm ${isNexus ? 'text-slate-300' : 'text-[color:var(--text-secondary)]'}`}
+            >
+              Enter your tenant name to continue
+            </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-100 mb-2">
+            <label
+              className={`block text-sm font-medium mb-2 ${isNexus ? 'text-slate-100' : 'text-[color:var(--text-primary)]'}`}
+            >
               Tenant name (slug)
             </label>
             <Input
@@ -102,15 +125,25 @@ export default function TenantLoginPage() {
               value={tenantName}
               onChange={(e) => setTenantName(e.target.value)}
               placeholder="acme-corp"
-              className="bg-slate-900/60 border-slate-600 text-white placeholder:text-slate-500"
+              className={
+                isNexus
+                  ? 'bg-slate-900/60 border-slate-600 text-white placeholder:text-slate-500'
+                  : 'bg-white border-border text-[color:var(--text-primary)] placeholder:text-gray-400'
+              }
             />
-            <p className="mt-1 text-xs text-slate-300">
+            <p className={`mt-1 text-xs ${isNexus ? 'text-slate-300' : 'text-[color:var(--text-secondary)]'}`}>
               Use the slug defined when your tenant was created (e.g. <code>acme-corp</code>).
             </p>
           </div>
 
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/60 px-3 py-2 text-sm text-red-100">
+            <div
+              className={`rounded-lg border px-3 py-2 text-sm ${
+                isNexus
+                  ? 'bg-red-500/10 border-red-500/60 text-red-100'
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}
+            >
               {error}
             </div>
           )}
@@ -119,7 +152,11 @@ export default function TenantLoginPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+              className={
+                isNexus
+                  ? 'w-full bg-gradient-to-r from-primary-500 to-accent hover:from-primary-600 hover:brightness-95 text-white border-0'
+                  : 'w-full bg-primary-500 hover:bg-primary-600 text-white border-0'
+              }
             >
               {isSubmitting ? 'Redirecting…' : 'Continue to Login'}
             </Button>

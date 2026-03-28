@@ -536,7 +536,7 @@ export default function TenantDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-app flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
@@ -544,7 +544,7 @@ export default function TenantDetailPage({
 
   if (error || !tenant) {
     return (
-      <div className="min-h-screen bg-gray-50 px-3 py-8">
+      <div className="min-h-screen bg-app px-3 py-8">
         <Link href="/system/tenants" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
           <ArrowLeft size={20} />
           Back to Tenants
@@ -560,7 +560,7 @@ export default function TenantDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-app">
       <div className="max-w-4xl mx-auto px-3 py-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <Link href="/system/tenants" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">

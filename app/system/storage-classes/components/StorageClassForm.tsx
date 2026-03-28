@@ -1,69 +1,93 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { Label } from "@/components/ui/atoms/label";
+import { Textarea } from "@/components/ui/atoms/textarea";
+import { Modal } from "@/components/ui/molecules/modal";
 import { useCreateStorageClass, useUpdateStorageClass } from "../hooks/useStorageClasses";
 import CapabilityEditor from "./CapabilityEditor";
 import ConstraintEditor from "./ConstraintEditor";
+import type { StorageClass, StorageCapabilities, StorageConstraints } from "@/lib/types/storage";
 
 interface StorageClassFormProps {
-  storageClass?: any;
+  storageClass?: StorageClass | null;
   onClose: () => void;
 }
 
+function normalizeCapabilities(raw: unknown): StorageCapabilities {
+  if (!raw || typeof raw !== "object") {
+    return { performance: "medium", media: "any", redundancy: "none", shared: false };
+  }
+  const o = raw as Record<string, unknown>;
+  return {
+    performance: (o.performance as StorageCapabilities["performance"]) || "medium",
+    media: (o.media as StorageCapabilities["media"]) || "any",
+    redundancy: (o.redundancy as StorageCapabilities["redundancy"]) || "none",
+    shared: Boolean(o.shared),
+  };
+}
+
+function normalizeConstraints(raw: unknown): StorageConstraints {
+  if (!raw || typeof raw !== "object") return {};
+  const o = raw as Record<string, unknown>;
+  const out: StorageConstraints = {};
+  const minIops = o.minIops ?? o.min_iops;
+  const maxLatency = o.maxLatencyMs ?? o.max_latency_ms;
+  if (typeof minIops === "number" && minIops >= 0) out.minIops = minIops;
+  if (typeof maxLatency === "number" && maxLatency >= 0) out.maxLatencyMs = maxLatency;
+  return out;
+}
+
 export default function StorageClassForm({ storageClass, onClose }: StorageClassFormProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    type: "block",
-    tier: "balanced",
-    description: "",
-    capabilities: {},
-    constraints: {},
-  });
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [capabilities, setCapabilities] = useState<StorageCapabilities>(normalizeCapabilities({}));
+  const [constraints, setConstraints] = useState<StorageConstraints>({});
 
   const createMutation = useCreateStorageClass();
   const updateMutation = useUpdateStorageClass();
 
   useEffect(() => {
     if (storageClass) {
-      setFormData({
-        name: storageClass.name || "",
-        type: storageClass.type || "block",
-        tier: storageClass.tier || "balanced",
-        description: storageClass.description || "",
-        capabilities: storageClass.capabilities || {},
-        constraints: storageClass.constraints || {},
-      });
+      setName(storageClass.name || "");
+      setDescription(storageClass.description || "");
+      setCapabilities(normalizeCapabilities(storageClass.capabilities));
+      setConstraints(normalizeConstraints(storageClass.constraints));
+    } else {
+      setName("");
+      setDescription("");
+      setCapabilities(normalizeCapabilities({}));
+      setConstraints({});
     }
   }, [storageClass]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const constraintsPayload: StorageConstraints = { ...constraints };
+    if (constraintsPayload.minIops === undefined) delete constraintsPayload.minIops;
+    if (constraintsPayload.maxLatencyMs === undefined) delete constraintsPayload.maxLatencyMs;
+
     try {
       if (storageClass) {
-        await updateMutation.mutateAsync({ name: storageClass.name, data: formData });
+        await updateMutation.mutateAsync({
+          name: storageClass.name,
+          data: {
+            description: description || undefined,
+            capabilities,
+            constraints: Object.keys(constraintsPayload).length ? constraintsPayload : undefined,
+          },
+        });
       } else {
-        await createMutation.mutateAsync(formData);
+        if (!name.trim()) return;
+        await createMutation.mutateAsync({
+          name: name.trim(),
+          description: description || undefined,
+          capabilities,
+          constraints: Object.keys(constraintsPayload).length ? constraintsPayload : undefined,
+        });
       }
       onClose();
     } catch (error) {
@@ -72,106 +96,64 @@ export default function StorageClassForm({ storageClass, onClose }: StorageClass
   };
 
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {storageClass ? "Edit Storage Class" : "Create Storage Class"}
-          </DialogTitle>
-          <DialogDescription>
-            Define storage capabilities and constraints for volume provisioning
-          </DialogDescription>
-        </DialogHeader>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={storageClass ? "Edit storage class" : "Create storage class"}
+      size="xl"
+      showClose
+    >
+      <p className="text-sm text-gray-600 mb-4">
+        Capability profile and optional constraints (OpenAPI StorageClassCreate / StorageClassUpdate).
+      </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="fast-ssd"
-                required
-                disabled={!!storageClass}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) => setFormData({ ...formData, type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="block">Block</SelectItem>
-                    <SelectItem value="file">File</SelectItem>
-                    <SelectItem value="object">Object</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="tier">Tier</Label>
-                <Select
-                  value={formData.tier}
-                  onValueChange={(value) => setFormData({ ...formData, tier: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="performance">Performance</SelectItem>
-                    <SelectItem value="balanced">Balanced</SelectItem>
-                    <SelectItem value="capacity">Capacity</SelectItem>
-                    <SelectItem value="archive">Archive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="High-performance SSD storage for databases"
-                rows={2}
-              />
-            </div>
-
-            <div>
-              <Label>Capabilities</Label>
-              <CapabilityEditor
-                capabilities={formData.capabilities}
-                onChange={(capabilities) => setFormData({ ...formData, capabilities })}
-              />
-            </div>
-
-            <div>
-              <Label>Constraints</Label>
-              <ConstraintEditor
-                constraints={formData.constraints}
-                onChange={(constraints) => setFormData({ ...formData, constraints })}
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="fast-ssd"
+              required={!storageClass}
+              disabled={!!storageClass}
+              fullWidth
+            />
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-              {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="High-performance SSD storage for databases"
+              rows={2}
+              fullWidth
+            />
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-gray-700 mb-1">Capabilities</span>
+            <CapabilityEditor capabilities={capabilities} onChange={setCapabilities} />
+          </div>
+
+          <div>
+            <span className="block text-sm font-medium text-gray-700 mb-1">Constraints</span>
+            <ConstraintEditor constraints={constraints} onChange={setConstraints} />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-gray-200">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+            {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

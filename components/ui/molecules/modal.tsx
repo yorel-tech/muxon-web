@@ -65,21 +65,22 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
               />
               <motion.div
                 ref={ref}
-                className={`relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl ${sizeStyles[size]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
+                className={`relative z-10 bg-white rounded-xl shadow-2xl ${sizeStyles[size]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
                 initial={{ opacity: 0, y: 50, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 50, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
               >
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                  <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
                   {showClose && (
                     <button
+                      type="button"
                       onClick={onClose}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
                       aria-label="Close modal"
                     >
-                      <X size={24} />
+                      <X className="h-5 w-5" />
                     </button>
                   )}
                 </div>

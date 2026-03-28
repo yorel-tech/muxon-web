@@ -20,7 +20,7 @@ import { apiGet, apiPut, executeLinkAction } from '@/lib/api';
 import { findLink, normalizeEntityLinks } from '@/lib/hateoas';
 import { DetailRow, formatDetailDate } from '@/components/entity-detail/DetailRow';
 import { Tabs } from '@/components/ui/molecules/tabs';
-import type { Link } from '@/types/provider';
+import type { Link as HateoasLink } from '@/types/provider';
 
 interface DatacenterDetail {
   id: string;
@@ -48,7 +48,7 @@ interface DatacenterDetail {
   };
   metadata?: Record<string, string>;
   nodeCluster?: { id: string; name?: string };
-  _links?: Link[];
+  _links?: HateoasLink[];
 }
 
 export default function DatacenterDetailPage({
@@ -233,7 +233,7 @@ export default function DatacenterDetailPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-app flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
@@ -241,7 +241,7 @@ export default function DatacenterDetailPage({
 
   if (error || !datacenter) {
     return (
-      <div className="min-h-screen bg-gray-50 px-3 py-8">
+      <div className="min-h-screen bg-app px-3 py-8">
         <Link
           href={backToTenant ? `/system/tenants/${tenantId}?tab=datacenters` : '/system/datacenters'}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
@@ -264,7 +264,7 @@ export default function DatacenterDetailPage({
   const metadata = datacenter.metadata ?? {};
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-app">
       <div className="max-w-4xl mx-auto px-3 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

@@ -5,6 +5,7 @@ import { forwardRef, useState } from 'react';
 import { Bell, Search, Menu, User, LogOut, Settings, ChevronDown, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
+import { BrandMark } from '@/components/BrandMark';
 
 export interface HeaderProps {
   user?: {
@@ -31,7 +32,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
     <header
       ref={ref}
       className={cn(
-        'sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm',
+        'sticky top-0 z-30 bg-surface border-b border-border shadow-sm',
         className,
       )}
     >
@@ -39,10 +40,10 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
         {/* Left: Logo and Search */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg" style={{ background: 'linear-gradient(to bottom right, #3b82f6, #9333ea)' }} />
-            <span className="text-xl font-bold text-gray-900">infron</span>
+            <BrandMark size={32} className="h-8 w-8 rounded-lg" />
+            <span className="text-xl font-bold text-[color:var(--text-primary)]">infron</span>
             {userRole === 'system' && (
-              <span className="ml-2 text-xs px-2 py-0.5 bg-nexus-100 text-nexus-700 rounded-full font-medium">
+              <span className="ml-2 text-xs px-2 py-0.5 bg-sidebar-badge text-sidebar-badge-fg rounded-full font-medium">
                 Enterprise
               </span>
             )}
@@ -107,7 +108,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
                   className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
-                <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium" style={{ background: 'linear-gradient(to bottom right, #3b82f6, #9333ea)' }}>
+                <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium" style={{ background: 'linear-gradient(to bottom right, #0EA5E9, #7C3AED)' }}>
                   {user.name?.charAt(0).toUpperCase()}
                 </div>
               )}

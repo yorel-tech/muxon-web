@@ -24,8 +24,10 @@ import {
   ChevronLeft,
   LogOut,
   BookOpen,
+  HardDrive,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandMark } from '@/components/BrandMark';
 
 export interface SidebarItem {
   id: string;
@@ -58,6 +60,12 @@ const baseSystemUserItems: Omit<SidebarItem, 'badge'>[] = [
     label: 'Providers',
     icon: <Cloud size={20} />,
     href: '/providers',
+  },
+  {
+    id: 'storage',
+    label: 'Storage',
+    icon: <HardDrive size={20} />,
+    href: '/system/storage-classes',
   },
   {
     id: 'datacenters',
@@ -279,7 +287,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
           {/* Logo / Brand */}
           <div className="flex items-center gap-3 p-6 border-b border-gray-200">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg" style={{ background: 'linear-gradient(to bottom right, #3b82f6, #a855f7)' }} />
+              <BrandMark size={32} className="h-8 w-8 rounded-lg" />
               <span className="text-lg font-bold text-gray-900">infron</span>
               {isEnterprise && (
                 <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-nexus-100 text-nexus-700 rounded-full">

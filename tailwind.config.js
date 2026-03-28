@@ -1,21 +1,41 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
-      // Color Palette
       colors: {
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: 'var(--color-primary-50)',
+          100: 'var(--color-primary-100)',
+          200: 'var(--color-primary-200)',
+          300: 'var(--color-primary-300)',
+          400: 'var(--color-primary-400)',
+          500: 'var(--color-primary-500)',
+          600: 'var(--color-primary-600)',
+          700: 'var(--color-primary-700)',
+          800: 'var(--color-primary-800)',
+          900: 'var(--color-primary-900)',
+        },
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+          foreground: 'var(--color-accent-fg)',
+        },
+        app: 'var(--shell-bg)',
+        surface: 'var(--shell-surface)',
+        border: {
+          DEFAULT: 'var(--border-default)',
+        },
+        sidebar: {
+          DEFAULT: 'var(--sidebar-bg)',
+          border: 'var(--sidebar-border)',
+          item: 'var(--sidebar-item)',
+          'item-muted': 'var(--sidebar-item-muted)',
+          hover: 'var(--sidebar-hover-bg)',
+          active: 'var(--sidebar-active-bg)',
+          'active-fg': 'var(--sidebar-active-fg)',
+          badge: 'var(--sidebar-badge-bg)',
+          'badge-fg': 'var(--sidebar-badge-fg)',
         },
         success: {
           50: '#f0fdf4',
@@ -52,16 +72,16 @@ module.exports = {
           900: '#164e63',
         },
         nexus: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7e22ce',
-          800: '#6b21a8',
-          900: '#581c87',
+          50: '#EDE9FE',
+          100: '#DDD6FE',
+          200: '#C4B5FD',
+          300: '#A78BFA',
+          400: '#8B5CF6',
+          500: '#7C3AED',
+          600: '#6D28D9',
+          700: '#5B21B6',
+          800: '#4C1D95',
+          900: '#2E1065',
         },
         gray: {
           50: '#f9fafb',
@@ -76,21 +96,20 @@ module.exports = {
           900: '#111827',
         },
       },
-      // Typography
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'SF Mono', 'monospace'],
       },
       fontSize: {
-        xs: '0.75rem',    // 12px
-        sm: '0.875rem',   // 14px
-        base: '1rem',     // 16px
-        lg: '1.125rem',   // 18px
-        xl: '1.25rem',    // 20px
-        '2xl': '1.5rem',    // 24px
-        '3xl': '1.875rem',  // 30px
-        '4xl': '2.25rem',   // 36px
-        '5xl': '3rem',      // 48px
+        xs: '0.75rem',
+        sm: '0.875rem',
+        base: '1rem',
+        lg: '1.125rem',
+        xl: '1.25rem',
+        '2xl': '1.5rem',
+        '3xl': '1.875rem',
+        '4xl': '2.25rem',
+        '5xl': '3rem',
       },
       fontWeight: {
         normal: '400',
@@ -98,32 +117,29 @@ module.exports = {
         semibold: '600',
         bold: '700',
       },
-      // Spacing (8px grid)
       spacing: {
         0: '0',
-        1: '0.25rem',   // 4px
-        2: '0.5rem',    // 8px
-        3: '0.75rem',   // 12px
-        4: '1rem',      // 16px
-        5: '1.25rem',   // 20px
-        6: '1.5rem',    // 24px
-        8: '2rem',      // 32px
-        10: '2.5rem',   // 40px
-        12: '3rem',     // 48px
-        16: '4rem',     // 64px
-        20: '5rem',     // 80px
-        24: '6rem',     // 96px
+        1: '0.25rem',
+        2: '0.5rem',
+        3: '0.75rem',
+        4: '1rem',
+        5: '1.25rem',
+        6: '1.5rem',
+        8: '2rem',
+        10: '2.5rem',
+        12: '3rem',
+        16: '4rem',
+        20: '5rem',
+        24: '6rem',
       },
-      // Border Radius
       borderRadius: {
         none: '0',
-        sm: '0.25rem',   // 4px
-        md: '0.375rem',  // 6px
-        lg: '0.5rem',    // 8px
-        xl: '0.75rem',   // 12px
-        full: '9999px', // Pills, badges
+        sm: '0.25rem',
+        md: '0.375rem',
+        lg: '0.5rem',
+        xl: '0.75rem',
+        full: '9999px',
       },
-      // Shadows
       boxShadow: {
         sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
         md: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
@@ -131,19 +147,16 @@ module.exports = {
         xl: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
         '2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
       },
-      // Animation
       transitionDuration: {
         fast: '150ms',
         normal: '250ms',
         slow: '350ms',
       },
-      // Animation Easing
       transitionTimingFunction: {
         'in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
-        'out': 'cubic-bezier(0, 0, 0.2, 1)',
-        'in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
+        out: 'cubic-bezier(0, 0, 0.2, 1)',
+        in: 'cubic-bezier(0.4, 0, 1, 1)',
       },
-      // Breakpoints
       screens: {
         sm: '640px',
         md: '768px',
@@ -151,7 +164,6 @@ module.exports = {
         xl: '1280px',
         '2xl': '1536px',
       },
-      // Z-Index
       zIndex: {
         dropdown: 10,
         sticky: 20,

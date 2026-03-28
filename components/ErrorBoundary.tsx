@@ -70,7 +70,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // Default error UI
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-app flex items-center justify-center p-4">
           <Card className="max-w-md w-full">
             <CardContent className="p-6 text-center">
               {/* Error Icon */}

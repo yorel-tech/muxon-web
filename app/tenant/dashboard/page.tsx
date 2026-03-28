@@ -51,7 +51,9 @@ export default function TenantDashboardPage() {
       try {
         const [vmsRes, tenantRes] = await Promise.all([
           apiGet<{ items?: unknown[]; total?: number }>('/api/v1/vms').catch(() => ({ items: [], total: 0 })),
-          apiGet<{ settings?: { quotas?: Record<string, number> } }>('/api/v1/tenants/current').catch(() => ({})),
+          apiGet<{ settings?: { quotas?: Record<string, number> } }>('/api/v1/tenants/current').catch(
+            (): { settings?: { quotas?: Record<string, number> } } => ({}),
+          ),
         ]);
         const vmsTotal = typeof vmsRes?.total === 'number' ? vmsRes.total : (vmsRes?.items?.length ?? 0);
         const quotas = tenantRes?.settings?.quotas ?? {};
@@ -128,8 +130,8 @@ export default function TenantDashboardPage() {
         <Card className="hover:shadow-lg dark:border-gray-700 transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-nexus-50 dark:bg-nexus-900/30">
-                <Cpu className="h-6 w-6 text-nexus-600 dark:text-nexus-400" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
+                <Cpu className="h-6 w-6 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">vCPUs</p>

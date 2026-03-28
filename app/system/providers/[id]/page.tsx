@@ -14,6 +14,7 @@ import {
   Plus,
   ArrowLeft,
   Loader2,
+  HardDrive,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
 import { Badge } from '@/components/ui/atoms/badge';
@@ -25,6 +26,7 @@ import { Tabs } from '@/components/ui/molecules/tabs';
 import { Provider, NodeCluster, Node } from '@/types/provider';
 import { executeLinkAction } from '@/lib/api';
 import { getMockClustersWithLinks, getMockNodesWithLinks } from '@/lib/mockData';
+import { ProviderStorageTabContent } from '@/app/system/storage-classes/components/ProviderStorageTabContent';
 
 interface ProviderDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -168,7 +170,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-app flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
       </div>
     );
@@ -176,7 +178,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
 
   if (!provider) {
     return (
-      <div className="min-h-screen bg-gray-50 px-3 py-8">
+      <div className="min-h-screen bg-app px-3 py-8">
         <Link
           href="/system/providers"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
@@ -200,7 +202,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-app">
       <div className="max-w-4xl mx-auto px-3 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -322,6 +324,24 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
                         ))}
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              ),
+            },
+            {
+              id: 'storage',
+              label: 'Storage',
+              icon: <HardDrive className="h-4 w-4" />,
+              content: (
+                <Card bordered shadow="md">
+                  <CardHeader>
+                    <span className="font-semibold text-gray-900">Storage</span>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    <ProviderStorageTabContent
+                      providerId={provider.id}
+                      providerOffline={provider.status === 'offline'}
+                    />
                   </CardContent>
                 </Card>
               ),

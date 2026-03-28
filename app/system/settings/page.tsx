@@ -14,6 +14,8 @@ import { Table, Column } from '@/components/ui/organisms/table';
 import { Badge } from '@/components/ui/atoms/badge';
 import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
+import { useProductInfo } from '@/lib/product-info-context';
+import { INFRON_UI_THEME_KEY } from '@/lib/edition-theme';
 
 interface IdpServer {
   id: string;
@@ -23,7 +25,41 @@ interface IdpServer {
   isSystem: boolean;
 }
 
+interface Settings {
+  // General
+  siteName: string;
+  siteUrl: string;
+  language: string;
+  timezone: string;
+  dateFormat: string;
+  timeFormat: string;
+
+  // Security
+  sessionTimeout: string;
+  mfaEnabled: boolean;
+  passwordMinLength: string;
+  passwordRequireUppercase: boolean;
+  passwordRequireLowercase: boolean;
+  passwordRequireNumbers: boolean;
+  passwordRequireSpecialChars: boolean;
+
+  // Notifications
+  emailEnabled: boolean;
+  emailSmtpHost: string;
+  emailSmtpPort: string;
+  emailSmtpUser: string;
+  emailSmtpFrom: string;
+  slackEnabled: boolean;
+  slackWebhook: string;
+
+  // Appearance
+  theme: 'light' | 'dark';
+  primaryColor: string;
+  accentColor: string;
+}
+
 export default function SystemSettingsPage() {
+  const { isEnterprise, loading: productInfoLoading } = useProductInfo();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState<'success' | 'error'>('success');
@@ -37,6 +73,18 @@ export default function SystemSettingsPage() {
   useEffect(() => {
     fetchIdpSettings();
   }, []);
+
+  useEffect(() => {
+    if (productInfoLoading) return;
+    if (!isEnterprise) {
+      setSettings((s) => (s.theme !== 'light' ? { ...s, theme: 'light' } : s));
+      return;
+    }
+    const pref = localStorage.getItem(INFRON_UI_THEME_KEY);
+    if (pref === 'dark' || pref === 'light') {
+      setSettings((s) => ({ ...s, theme: pref }));
+    }
+  }, [isEnterprise, productInfoLoading]);
 
   const fetchIdpSettings = async () => {
     setIsIdpLoading(true);
@@ -73,7 +121,7 @@ export default function SystemSettingsPage() {
     }
   };
 
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<Settings>({
     // General Settings
     siteName: 'Infron Cloud Platform',
     siteUrl: 'https://infron.example.com',
@@ -102,8 +150,8 @@ export default function SystemSettingsPage() {
     
     // Appearance Settings
     theme: 'light',
-    primaryColor: '#3b82f6',
-    accentColor: '#8b5cf6',
+    primaryColor: '#0EA5E9',
+    accentColor: '#8B5CF6',
   });
 
   const handleSave = () => {
@@ -541,28 +589,49 @@ export default function SystemSettingsPage() {
             <CardHeader>Appearance Settings</CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex flex-col gap-3 p-4 bg-app rounded-lg border border-border sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="font-medium text-gray-900">Theme</h3>
-                    <p className="text-sm text-gray-600">Choose your preferred theme</p>
+                    <h3 className="font-medium text-[color:var(--text-primary)]">Theme</h3>
+                    <p className="text-sm text-[color:var(--text-secondary)]">
+                      {isEnterprise
+                        ? 'Choose light or dark (Nexus / Enterprise).'
+                        : 'Core edition uses the light theme only. Dark mode is available in Nexus.'}
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setSettings({ ...settings, theme: 'light' })}
+                      type="button"
+                      onClick={() => {
+                        setSettings({ ...settings, theme: 'light' });
+                        if (isEnterprise && typeof document !== 'undefined') {
+                          localStorage.setItem(INFRON_UI_THEME_KEY, 'light');
+                          document.documentElement.classList.remove('dark');
+                        }
+                      }}
                       className={`px-4 py-2 rounded-md border-2 transition-colors ${
                         settings.theme === 'light'
                           ? 'border-primary-500 bg-primary-500 text-white'
-                          : 'border-gray-300 hover:border-gray-400'
+                          : 'border-gray-300 hover:border-gray-400 text-[color:var(--text-primary)]'
                       }`}
                     >
                       Light
                     </button>
                     <button
-                      onClick={() => setSettings({ ...settings, theme: 'dark' })}
-                      className={`px-4 py-2 rounded-md border-2 transition-colors ${
+                      type="button"
+                      onClick={() => {
+                        if (!isEnterprise) return;
+                        setSettings({ ...settings, theme: 'dark' });
+                        if (typeof document !== 'undefined') {
+                          localStorage.setItem(INFRON_UI_THEME_KEY, 'dark');
+                          document.documentElement.classList.add('dark');
+                        }
+                      }}
+                      disabled={!isEnterprise}
+                      title={!isEnterprise ? 'Dark theme requires Nexus or Enterprise edition' : undefined}
+                      className={`px-4 py-2 rounded-md border-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                         settings.theme === 'dark'
                           ? 'border-primary-500 bg-primary-500 text-white'
-                          : 'border-gray-300 hover:border-gray-400'
+                          : 'border-gray-300 hover:border-gray-400 text-[color:var(--text-primary)]'
                       }`}
                     >
                       Dark
