@@ -91,10 +91,10 @@ export default function TenantLoginPage() {
       }`}
     >
       <div
-        className={`max-w-md w-full rounded-2xl shadow-2xl p-8 ${
+        className={`max-w-md w-full rounded-2xl p-8 ${
           isNexus
-            ? 'bg-white/10 backdrop-blur-xl border border-white/10'
-            : 'bg-surface border border-border'
+            ? 'bg-white/10 backdrop-blur-xl border border-white/20'
+            : 'bg-surface border border-panel'
         }`}
       >
         <div className="flex items-center mb-6">

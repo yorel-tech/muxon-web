@@ -194,7 +194,7 @@ export default function Home() {
       {/* Login modal */}
       {showLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
+          <div className="bg-surface rounded-xl border border-panel max-w-md w-full p-8">
             <div className="flex items-center gap-3 mb-6">
               <BrandMark size={40} className="rounded-lg" />
               <h2 className="text-2xl font-bold text-gray-900">Login to Infron</h2>

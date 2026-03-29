@@ -60,16 +60,37 @@ export const storageApi = {
       body,
     ),
 
-  listProviderStorageGlobal: (params?: { providerId?: string }): Promise<ProviderStorage[]> => {
-    const q = params?.providerId ? `?providerId=${encodeURIComponent(params.providerId)}` : '';
-    return apiGet<ProviderStorage[] | { items?: ProviderStorage[] }>(`${V1}/provider-storage${q}`).then((d) =>
-      normalizeItems<ProviderStorage>(d),
-    );
+  listProviderStorageGlobal: (params?: {
+    providerId?: string;
+    datacenterId?: string;
+    storageClass?: string;
+  }): Promise<ProviderStorage[]> => {
+    const sp = new URLSearchParams();
+    if (params?.providerId) sp.set('providerId', params.providerId);
+    if (params?.datacenterId) sp.set('datacenterId', params.datacenterId);
+    if (params?.storageClass) sp.set('storageClass', params.storageClass);
+    const q = sp.toString();
+    return apiGet<ProviderStorage[] | { items?: ProviderStorage[] }>(
+      `${V1}/provider-storage${q ? `?${q}` : ''}`,
+    ).then((d) => normalizeItems<ProviderStorage>(d));
   },
 
-  listProviderStorageByProvider: (providerId: string): Promise<ProviderStorage[]> =>
+  listProviderStorageByProvider: (
+    providerId: string,
+    params?: { storageClass?: string },
+  ): Promise<ProviderStorage[]> => {
+    const sp = new URLSearchParams();
+    if (params?.storageClass) sp.set('storageClass', params.storageClass);
+    const q = sp.toString();
+    return apiGet<ProviderStorage[] | { items?: ProviderStorage[] }>(
+      `${V1}/providers/${encodeURIComponent(providerId)}/storage${q ? `?${q}` : ''}`,
+    ).then((d) => normalizeItems<ProviderStorage>(d));
+  },
+
+  /** Provider storage rows mapped to a storage class (same shape as provider-storage list). */
+  listProviderStorageForStorageClass: (storageClassName: string): Promise<ProviderStorage[]> =>
     apiGet<ProviderStorage[] | { items?: ProviderStorage[] }>(
-      `${V1}/providers/${encodeURIComponent(providerId)}/storage`,
+      `${V1}/storage-classes/${encodeURIComponent(storageClassName)}/provider-storage`,
     ).then((d) => normalizeItems<ProviderStorage>(d)),
 
   getProviderStorage: (id: string): Promise<ProviderStorage> =>

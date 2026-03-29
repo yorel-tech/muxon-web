@@ -56,7 +56,7 @@ export default function TenantAdministrationPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <Card className="dark:border-gray-700">
+        <Card>
           <CardHeader>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Quotas</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">Current limits for your tenant (read-only). Contact your administrator to request changes.</p>

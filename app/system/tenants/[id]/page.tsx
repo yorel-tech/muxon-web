@@ -601,7 +601,7 @@ export default function TenantDetailPage({
               label: 'Overview',
               icon: <BarChart3 className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
@@ -638,7 +638,7 @@ export default function TenantDetailPage({
               label: 'General',
               icon: <Building2 className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">General</span>
                     <div className="flex items-center gap-2">
@@ -665,7 +665,7 @@ export default function TenantDetailPage({
               icon: <Server className="h-4 w-4" />,
               badge: grantsTotal,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">Datacenters</span>
                     <Button variant="secondary" size="sm" onClick={openAddDatacenterModal}>
@@ -689,7 +689,7 @@ export default function TenantDetailPage({
               label: 'IDP settings',
               icon: <Shield className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center gap-2"><span className="font-semibold text-gray-900">IDP settings</span><span className="text-xs text-gray-500 font-normal">(read-only)</span></CardHeader>
                   <CardContent className="pt-2">
                     {!settings?.idp ? (
@@ -714,7 +714,7 @@ export default function TenantDetailPage({
               icon: <Users className="h-4 w-4" />,
               badge: usersTotal,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">Users</span>
                     <Button variant="secondary" size="sm" onClick={() => setAddUserModal(true)}><UserPlus className="h-4 w-4 mr-1" /> Add user</Button>
@@ -748,7 +748,7 @@ export default function TenantDetailPage({
               label: 'Audit logs',
               icon: <FileText className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader><span className="font-semibold text-gray-900">Audit logs</span></CardHeader>
                   <CardContent className="pt-2">
                     <div className="py-8 text-center text-gray-500">
@@ -767,7 +767,7 @@ export default function TenantDetailPage({
       <AnimatePresence>
         {addDatacenterModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={closeAddDatacenterModal}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Add datacenter</h3>
                 <button onClick={closeAddDatacenterModal} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
@@ -875,7 +875,7 @@ export default function TenantDetailPage({
       <AnimatePresence>
         {editGrantLimitsModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setEditGrantLimitsModal(null)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit resource limits — {editGrantLimitsModal.datacenter?.name ?? editGrantLimitsModal.datacenterId}</h3>
                 <button onClick={() => setEditGrantLimitsModal(null)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
@@ -902,7 +902,7 @@ export default function TenantDetailPage({
       <AnimatePresence>
         {editGrantSettingsModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setEditGrantSettingsModal(null)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit datacenter settings — {editGrantSettingsModal.datacenter?.name ?? editGrantSettingsModal.datacenterId}</h3>
                 <button onClick={() => setEditGrantSettingsModal(null)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
@@ -927,7 +927,7 @@ export default function TenantDetailPage({
       <AnimatePresence>
         {editModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setEditModal(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-surface rounded-xl border border-panel w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit tenant</h3>
                 <button onClick={() => setEditModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
@@ -958,7 +958,7 @@ export default function TenantDetailPage({
       <AnimatePresence>
         {userRoleModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setUserRoleModal(null)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit user role</h3>
                 <button onClick={() => setUserRoleModal(null)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
@@ -983,7 +983,7 @@ export default function TenantDetailPage({
       <AnimatePresence>
         {addUserModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setAddUserModal(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Add user</h3>
                 <button onClick={() => setAddUserModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>

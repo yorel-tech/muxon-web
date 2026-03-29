@@ -112,7 +112,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Card className="hover:shadow-md transition-shadow">
+              <Card className="transition-colors hover:border-primary-500">
                 <CardContent className="p-6">
                   <h4 className="font-medium mb-2">System User Dashboard</h4>
                   <p className="text-sm text-gray-600">
@@ -120,7 +120,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   </p>
                 </CardContent>
               </Card>
-              <Card className="hover:shadow-md transition-shadow">
+              <Card className="transition-colors hover:border-primary-500">
                 <CardContent className="p-6">
                   <h4 className="font-medium mb-2">Multi-Tenancy</h4>
                   <p className="text-sm text-gray-600">
@@ -312,7 +312,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 Your Infron instance is now configured and ready to use. Here's what you can do next:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="transition-colors hover:border-primary-500">
                   <CardContent className="p-6 text-center">
                     <Server className="h-8 w-8 text-primary mx-auto mb-3" />
                     <h4 className="font-medium mb-2">Add More Datacenters</h4>
@@ -321,7 +321,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="transition-colors hover:border-primary-500">
                   <CardContent className="p-6 text-center">
                     <Users className="h-8 w-8 text-primary mx-auto mb-3" />
                     <h4 className="font-medium mb-2">Create Tenants</h4>
@@ -330,7 +330,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="transition-colors hover:border-primary-500">
                   <CardContent className="p-6 text-center">
                     <Settings className="h-8 w-8 text-primary mx-auto mb-3" />
                     <h4 className="font-medium mb-2">Configure Settings</h4>
@@ -339,7 +339,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="hover:shadow-lg transition-shadow">
+                <Card className="transition-colors hover:border-primary-500">
                   <CardContent className="p-6 text-center">
                     <Key className="h-8 w-8 text-primary mx-auto mb-3" />
                     <h4 className="font-medium mb-2">View Documentation</h4>

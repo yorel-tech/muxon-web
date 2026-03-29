@@ -23,6 +23,8 @@ module.exports = {
         },
         app: 'var(--shell-bg)',
         surface: 'var(--shell-surface)',
+        /* Top-level so `border-panel` / `text-panel` work (nested `border.panel` does not) */
+        panel: 'var(--panel-border)',
         border: {
           DEFAULT: 'var(--border-default)',
         },

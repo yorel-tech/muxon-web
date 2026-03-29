@@ -65,7 +65,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
               />
               <motion.div
                 ref={ref}
-                className={`relative z-10 bg-white rounded-xl shadow-2xl ${sizeStyles[size]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
+                className={`relative z-10 bg-surface rounded-xl border border-panel ${sizeStyles[size]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
                 initial={{ opacity: 0, y: 50, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 50, scale: 0.95 }}

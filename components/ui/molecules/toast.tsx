@@ -48,7 +48,7 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(
             transition={{ duration: 0.3 }}
           >
             <div className={`
-              flex items-start gap-3 p-4 rounded-lg shadow-lg
+              flex items-start gap-3 p-4 rounded-lg border border-panel
               ${variantStyles[variant]}
               min-w-[300px] max-w-md
             `}>

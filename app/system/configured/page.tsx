@@ -306,7 +306,7 @@ export default function ConfiguredSystemDashboardPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4"
         >
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -322,7 +322,7 @@ export default function ConfiguredSystemDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -338,7 +338,7 @@ export default function ConfiguredSystemDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -354,7 +354,7 @@ export default function ConfiguredSystemDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

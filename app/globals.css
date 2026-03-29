@@ -7,15 +7,13 @@
     /* Core (OSS) — sky blue, light only */
     --text-primary: #0f172a;
     --text-secondary: #334155;
-    --shell-bg: #f8fafc;
+    --shell-bg: #ffffff;
     --shell-surface: #ffffff;
     --border-default: #e2e8f0;
     --selection-bg: #bae6fd;
     --focus-ring: #38bdf8;
     --logo-gradient: linear-gradient(to bottom right, #0ea5e9, #0284c7);
 
-    --sidebar-bg: #f1f5f9;
-    --sidebar-border: #e2e8f0;
     --sidebar-item: #334155;
     --sidebar-item-muted: #64748b;
     --sidebar-hover-bg: #e2e8f0;
@@ -38,6 +36,11 @@
     --color-primary-700: #0369a1;
     --color-primary-800: #075985;
     --color-primary-900: #0c4a6e;
+
+    --panel-border: var(--color-primary-800);
+
+    --sidebar-bg: #f1f5f9;
+    --sidebar-border: var(--border-default);
 
     /* Semantic */
     --color-success-50: #f0fdf4;
@@ -182,15 +185,13 @@
   html[data-edition='enterprise']:not(.dark) {
     --text-primary: #2e1065;
     --text-secondary: #4c1d95;
-    --shell-bg: #fafafc;
+    --shell-bg: #ffffff;
     --shell-surface: #ffffff;
     --border-default: #e9d5ff;
     --selection-bg: #ddd6fe;
     --focus-ring: #a78bfa;
     --logo-gradient: linear-gradient(to bottom right, #8b5cf6, #ec4899);
 
-    --sidebar-bg: #f5f3ff;
-    --sidebar-border: #e9d5ff;
     --sidebar-item: #4c1d95;
     --sidebar-item-muted: #6b21a8;
     --sidebar-hover-bg: #ede9fe;
@@ -212,6 +213,11 @@
     --color-primary-700: #6d28d9;
     --color-primary-800: #5b21b6;
     --color-primary-900: #4c1d95;
+
+    --panel-border: var(--color-primary-800);
+
+    --sidebar-bg: #f5f3ff;
+    --sidebar-border: var(--border-default);
   }
 
   /* Nexus / Enterprise — dark */
@@ -219,18 +225,16 @@
   html.dark[data-edition='enterprise'] {
     --text-primary: #f3e8ff;
     --text-secondary: #e9d5ff;
-    --shell-bg: #0f0a1f;
+    --shell-bg: #1a1333;
     --shell-surface: #1a1333;
     --border-default: #2e1065;
     --selection-bg: #7c3aed;
     --focus-ring: rgba(167, 139, 250, 0.5);
     --logo-gradient: linear-gradient(to bottom right, #a78bfa, #ec4899);
 
-    --sidebar-bg: #0b0320;
-    --sidebar-border: #2e1065;
     --sidebar-item: #e9d5ff;
     --sidebar-item-muted: #c4b5fd;
-    --sidebar-hover-bg: #1a1333;
+    --sidebar-hover-bg: #2e1065;
     --sidebar-active-bg: #a78bfa;
     --sidebar-active-fg: #0f0a1f;
     --sidebar-badge-bg: #2e1065;
@@ -275,6 +279,11 @@
     --bg-tertiary: var(--sidebar-bg);
     --selection: var(--selection-bg);
     --focus: var(--focus-ring);
+
+    --panel-border: var(--color-primary-300);
+
+    --sidebar-bg: #0b0320;
+    --sidebar-border: var(--border-default);
   }
 }
 

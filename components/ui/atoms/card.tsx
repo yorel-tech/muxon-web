@@ -28,17 +28,16 @@ const shadowStyles: Record<string, string> = {
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ children, className = '', padding = 'md', hover = false, bordered = false, shadow = 'md' }, ref) => {
+  ({ children, className = '', padding = 'md', hover = false, bordered: _bordered = false, shadow = 'none' }, ref) => {
     return (
       <motion.div
         ref={ref}
         className={`
-          bg-surface rounded-lg
+          bg-surface rounded-lg border border-panel
           ${paddingStyles[padding]}
-          ${bordered ? 'border border-border' : ''}
           ${shadowStyles[shadow]}
-          ${hover ? 'hover:shadow-lg hover:border-primary-200 dark:hover:border-primary-700' : ''}
-          transition-all duration-200
+          ${hover ? 'hover:border-primary-500' : ''}
+          transition-colors duration-200
           ${className}
         `}
         initial={{ opacity: 0, y: 20 }}
@@ -60,7 +59,7 @@ export interface CardHeaderProps {
 
 export const CardHeader = ({ children, className = '' }: CardHeaderProps) => {
   return (
-    <div className={`px-6 py-4 border-b border-border ${className}`}>
+    <div className={`px-6 py-4 border-b border-primary-600/25 ${className}`}>
       {children}
     </div>
   );
@@ -86,7 +85,7 @@ export interface CardFooterProps {
 
 export const CardFooter = ({ children, className = '' }: CardFooterProps) => {
   return (
-    <div className={`px-6 py-4 border-t border-border bg-app rounded-b-lg ${className}`}>
+    <div className={`px-6 py-4 border-t border-primary-600/25 bg-surface rounded-b-lg ${className}`}>
       {children}
     </div>
   );

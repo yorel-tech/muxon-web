@@ -301,7 +301,7 @@ export default function DatacenterDetailPage({
               label: 'General',
               icon: <Server className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">General</span>
                     <Button
@@ -347,7 +347,7 @@ export default function DatacenterDetailPage({
               label: 'Settings',
               icon: <Settings className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">Settings</span>
                     <Button
@@ -383,7 +383,7 @@ export default function DatacenterDetailPage({
               label: 'Metadata',
               icon: <FileText className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">Metadata</span>
                     <Button
@@ -429,7 +429,7 @@ export default function DatacenterDetailPage({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-xl w-full max-w-md p-6"
+              className="bg-surface rounded-xl border border-panel w-full max-w-md p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -487,7 +487,7 @@ export default function DatacenterDetailPage({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
+              className="bg-surface rounded-xl border border-panel w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
@@ -560,7 +560,7 @@ export default function DatacenterDetailPage({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
+              className="bg-surface rounded-xl border border-panel w-full max-w-lg max-h-[90vh] overflow-y-auto p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">

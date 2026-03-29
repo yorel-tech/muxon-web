@@ -252,6 +252,8 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         className={cn(
           'fixed inset-y-0 left-0 z-40 bg-sidebar border-r border-sidebar-border',
+          'shadow-[4px_0_24px_-4px_rgba(15,23,42,0.12)]',
+          'dark:shadow-[4px_0_28px_-4px_rgba(0,0,0,0.55)]',
           className,
         )}
       >
@@ -298,7 +300,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
 
           {/* User Section */}
           <div className={cn(
-            'border-t border-gray-700',
+            'border-t border-sidebar-border',
             isOpen ? 'p-4' : 'py-4'
           )}>
             <div className={cn(
@@ -382,7 +384,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
         {/* Toggle Button */}
         <button
           onClick={onToggle}
-          className="absolute top-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center shadow-md bg-surface border border-border text-sidebar-item hover:bg-sidebar-hover transition-colors z-50"
+          className="absolute top-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center bg-surface border border-sidebar-border shadow-md text-sidebar-item hover:bg-sidebar-hover transition-colors z-50"
           aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {isOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}

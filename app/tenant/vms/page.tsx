@@ -381,7 +381,7 @@ export default function TenantVmsPage() {
                       Datacenter
                     </label>
                     <select
-                      className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                      className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-panel dark:bg-surface dark:text-gray-100"
                       value={createForm.tenant_datacenter_grant_id}
                       onChange={(e) => setCreateForm((f) => ({ ...f, tenant_datacenter_grant_id: e.target.value }))}
                       disabled={createSubmitting || grantsLoading}
@@ -776,7 +776,7 @@ export default function TenantVmsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="dark:border-gray-700">
+          <Card>
             <CardContent className="p-0">
               {loading ? (
                 <div className="flex items-center justify-center py-12">

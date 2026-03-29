@@ -120,7 +120,7 @@ export default function TenantDatacentersPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="dark:border-gray-700">
+          <Card>
             <CardContent className="p-0">
               {tenantError && (
                 <div className="p-4 text-sm text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">

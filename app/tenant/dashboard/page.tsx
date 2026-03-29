@@ -105,7 +105,7 @@ export default function TenantDashboardPage() {
         transition={{ duration: 0.5, delay: 0.1 }}
         className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
       >
-        <Card className="hover:shadow-lg dark:border-gray-700 transition-shadow">
+        <Card className="transition-colors hover:border-primary-500">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -127,7 +127,7 @@ export default function TenantDashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="hover:shadow-lg dark:border-gray-700 transition-shadow">
+        <Card className="transition-colors hover:border-primary-500">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
@@ -142,7 +142,7 @@ export default function TenantDashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="hover:shadow-lg dark:border-gray-700 transition-shadow">
+        <Card className="transition-colors hover:border-primary-500">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success-50 dark:bg-success-900/30">
@@ -157,7 +157,7 @@ export default function TenantDashboardPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="hover:shadow-lg dark:border-gray-700 transition-shadow">
+        <Card className="transition-colors hover:border-primary-500">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-warning-50 dark:bg-warning-900/30">

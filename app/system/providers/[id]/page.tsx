@@ -245,7 +245,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
               label: 'Overview',
               icon: <Activity className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader><span className="font-semibold text-gray-900">Overview</span></CardHeader>
                   <CardContent className="pt-2">
                     <div className="space-y-0">
@@ -271,7 +271,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
               icon: <Server className="h-4 w-4" />,
               badge: clusters.length,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">Clusters</span>
                     <ActionButton entity={provider} action="addCluster" size="sm"><Plus className="h-4 w-4 mr-1" /> Add Cluster</ActionButton>
@@ -301,7 +301,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
               icon: <Cpu className="h-4 w-4" />,
               badge: nodes.length,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">Nodes</span>
                     <ActionButton entity={provider} action="addNode" size="sm"><Plus className="h-4 w-4 mr-1" /> Add Node</ActionButton>
@@ -333,7 +333,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
               label: 'Storage',
               icon: <HardDrive className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader>
                     <span className="font-semibold text-gray-900">Storage</span>
                   </CardHeader>
@@ -351,7 +351,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
               label: 'VMs',
               icon: <Database className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader><span className="font-semibold text-gray-900">VMs</span></CardHeader>
                   <CardContent className="pt-2">
                     <div className="py-8 text-center text-gray-500"><Database className="h-10 w-10 mx-auto mb-2 text-gray-300" /><p className="text-sm">VM management coming soon</p></div>
@@ -364,7 +364,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
               label: 'Settings',
               icon: <Settings className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader><span className="font-semibold text-gray-900">Settings</span></CardHeader>
                   <CardContent className="pt-2">
                     <div className="py-8 text-center text-gray-500"><Settings className="h-10 w-10 mx-auto mb-2 text-gray-300" /><p className="text-sm">Provider settings coming soon</p></div>
@@ -377,7 +377,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
               label: 'Logs',
               icon: <FileText className="h-4 w-4" />,
               content: (
-                <Card bordered shadow="md">
+                <Card bordered>
                   <CardHeader><span className="font-semibold text-gray-900">Logs</span></CardHeader>
                   <CardContent className="pt-2">
                     <div className="py-8 text-center text-gray-500"><FileText className="h-10 w-10 mx-auto mb-2 text-gray-300" /><p className="text-sm">Provider logs coming soon</p></div>

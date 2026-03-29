@@ -80,7 +80,7 @@ export default function StorageClassList({ onEdit, filterQuery = "" }: StorageCl
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {filtered.map((sc) => (
-        <Card key={sc.name} className="hover:shadow-lg transition-shadow">
+        <Card key={sc.name} className="transition-colors hover:border-primary-500">
           <CardHeader>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">

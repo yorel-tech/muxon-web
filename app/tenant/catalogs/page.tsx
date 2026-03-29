@@ -79,7 +79,7 @@ export default function TenantCatalogsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <Card className="dark:border-gray-700">
+          <Card>
             <CardContent className="p-0">
               {loading ? (
                 <div className="flex items-center justify-center py-12">

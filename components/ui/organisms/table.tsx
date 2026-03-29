@@ -102,7 +102,7 @@ function TableComponent({
             placeholder="Filter..."
             value={filterQuery}
             onChange={handleFilter}
-            className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-10 pr-10 py-2 border border-panel rounded-md bg-surface focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
         <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
@@ -148,7 +148,7 @@ function TableComponent({
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-primary-600/20">
             {isLoading ? (
               <tr>
                 <td colSpan={columns.length} className="px-3 py-4 text-center text-sm text-gray-500">
@@ -169,7 +169,7 @@ function TableComponent({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => onRowClick?.(row)}
-                  className="group cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="group cursor-pointer hover:bg-primary-50/40 transition-colors"
                 >
                   {columns.map((column) => (
                     <td key={column.key} className={`px-3 py-3 ${overflowVisibleColumnKeys.includes(column.key) ? 'overflow-visible' : 'whitespace-nowrap'}`}>

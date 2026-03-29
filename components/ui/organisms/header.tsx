@@ -32,7 +32,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
     <header
       ref={ref}
       className={cn(
-        'sticky top-0 z-30 bg-surface border-b border-border shadow-sm',
+        'sticky top-0 z-30 bg-surface border-b border-panel',
         className,
       )}
     >
@@ -64,7 +64,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute top-full left-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 p-2"
+                  className="absolute top-full left-0 mt-2 w-96 bg-surface rounded-lg border border-panel p-2"
                 >
                   <input
                     type="search"

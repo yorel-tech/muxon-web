@@ -253,7 +253,7 @@ export default function SystemDashboardPage() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
         >
-          <Card className="hover:shadow-lg dark:hover:shadow-gray-700/50 transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -269,7 +269,7 @@ export default function SystemDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg dark:hover:shadow-gray-700/50 transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -285,7 +285,7 @@ export default function SystemDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg dark:hover:shadow-gray-700/50 transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -301,7 +301,7 @@ export default function SystemDashboardPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg dark:hover:shadow-gray-700/50 transition-shadow">
+          <Card className="transition-colors hover:border-primary-500">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -341,7 +341,7 @@ export default function SystemDashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Card className="dark:border-gray-700">
+            <Card>
               <CardHeader>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   System Health
@@ -352,7 +352,7 @@ export default function SystemDashboardPage() {
                   {mockSystemHealth.map((item) => (
                     <div
                       key={item.component}
-                      className="flex items-center justify-between p-4 rounded-lg border border-gray-100 dark:border-gray-700"
+                      className="flex items-center justify-between p-4 rounded-lg border border-panel"
                     >
                       <div className="flex items-center gap-3">
                         <Activity className={`h-5 w-5 ${getStatusColor(item.status)}`} />
@@ -395,7 +395,7 @@ export default function SystemDashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
-          <Card className="dark:border-gray-700">
+          <Card>
             <CardHeader>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 Recent Activity

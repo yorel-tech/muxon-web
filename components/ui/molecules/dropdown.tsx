@@ -116,7 +116,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            'bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-[9999]',
+            'bg-surface border border-panel rounded-lg py-1 z-[9999]',
             usePortal ? 'fixed' : 'absolute mt-1',
             {
               'left-0': !usePortal && position === 'left',
