@@ -43,6 +43,7 @@ export interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   userRole: 'system' | 'tenant';
+  tenantIdForSidebarCounts?: string | null;
   isEnterprise?: boolean;
   className?: string;
 }
@@ -155,12 +156,19 @@ const enterpriseItems: SidebarItem[] = [
 ];
 
 export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
-  ({ isOpen, onClose, userRole, isEnterprise = false, className = '' }: SidebarProps, ref) => {
+  ({
+    isOpen,
+    onClose,
+    userRole,
+    tenantIdForSidebarCounts = null,
+    isEnterprise = false,
+    className = '',
+  }: SidebarProps, ref) => {
     const pathname = usePathname();
     const router = useRouter();
     const { user } = useAuth();
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-    const { counts } = useSidebarCounts(userRole, isOpen);
+    const { counts } = useSidebarCounts(userRole, isOpen, tenantIdForSidebarCounts);
 
     const handleSignOut = async () => {
       try {

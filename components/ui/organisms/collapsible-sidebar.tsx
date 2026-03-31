@@ -40,6 +40,8 @@ export interface CollapsibleSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
   userRole: 'system' | 'tenant';
+  /** Resolved tenant UUID for tenant portal VM counts (optional). */
+  tenantIdForSidebarCounts?: string | null;
   isEnterprise?: boolean;
   className?: string;
 }
@@ -142,11 +144,18 @@ const baseTenantUserItems: Omit<SidebarItem, 'badge'>[] = [
 ];
 
 export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarProps>(
-  ({ isOpen, onToggle, userRole, isEnterprise = false, className = '' }: CollapsibleSidebarProps, ref) => {
+  ({
+    isOpen,
+    onToggle,
+    userRole,
+    tenantIdForSidebarCounts = null,
+    isEnterprise = false,
+    className = '',
+  }: CollapsibleSidebarProps, ref) => {
     const pathname = usePathname();
     const { user } = useAuth();
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-    const { counts } = useSidebarCounts(userRole, isOpen);
+    const { counts } = useSidebarCounts(userRole, isOpen, tenantIdForSidebarCounts);
 
     const handleSignOut = async () => {
       try {

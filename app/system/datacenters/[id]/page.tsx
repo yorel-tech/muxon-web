@@ -265,7 +265,7 @@ export default function DatacenterDetailPage({
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-4xl mx-auto px-3 py-8">
+      <div className="max-w-full px-3 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

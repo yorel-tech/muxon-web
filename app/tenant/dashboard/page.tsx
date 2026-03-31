@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { AlertsCard, Alert } from '@/components/ui/organisms/alerts-card';
 import { apiGet } from '@/lib/api';
+import { useTenantId } from '@/lib/use-tenant-id';
 
 interface QuotaUsage {
   vms: { used: number; limit: number };
@@ -37,6 +38,7 @@ const placeholderAlerts: Alert[] = [
 ];
 
 export default function TenantDashboardPage() {
+  const { tenantId } = useTenantId();
   const [quota, setQuota] = useState<QuotaUsage>({
     vms: { used: 0, limit: 0 },
     vcpus: { used: 0, limit: 0 },
@@ -48,9 +50,16 @@ export default function TenantDashboardPage() {
 
   useEffect(() => {
     const load = async () => {
+      if (!tenantId) {
+        setLoading(false);
+        return;
+      }
       try {
         const [vmsRes, tenantRes] = await Promise.all([
-          apiGet<{ items?: unknown[]; total?: number }>('/api/v1/vms').catch(() => ({ items: [], total: 0 })),
+          apiGet<{ items?: unknown[]; total?: number }>(`/api/v1/tenants/${tenantId}/vms`).catch(() => ({
+            items: [],
+            total: 0,
+          })),
           apiGet<{ settings?: { quotas?: Record<string, number> } }>('/api/v1/tenants/current').catch(
             (): { settings?: { quotas?: Record<string, number> } } => ({}),
           ),
@@ -69,8 +78,9 @@ export default function TenantDashboardPage() {
         setLoading(false);
       }
     };
+    setLoading(true);
     load();
-  }, []);
+  }, [tenantId]);
 
   const handleDismissAlert = (id: string) => {
     setAlerts((prev) => prev.filter((a) => a.id !== id));

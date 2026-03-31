@@ -110,8 +110,15 @@ export default function TenantVmsPage() {
   const [createError, setCreateError] = useState<string | null>(null);
 
   const loadVms = useCallback(async () => {
+    if (!tenantId) {
+      setVms([]);
+      setLoading(false);
+      return;
+    }
     try {
-      const data = await apiGet<{ items?: unknown[]; total?: number }>('/api/v1/vms');
+      const data = await apiGet<{ items?: unknown[]; total?: number }>(
+        `/api/v1/tenants/${tenantId}/vms`
+      );
       const list = Array.isArray(data) ? data : data?.items ?? [];
       setVms(
         (list as Record<string, unknown>[]).map((vm) => ({
@@ -129,9 +136,10 @@ export default function TenantVmsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   useEffect(() => {
+    setLoading(true);
     loadVms();
   }, [loadVms]);
 
@@ -235,6 +243,10 @@ export default function TenantVmsPage() {
       return;
     }
     setCreateError(null);
+    if (!tenantId) {
+      setCreateError('Tenant is not resolved yet.');
+      return;
+    }
     setCreateSubmitting(true);
     try {
       const payload = {
@@ -248,7 +260,7 @@ export default function TenantVmsPage() {
           os: createForm.spec.os,
         },
       };
-      await apiPost('/api/v1/vms', payload);
+      await apiPost(`/api/v1/tenants/${tenantId}/vms`, payload);
       handleCloseWizard();
       setCreateForm(defaultCreateForm(grants[0]?.id ?? ''));
       await loadVms();

@@ -50,7 +50,9 @@ interface TenantDetail {
 
 /** Matches API TenantDatacenterGrant: datacenter is read-only (name = datacenter name) */
 interface TenantDatacenterGrant {
+  id?: string;
   tenantId?: string;
+  tenant?: { id: string; name?: string; description?: string };
   datacenterId: string;
   datacenter?: { id: string; name?: string; description?: string };
   access?: boolean;
@@ -127,6 +129,158 @@ interface DatacenterListItem {
   capacity?: { totalCpus?: number; totalMemoryGb?: number; totalStorageGb?: number };
 }
 
+interface DatacenterSettingsResponse {
+  vmClasses?: string[];
+  storageClasses?: string[];
+  networkDomains?: string[];
+}
+
+interface DatacenterDetailResponse {
+  id: string;
+  settings?: DatacenterSettingsResponse;
+  nodeCluster?: { id?: string };
+}
+
+interface NodeClusterResponse {
+  id: string;
+  providerId?: string;
+}
+
+interface ProviderStorageResponseItem {
+  mappedStorageClasses?: Array<{ storageClassName?: string }>;
+}
+
+function StorageClassMultiSelectDropdown({
+  label,
+  options,
+  selected,
+  onChange,
+  disabled,
+  pageSize = 5,
+}: {
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (next: string[]) => void;
+  disabled?: boolean;
+  pageSize?: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [query, setQuery] = useState('');
+  const uniq = (values: string[]): string[] => Array.from(new Set(values.filter(Boolean)));
+
+  const q = query.trim().toLowerCase();
+  const filtered = q ? options.filter((o) => o.toLowerCase().includes(q)) : options;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages - 1);
+  const pageItems = filtered.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
+
+  useEffect(() => {
+    setPage(0);
+  }, [query, options.length, pageSize]);
+
+  const summary =
+    selected.length === 0
+      ? `Select ${label.toLowerCase()}`
+      : selected.length === 1
+        ? selected[0]
+        : `${selected.length} selected`;
+
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <div className="relative">
+        <button
+          type="button"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-left text-sm bg-white hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+          onClick={() => setOpen((v) => !v)}
+          disabled={disabled}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className={selected.length === 0 ? 'text-gray-500' : 'text-gray-900'}>{summary}</span>
+            <span className="text-gray-400">{open ? '▲' : '▼'}</span>
+          </div>
+        </button>
+        {open && (
+          <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={`Search ${label.toLowerCase()}…`}
+              className="mb-2"
+            />
+            {filtered.length === 0 ? (
+              <p className="text-sm text-gray-500 py-2">No matches.</p>
+            ) : (
+              <>
+                <div className="max-h-56 overflow-y-auto divide-y divide-gray-100 border border-gray-100 rounded">
+                  {pageItems.map((name) => {
+                    const checked = selected.includes(name);
+                    return (
+                      <label key={name} className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300"
+                          checked={checked}
+                          onChange={(e) => {
+                            const isChecked = e.target.checked;
+                            onChange(isChecked ? uniq([...selected, name]) : selected.filter((s) => s !== name));
+                          }}
+                        />
+                        <span className="truncate">{name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center justify-between mt-2 text-sm">
+                  <span className="text-gray-500">
+                    Page {currentPage + 1} / {totalPages}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(0, p - 1))}
+                      disabled={currentPage === 0}
+                    >
+                      Prev
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                      disabled={currentPage >= totalPages - 1}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onChange([])}
+                    disabled={selected.length === 0}
+                  >
+                    Clear
+                  </Button>
+                  <Button type="button" size="sm" onClick={() => setOpen(false)}>
+                    Done
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function TenantDetailPage({
   params,
 }: {
@@ -162,12 +316,19 @@ export default function TenantDetailPage({
   const [limitMaxVms, setLimitMaxVms] = useState<string>('');
   const [limitMaxVolumes, setLimitMaxVolumes] = useState<string>('');
   const [limitMaxLoadBalancers, setLimitMaxLoadBalancers] = useState<string>('');
+  const [addDcVmClassesStr, setAddDcVmClassesStr] = useState<string>('');
+  const [addDcNetworkDomainsStr, setAddDcNetworkDomainsStr] = useState<string>('');
+  const [addDcSelectedStorageClasses, setAddDcSelectedStorageClasses] = useState<string[]>([]);
+  const [addDcStorageClassOptions, setAddDcStorageClassOptions] = useState<string[]>([]);
+  const [addDcSettingsLoading, setAddDcSettingsLoading] = useState(false);
   const [addDcError, setAddDcError] = useState<string | null>(null);
   const [addDcSubmitting, setAddDcSubmitting] = useState(false);
   const [editGrantLimitsModal, setEditGrantLimitsModal] = useState<TenantDatacenterGrant | null>(null);
   const [editGrantSettingsModal, setEditGrantSettingsModal] = useState<TenantDatacenterGrant | null>(null);
   const [editLimitsForm, setEditLimitsForm] = useState<Record<string, string>>({});
-  const [editSettingsForm, setEditSettingsForm] = useState<{ vmClassesStr: string; storageClassesStr: string; networkDomainsStr: string }>({ vmClassesStr: '', storageClassesStr: '', networkDomainsStr: '' });
+  const [editSettingsForm, setEditSettingsForm] = useState<{ vmClassesStr: string; networkDomainsStr: string; selectedStorageClasses: string[] }>({ vmClassesStr: '', networkDomainsStr: '', selectedStorageClasses: [] });
+  const [editStorageClassOptions, setEditStorageClassOptions] = useState<string[]>([]);
+  const [editSettingsLoading, setEditSettingsLoading] = useState(false);
   const [editGrantSubmitting, setEditGrantSubmitting] = useState(false);
   const [editGrantError, setEditGrantError] = useState<string | null>(null);
 
@@ -235,6 +396,30 @@ export default function TenantDetailPage({
     };
   }, [id]);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function loadDatacenterSettings() {
+      if (!addDatacenterModal || !selectedDatacenterId) return;
+      setAddDcSettingsLoading(true);
+      try {
+        const selectable = await fetchDatacenterSelectableSettings(selectedDatacenterId);
+        if (cancelled) return;
+        setAddDcStorageClassOptions(selectable.storageClasses ?? []);
+      } catch (e) {
+        if (!cancelled) {
+          setAddDcStorageClassOptions([]);
+          setAddDcError(e instanceof Error ? e.message : 'Failed to load datacenter settings');
+        }
+      } finally {
+        if (!cancelled) setAddDcSettingsLoading(false);
+      }
+    }
+    loadDatacenterSettings();
+    return () => {
+      cancelled = true;
+    };
+  }, [addDatacenterModal, selectedDatacenterId]);
+
   const refetch = async () => {
     await fetchTenant();
     await fetchGrants();
@@ -283,6 +468,11 @@ export default function TenantDetailPage({
     setLimitMaxVms('');
     setLimitMaxVolumes('');
     setLimitMaxLoadBalancers('');
+    setAddDcVmClassesStr('');
+    setAddDcNetworkDomainsStr('');
+    setAddDcSelectedStorageClasses([]);
+    setAddDcStorageClassOptions([]);
+    setAddDcSettingsLoading(false);
     setAddDcError(null);
     setAddDcSubmitting(false);
     setAvailableDatacenters([]);
@@ -291,7 +481,7 @@ export default function TenantDetailPage({
       try {
         const data = await apiGet<{ items?: DatacenterListItem[] }>('/api/v1/datacenters?perPage=200');
         const items = data?.items ?? [];
-        const grantedIds = new Set((grants?.items ?? []).map((g) => g.datacenterId));
+        const grantedIds = new Set((grants?.items ?? []).map((g) => getGrantDatacenterId(g)).filter(Boolean));
         setAvailableDatacenters(items.filter((dc) => !grantedIds.has(dc.id)));
       } catch {
         setAvailableDatacenters([]);
@@ -305,6 +495,7 @@ export default function TenantDetailPage({
     setAddDatacenterModal(false);
     setAddDcWizardStep(0);
     setAddDcError(null);
+    setAddDcSettingsLoading(false);
   };
 
   const parseOptionalInt = (s: string): number | undefined => {
@@ -312,6 +503,96 @@ export default function TenantDetailPage({
     if (v === '') return undefined;
     const n = parseInt(v, 10);
     return Number.isNaN(n) || n < 0 ? undefined : n;
+  };
+
+  const parseCsv = (value: string): string[] =>
+    value
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+  const getGrantDatacenterId = (g: TenantDatacenterGrant): string =>
+    g.datacenterId || g.datacenter?.id || '';
+
+  const fetchTenantDatacenterGrant = async (datacenterId: string): Promise<TenantDatacenterGrant> =>
+    apiGet<TenantDatacenterGrant>(`/api/v1/tenants/${id}/datacenters/${datacenterId}`);
+
+  const buildGrantPatchPayload = (
+    g: TenantDatacenterGrant,
+    datacenterId: string,
+    overrides: { limits?: ResourceLimits; overrideSettings?: DatacenterSettings } = {}
+  ) => ({
+    id: g.id,
+    tenant: g.tenant ?? { id },
+    datacenter: g.datacenter ?? { id: datacenterId },
+    access: g.access ?? true,
+    limits: overrides.limits ?? g.limits,
+    enabledFeatures: g.enabledFeatures ?? [],
+    overrideSettings: overrides.overrideSettings ?? g.overrideSettings,
+  });
+
+  const ensurePatchableGrant = async (g: TenantDatacenterGrant, datacenterId: string): Promise<TenantDatacenterGrant> => {
+    if (g.id && g.tenant?.id && (g.datacenter?.id || datacenterId)) {
+      return g;
+    }
+    return fetchTenantDatacenterGrant(datacenterId);
+  };
+
+  const uniqueStrings = (values: string[]): string[] => Array.from(new Set(values.filter(Boolean)));
+
+  const normalizeItems = <T,>(payload: unknown): T[] => {
+    if (Array.isArray(payload)) return payload as T[];
+    if (payload && typeof payload === 'object' && Array.isArray((payload as { items?: unknown[] }).items)) {
+      return (payload as { items: T[] }).items;
+    }
+    return [];
+  };
+
+  const fetchDatacenterSelectableSettings = async (datacenterId: string): Promise<DatacenterSettingsResponse> => {
+    const datacenter = await apiGet<DatacenterDetailResponse>(`/api/v1/datacenters/${datacenterId}`);
+    let vmClasses = datacenter.settings?.vmClasses ?? [];
+    let storageClasses = datacenter.settings?.storageClasses ?? [];
+    let networkDomains = datacenter.settings?.networkDomains ?? [];
+
+    if (!vmClasses.length && !storageClasses.length && !networkDomains.length) {
+      try {
+        const settingsData = await apiGet<DatacenterSettingsResponse>(`/api/v1/datacenters/${datacenterId}/settings`);
+        vmClasses = settingsData?.vmClasses ?? [];
+        storageClasses = settingsData?.storageClasses ?? [];
+        networkDomains = settingsData?.networkDomains ?? [];
+      } catch {
+        // Keep empty settings if endpoint is unavailable.
+      }
+    }
+
+    let providerStorageClasses: string[] = [];
+    const nodeClusterId = datacenter.nodeCluster?.id;
+    if (nodeClusterId) {
+      try {
+        const cluster = await apiGet<NodeClusterResponse>(`/api/v1/node-clusters/${nodeClusterId}`);
+        if (cluster.providerId) {
+          const providerStorageData = await apiGet<ProviderStorageResponseItem[] | { items?: ProviderStorageResponseItem[] }>(
+            `/api/v1/providers/${cluster.providerId}/storage?perPage=100`
+          );
+          const providerStorageItems = normalizeItems<ProviderStorageResponseItem>(providerStorageData);
+          providerStorageClasses = uniqueStrings(
+            providerStorageItems.flatMap((item) =>
+              (item.mappedStorageClasses ?? [])
+                .map((mapped) => mapped.storageClassName ?? '')
+                .filter(Boolean)
+            )
+          );
+        }
+      } catch {
+        // Fallback to datacenter-defined storage classes when provider lookup fails.
+      }
+    }
+
+    return {
+      vmClasses: uniqueStrings(vmClasses),
+      storageClasses: uniqueStrings(providerStorageClasses.length ? providerStorageClasses : storageClasses),
+      networkDomains: uniqueStrings(networkDomains),
+    };
   };
 
   const handleCreateTenantDatacenterGrant = async () => {
@@ -332,12 +613,22 @@ export default function TenantDetailPage({
       if (maxVms != null) limits.maxVms = maxVms;
       if (maxVolumes != null) limits.maxVolumes = maxVolumes;
       if (maxLoadBalancers != null) limits.maxLoadBalancers = maxLoadBalancers;
+      const overrideSettings: DatacenterSettings = {
+        vmClasses: parseCsv(addDcVmClassesStr),
+        storageClasses: addDcSelectedStorageClasses,
+        networkDomains: parseCsv(addDcNetworkDomainsStr),
+      };
+      const hasOverrideSettings =
+        (overrideSettings.vmClasses?.length ?? 0) > 0 ||
+        (overrideSettings.storageClasses?.length ?? 0) > 0 ||
+        (overrideSettings.networkDomains?.length ?? 0) > 0;
 
       const body = {
         tenantId: id,
         datacenterId: selectedDatacenterId,
         access: grantAccess,
         ...(Object.keys(limits).length > 0 ? { limits } : {}),
+        ...(hasOverrideSettings ? { overrideSettings } : {}),
       };
       await apiPost(`/api/v1/tenants/${id}/datacenters`, body);
       await fetchGrants();
@@ -349,35 +640,76 @@ export default function TenantDetailPage({
     }
   };
 
-  const openEditGrantLimits = (g: TenantDatacenterGrant) => {
-    setEditGrantLimitsModal(g);
+  const openEditGrantLimits = async (g: TenantDatacenterGrant) => {
+    const datacenterId = getGrantDatacenterId(g);
+    if (!datacenterId) {
+      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      return;
+    }
+    setEditGrantSubmitting(true);
+    let grant = g;
+    try {
+      grant = await fetchTenantDatacenterGrant(datacenterId);
+    } catch {
+      // Fallback to list row data when detail fetch fails.
+    } finally {
+      setEditGrantSubmitting(false);
+    }
+    setEditGrantLimitsModal(grant);
     setEditLimitsForm({
-      maxCpus: g.limits?.maxCpus?.toString() ?? '',
-      maxMemoryGb: g.limits?.maxMemoryGb?.toString() ?? '',
-      maxStorageGb: g.limits?.maxStorageGb?.toString() ?? '',
-      maxVms: g.limits?.maxVms?.toString() ?? '',
-      maxVolumes: g.limits?.maxVolumes?.toString() ?? '',
-      maxLoadBalancers: g.limits?.maxLoadBalancers?.toString() ?? '',
+      maxCpus: grant.limits?.maxCpus?.toString() ?? '',
+      maxMemoryGb: grant.limits?.maxMemoryGb?.toString() ?? '',
+      maxStorageGb: grant.limits?.maxStorageGb?.toString() ?? '',
+      maxVms: grant.limits?.maxVms?.toString() ?? '',
+      maxVolumes: grant.limits?.maxVolumes?.toString() ?? '',
+      maxLoadBalancers: grant.limits?.maxLoadBalancers?.toString() ?? '',
     });
     setEditGrantError(null);
   };
 
-  const openEditGrantSettings = (g: TenantDatacenterGrant) => {
-    setEditGrantSettingsModal(g);
-    setEditSettingsForm({
-      vmClassesStr: g.overrideSettings?.vmClasses?.join(', ') ?? '',
-      storageClassesStr: g.overrideSettings?.storageClasses?.join(', ') ?? '',
-      networkDomainsStr: g.overrideSettings?.networkDomains?.join(', ') ?? '',
-    });
+  const openEditGrantSettings = async (g: TenantDatacenterGrant) => {
+    const datacenterId = getGrantDatacenterId(g);
+    if (!datacenterId) {
+      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      return;
+    }
     setEditGrantError(null);
+    setEditStorageClassOptions([]);
+    setEditSettingsLoading(true);
+    try {
+      let grant = g;
+      try {
+        grant = await fetchTenantDatacenterGrant(datacenterId);
+      } catch {
+        // Fallback to list row data when detail fetch fails.
+      }
+      setEditGrantSettingsModal(grant);
+      setEditSettingsForm({
+        vmClassesStr: grant.overrideSettings?.vmClasses?.join(', ') ?? '',
+        selectedStorageClasses: grant.overrideSettings?.storageClasses ?? [],
+        networkDomainsStr: grant.overrideSettings?.networkDomains?.join(', ') ?? '',
+      });
+      const selectable = await fetchDatacenterSelectableSettings(datacenterId);
+      setEditStorageClassOptions(uniqueStrings([...(selectable.storageClasses ?? []), ...(grant.overrideSettings?.storageClasses ?? [])]));
+    } catch (e) {
+      setEditGrantError(e instanceof Error ? e.message : 'Failed to load provider storage classes');
+    } finally {
+      setEditSettingsLoading(false);
+    }
   };
 
   const handleUpdateGrantLimits = async () => {
     const g = editGrantLimitsModal;
     if (!g || !id) return;
+    const datacenterId = getGrantDatacenterId(g);
+    if (!datacenterId) {
+      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      return;
+    }
     setEditGrantSubmitting(true);
     setEditGrantError(null);
     try {
+      const patchableGrant = await ensurePatchableGrant(g, datacenterId);
       const limits: ResourceLimits = {};
       const maxCpus = parseOptionalInt(editLimitsForm.maxCpus ?? '');
       const maxMemoryGb = parseOptionalInt(editLimitsForm.maxMemoryGb ?? '');
@@ -391,7 +723,11 @@ export default function TenantDetailPage({
       if (maxVms != null) limits.maxVms = maxVms;
       if (maxVolumes != null) limits.maxVolumes = maxVolumes;
       if (maxLoadBalancers != null) limits.maxLoadBalancers = maxLoadBalancers;
-      await apiPatch(`/api/v1/tenants/${id}/datacenters/${g.datacenterId}`, { tenantId: id, datacenterId: g.datacenterId, access: g.access ?? true, limits, enabledFeatures: g.enabledFeatures ?? [], overrideSettings: g.overrideSettings });
+      await apiPatch(
+        `/api/v1/tenants/${id}/datacenters/${datacenterId}`,
+        buildGrantPatchPayload(patchableGrant, datacenterId, { limits })
+      );
+      setEditGrantLimitsModal(patchableGrant);
       setEditGrantLimitsModal(null);
       await fetchGrants();
     } catch (e) {
@@ -404,15 +740,24 @@ export default function TenantDetailPage({
   const handleUpdateGrantSettings = async () => {
     const g = editGrantSettingsModal;
     if (!g || !id) return;
+    const datacenterId = getGrantDatacenterId(g);
+    if (!datacenterId) {
+      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      return;
+    }
     setEditGrantSubmitting(true);
     setEditGrantError(null);
     try {
+      const patchableGrant = await ensurePatchableGrant(g, datacenterId);
       const overrideSettings: DatacenterSettings = {
-        vmClasses: editSettingsForm.vmClassesStr.split(',').map((s) => s.trim()).filter(Boolean),
-        storageClasses: editSettingsForm.storageClassesStr.split(',').map((s) => s.trim()).filter(Boolean),
-        networkDomains: editSettingsForm.networkDomainsStr.split(',').map((s) => s.trim()).filter(Boolean),
+        vmClasses: parseCsv(editSettingsForm.vmClassesStr),
+        storageClasses: editSettingsForm.selectedStorageClasses,
+        networkDomains: parseCsv(editSettingsForm.networkDomainsStr),
       };
-      await apiPatch(`/api/v1/tenants/${id}/datacenters/${g.datacenterId}`, { tenantId: id, datacenterId: g.datacenterId, access: g.access ?? true, limits: g.limits, enabledFeatures: g.enabledFeatures ?? [], overrideSettings });
+      await apiPatch(
+        `/api/v1/tenants/${id}/datacenters/${datacenterId}`,
+        buildGrantPatchPayload(patchableGrant, datacenterId, { overrideSettings })
+      );
       setEditGrantSettingsModal(null);
       await fetchGrants();
     } catch (e) {
@@ -473,7 +818,14 @@ export default function TenantDetailPage({
   const getGrantContextMenuOptions = (g: TenantDatacenterGrant): DropdownOption[] => [
     { label: 'Edit limits', icon: <Sliders className="w-4 h-4" />, onClick: () => openEditGrantLimits(g) },
     { label: 'Edit settings', icon: <Settings className="w-4 h-4" />, onClick: () => openEditGrantSettings(g) },
-    { label: 'View datacenter', icon: <ExternalLink className="w-4 h-4" />, onClick: () => router.push(`/system/datacenters/${g.datacenterId}?from=tenant&tenantId=${id}`) },
+    { label: 'View datacenter', icon: <ExternalLink className="w-4 h-4" />, onClick: () => {
+      const datacenterId = getGrantDatacenterId(g);
+      if (!datacenterId) {
+        setEditGrantError('Datacenter ID is missing for this tenant grant');
+        return;
+      }
+      router.push(`/system/datacenters/${datacenterId}?from=tenant&tenantId=${id}`);
+    } },
   ];
 
   const grantColumns: Column<TenantDatacenterGrant>[] = [
@@ -561,7 +913,7 @@ export default function TenantDetailPage({
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-4xl mx-auto px-3 py-8">
+      <div className="max-w-full px-3 py-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <Link href="/system/tenants" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
             <ArrowLeft size={20} />
@@ -776,6 +1128,8 @@ export default function TenantDetailPage({
                 <span className={addDcWizardStep === 0 ? 'font-medium text-primary-600' : 'text-gray-500'}>1. Select datacenter</span>
                 <span className="text-gray-300">→</span>
                 <span className={addDcWizardStep === 1 ? 'font-medium text-primary-600' : 'text-gray-500'}>2. Set limits</span>
+                <span className="text-gray-300">→</span>
+                <span className={addDcWizardStep === 2 ? 'font-medium text-primary-600' : 'text-gray-500'}>3. Settings</span>
               </div>
               {addDcError && (
                 <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">{addDcError}</p>
@@ -793,7 +1147,14 @@ export default function TenantDetailPage({
                         <li key={dc.id}>
                           <button
                             type="button"
-                            onClick={() => setSelectedDatacenterId(dc.id)}
+                            onClick={() => {
+                              setSelectedDatacenterId(dc.id);
+                              setAddDcVmClassesStr('');
+                              setAddDcNetworkDomainsStr('');
+                              setAddDcSelectedStorageClasses([]);
+                              setAddDcStorageClassOptions([]);
+                              setAddDcError(null);
+                            }}
                             className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-gray-50 ${selectedDatacenterId === dc.id ? 'bg-primary-50 border-l-2 border-primary-600' : ''}`}
                           >
                             <span className="font-medium text-gray-900">{dc.name}</span>
@@ -846,6 +1207,50 @@ export default function TenantDetailPage({
                   </div>
                 </div>
               )}
+              {addDcWizardStep === 2 && selectedDatacenterId && (
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-500">
+                    Configure datacenter settings for this tenant in{' '}
+                    <strong>{availableDatacenters.find((dc) => dc.id === selectedDatacenterId)?.name ?? selectedDatacenterId}</strong>.
+                  </p>
+                  {addDcSettingsLoading ? (
+                    <div className="flex items-center gap-2 py-6 text-gray-500"><Loader2 className="h-5 w-5 animate-spin" /> Loading settings…</div>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">VM classes (comma-separated)</label>
+                        <Input
+                          value={addDcVmClassesStr}
+                          onChange={(e) => setAddDcVmClassesStr(e.target.value)}
+                          placeholder="e.g. default, large"
+                        />
+                      </div>
+                      <div>
+                        {addDcStorageClassOptions.length === 0 ? (
+                          <p className="text-sm text-gray-500">No provider-mapped storage classes found for this datacenter.</p>
+                        ) : (
+                          <StorageClassMultiSelectDropdown
+                            label="Storage classes"
+                            options={addDcStorageClassOptions}
+                            selected={addDcSelectedStorageClasses}
+                            onChange={setAddDcSelectedStorageClasses}
+                            disabled={addDcSettingsLoading}
+                            pageSize={5}
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Network domains (comma-separated)</label>
+                        <Input
+                          value={addDcNetworkDomainsStr}
+                          onChange={(e) => setAddDcNetworkDomainsStr(e.target.value)}
+                          placeholder="e.g. default, dmz"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
               <div className="flex justify-end gap-2 mt-6">
                 {addDcWizardStep === 0 ? (
                   <>
@@ -857,9 +1262,16 @@ export default function TenantDetailPage({
                       Next: Set limits
                     </Button>
                   </>
-                ) : (
+                ) : addDcWizardStep === 1 ? (
                   <>
                     <Button variant="secondary" onClick={() => setAddDcWizardStep(0)} disabled={addDcSubmitting}>Back</Button>
+                    <Button onClick={() => setAddDcWizardStep(2)} disabled={addDcSubmitting || !selectedDatacenterId}>
+                      Next: Settings
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="secondary" onClick={() => setAddDcWizardStep(1)} disabled={addDcSubmitting}>Back</Button>
                     <Button onClick={handleCreateTenantDatacenterGrant} disabled={addDcSubmitting}>
                       {addDcSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add datacenter'}
                     </Button>
@@ -907,11 +1319,26 @@ export default function TenantDetailPage({
                 <h3 className="text-lg font-semibold">Edit datacenter settings — {editGrantSettingsModal.datacenter?.name ?? editGrantSettingsModal.datacenterId}</h3>
                 <button onClick={() => setEditGrantSettingsModal(null)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
               </div>
-              <p className="text-sm text-gray-500 mb-3">Override settings for this tenant in this datacenter. Comma-separated values.</p>
+              <p className="text-sm text-gray-500 mb-3">Override settings for this tenant in this datacenter.</p>
               {editGrantError && <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">{editGrantError}</p>}
               <div className="space-y-3">
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">VM classes</label><Input value={editSettingsForm.vmClassesStr} onChange={(e) => setEditSettingsForm((f) => ({ ...f, vmClassesStr: e.target.value }))} placeholder="e.g. default, large" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Storage classes</label><Input value={editSettingsForm.storageClassesStr} onChange={(e) => setEditSettingsForm((f) => ({ ...f, storageClassesStr: e.target.value }))} placeholder="e.g. standard, ssd" /></div>
+                <div>
+                  {editSettingsLoading ? (
+                    <div className="flex items-center gap-2 py-2 text-sm text-gray-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading provider storage classes…</div>
+                  ) : editStorageClassOptions.length === 0 ? (
+                    <p className="text-sm text-gray-500">No provider-mapped storage classes found for this datacenter.</p>
+                  ) : (
+                    <StorageClassMultiSelectDropdown
+                      label="Storage classes"
+                      options={editStorageClassOptions}
+                      selected={editSettingsForm.selectedStorageClasses}
+                      onChange={(next) => setEditSettingsForm((f) => ({ ...f, selectedStorageClasses: next }))}
+                      disabled={editSettingsLoading}
+                      pageSize={5}
+                    />
+                  )}
+                </div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Network domains</label><Input value={editSettingsForm.networkDomainsStr} onChange={(e) => setEditSettingsForm((f) => ({ ...f, networkDomainsStr: e.target.value }))} placeholder="e.g. default, dmz" /></div>
               </div>
               <div className="flex justify-end gap-2 mt-6">
