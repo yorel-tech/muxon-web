@@ -931,7 +931,12 @@ export default function TenantDetailPage({
               variant="secondary"
               onClick={() => {
                 if (typeof window !== 'undefined') {
-                  sessionStorage.setItem('selectedTenantSlug', tenant.name);
+                  localStorage.setItem('activeTenantId', tenant.id);
+                  localStorage.setItem(
+                    'tenantList',
+                    JSON.stringify([{ id: tenant.id, name: tenant.name, displayName: tenant.displayName }]),
+                  );
+                  window.dispatchEvent(new CustomEvent('infron:tenant-context-changed'));
                   window.location.href = '/tenant/dashboard';
                 }
               }}

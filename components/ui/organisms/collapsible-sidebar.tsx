@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebarCounts } from '@/lib/use-sidebar-counts';
 import { useAuth } from '@/lib/auth-context';
+import { useTenantOptional } from '@/lib/tenant-context';
 import { fetchOidcConfigIfNeeded, getUserManager } from '@/lib/oidc';
 import {
   LayoutDashboard,
@@ -154,6 +155,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
   }: CollapsibleSidebarProps, ref) => {
     const pathname = usePathname();
     const { user } = useAuth();
+    const tenantCtx = useTenantOptional();
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
     const { counts } = useSidebarCounts(userRole, isOpen, tenantIdForSidebarCounts);
 
@@ -299,6 +301,42 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
           </div>
 
           {/* Navigation */}
+          {userRole === 'tenant' && (
+            <div className="px-4 pt-4">
+              <div className={cn(
+                'rounded-lg border border-sidebar-border bg-sidebar-hover/60',
+                isOpen ? 'p-3' : 'p-2'
+              )}>
+                {isOpen ? (
+                  <>
+                    <p className="text-xs uppercase tracking-wide text-sidebar-item-muted mb-2">Active Tenant</p>
+                    <p className="text-sm font-medium text-[color:var(--text-primary)] truncate mb-2">
+                      {tenantCtx?.activeTenant?.displayName || tenantCtx?.activeTenant?.name || 'Not selected'}
+                    </p>
+                    <select
+                      className="w-full rounded-md border border-sidebar-border bg-sidebar px-2 py-1.5 text-sm text-sidebar-item"
+                      value={tenantCtx?.activeTenant?.id ?? ''}
+                      onChange={(e) => {
+                        const selected = tenantCtx?.tenantList.find((t) => t.id === e.target.value) ?? null;
+                        tenantCtx?.setActiveTenant(selected);
+                      }}
+                    >
+                      <option value="" disabled>
+                        Select tenant
+                      </option>
+                      {(tenantCtx?.tenantList ?? []).map((tenant) => (
+                        <option key={tenant.id} value={tenant.id}>
+                          {tenant.displayName || tenant.name}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                ) : (
+                  <div className="h-2 w-2 mx-auto rounded-full bg-primary-500" title="Tenant context" />
+                )}
+              </div>
+            </div>
+          )}
           <nav className="flex-1 overflow-y-auto p-4">
             <ul className="space-y-1">
               {items.map((item) => (

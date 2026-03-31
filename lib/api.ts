@@ -133,6 +133,22 @@ export async function apiRequest<T = any>(
 
   // Handle non-OK responses
   if (!response.ok) {
+    let errorBodyText = '';
+    let errorCode: string | null = null;
+    const responseContentType = response.headers.get('content-type') || '';
+
+    if (responseContentType.includes('application/json')) {
+      try {
+        const errorJson = await response.json();
+        errorCode = typeof errorJson?.code === 'string' ? errorJson.code : null;
+        errorBodyText = JSON.stringify(errorJson);
+      } catch {
+        errorBodyText = '';
+      }
+    } else {
+      errorBodyText = await response.text();
+    }
+
     // Handle 401 Unauthorized - token expired or invalid
     if (response.status === 401) {
       // Clear the user session and redirect to home page
@@ -141,10 +157,19 @@ export async function apiRequest<T = any>(
       // Throw to prevent further processing
       throw new Error('Authentication expired. Redirecting to login...');
     }
-    
-    const errorText = await response.text();
+
+    // Handle invalid tenant context and force tenant re-selection.
+    if (response.status === 403 && errorCode === 'INVALID_TENANT_CONTEXT') {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('activeTenantId');
+        window.dispatchEvent(new CustomEvent('infron:tenant-context-changed'));
+        window.location.href = '/tenant/select';
+      }
+      throw new Error('Tenant context is no longer valid. Redirecting to tenant selection...');
+    }
+
     throw new Error(
-      `API request failed: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+      `API request failed: ${response.status} ${response.statusText}${errorBodyText ? ` - ${errorBodyText}` : ''}`
     );
   }
 

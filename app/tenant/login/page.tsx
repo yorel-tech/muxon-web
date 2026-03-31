@@ -1,14 +1,11 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchOidcConfigIfNeeded, getUserManager, OIDC_NOT_CONFIGURED_MESSAGE } from '@lib/oidc';
-import { Input } from '@/components/ui/atoms/input';
 import { Button } from '@/components/ui/atoms/button';
 import { useProductInfo } from '@lib/product-info-context';
 import { BrandMark } from '@/components/BrandMark';
-
-const TENANT_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export default function TenantLoginPage() {
   const router = useRouter();
@@ -16,7 +13,6 @@ export default function TenantLoginPage() {
   const isNexus =
     !editionLoading &&
     (edition.toLowerCase() === 'nexus' || edition.toLowerCase() === 'enterprise');
-  const [tenantName, setTenantName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,20 +35,7 @@ export default function TenantLoginPage() {
     checkExistingSession();
   }, [router]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const value = tenantName.trim();
-
-    if (!value) {
-      setError('Tenant name is required.');
-      return;
-    }
-
-    if (!TENANT_SLUG_REGEX.test(value.toLowerCase())) {
-      setError('Tenant name must be a valid slug (e.g. acme-corp): lowercase letters, numbers, and hyphens only.');
-      return;
-    }
-
+  const handleLogin = async () => {
     setError(null);
     setIsSubmitting(true);
 
@@ -65,7 +48,6 @@ export default function TenantLoginPage() {
       }
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('loginType', 'tenant');
-        sessionStorage.setItem('selectedTenantSlug', value.toLowerCase());
       }
 
       const um = getUserManager();
@@ -113,28 +95,10 @@ export default function TenantLoginPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              className={`block text-sm font-medium mb-2 ${isNexus ? 'text-slate-100' : 'text-[color:var(--text-primary)]'}`}
-            >
-              Tenant name (slug)
-            </label>
-            <Input
-              type="text"
-              value={tenantName}
-              onChange={(e) => setTenantName(e.target.value)}
-              placeholder="acme-corp"
-              className={
-                isNexus
-                  ? 'bg-slate-900/60 border-slate-600 text-white placeholder:text-slate-500'
-                  : 'bg-white border-border text-[color:var(--text-primary)] placeholder:text-gray-400'
-              }
-            />
-            <p className={`mt-1 text-xs ${isNexus ? 'text-slate-300' : 'text-[color:var(--text-secondary)]'}`}>
-              Use the slug defined when your tenant was created (e.g. <code>acme-corp</code>).
-            </p>
-          </div>
+        <div className="space-y-4">
+          <p className={`text-sm ${isNexus ? 'text-slate-300' : 'text-[color:var(--text-secondary)]'}`}>
+            Continue to your identity provider. You can select the tenant context after sign-in.
+          </p>
 
           {error && (
             <div
@@ -150,7 +114,8 @@ export default function TenantLoginPage() {
 
           <div className="flex flex-col gap-3 pt-2">
             <Button
-              type="submit"
+              type="button"
+              onClick={handleLogin}
               disabled={isSubmitting}
               className={
                 isNexus
@@ -170,7 +135,7 @@ export default function TenantLoginPage() {
               Back to Home
             </Button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

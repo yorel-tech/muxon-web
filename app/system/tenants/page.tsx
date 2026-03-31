@@ -300,7 +300,12 @@ export default function TenantsPage() {
 
   const openTenantPortal = (tenant: Tenant) => {
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('selectedTenantSlug', tenant.slug ?? tenant.name);
+      localStorage.setItem('activeTenantId', tenant.id);
+      localStorage.setItem(
+        'tenantList',
+        JSON.stringify([{ id: tenant.id, name: tenant.name, displayName: tenant.displayName }]),
+      );
+      window.dispatchEvent(new CustomEvent('infron:tenant-context-changed'));
       window.location.href = '/tenant/dashboard';
     }
   };

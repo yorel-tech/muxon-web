@@ -60,7 +60,7 @@ export default function TenantDashboardPage() {
             items: [],
             total: 0,
           })),
-          apiGet<{ settings?: { quotas?: Record<string, number> } }>('/api/v1/tenants/current').catch(
+          apiGet<{ settings?: { quotas?: Record<string, number> } }>(`/api/v1/tenants/${tenantId}`).catch(
             (): { settings?: { quotas?: Record<string, number> } } => ({}),
           ),
         ]);

@@ -2,36 +2,104 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 
-const STORAGE_KEY = 'selectedTenantSlug';
+export interface TenantInfo {
+  id: string;
+  name: string;
+  displayName?: string;
+}
+
+const ACTIVE_TENANT_ID_KEY = 'activeTenantId';
+const TENANT_LIST_KEY = 'tenantList';
+const TENANT_EVENT = 'infron:tenant-context-changed';
 
 interface TenantContextType {
-  selectedTenantSlug: string | null;
-  setSelectedTenantSlug: (slug: string | null) => void;
+  activeTenant: TenantInfo | null;
+  tenantList: TenantInfo[];
+  setActiveTenant: (tenant: TenantInfo | null) => void;
+  setTenantList: (list: TenantInfo[]) => void;
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
 
+function readTenantListFromStorage(): TenantInfo[] {
+  if (typeof window === 'undefined') return [];
+  const raw = localStorage.getItem(TENANT_LIST_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((t): t is TenantInfo => !!t && typeof t.id === 'string' && typeof t.name === 'string');
+  } catch {
+    return [];
+  }
+}
+
+function readActiveTenantIdFromStorage(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(ACTIVE_TENANT_ID_KEY);
+}
+
+export function persistTenantContext(list: TenantInfo[], activeTenantId: string | null): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(TENANT_LIST_KEY, JSON.stringify(list));
+  if (activeTenantId) {
+    localStorage.setItem(ACTIVE_TENANT_ID_KEY, activeTenantId);
+  } else {
+    localStorage.removeItem(ACTIVE_TENANT_ID_KEY);
+  }
+  window.dispatchEvent(new CustomEvent(TENANT_EVENT));
+}
+
 export function TenantProvider({ children }: { children: ReactNode }) {
-  const [selectedTenantSlug, setState] = useState<string | null>(null);
+  const [tenantList, setTenantListState] = useState<TenantInfo[]>([]);
+  const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const slug = sessionStorage.getItem(STORAGE_KEY);
-    setState(slug);
+    const syncFromStorage = () => {
+      setTenantListState(readTenantListFromStorage());
+      setActiveTenantId(readActiveTenantIdFromStorage());
+    };
+    syncFromStorage();
+    window.addEventListener(TENANT_EVENT, syncFromStorage);
+    window.addEventListener('storage', syncFromStorage);
+    return () => {
+      window.removeEventListener(TENANT_EVENT, syncFromStorage);
+      window.removeEventListener('storage', syncFromStorage);
+    };
   }, []);
 
-  const setSelectedTenantSlug = useCallback((slug: string | null) => {
+  const setTenantList = useCallback((list: TenantInfo[]) => {
     if (typeof window === 'undefined') return;
-    if (slug) {
-      sessionStorage.setItem(STORAGE_KEY, slug);
-    } else {
-      sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.setItem(TENANT_LIST_KEY, JSON.stringify(list));
+    setTenantListState(list);
+
+    const currentActiveId = localStorage.getItem(ACTIVE_TENANT_ID_KEY);
+    const hasActive = !!currentActiveId && list.some((t) => t.id === currentActiveId);
+    if (!hasActive) {
+      localStorage.removeItem(ACTIVE_TENANT_ID_KEY);
+      setActiveTenantId(null);
     }
-    setState(slug);
+
+    window.dispatchEvent(new CustomEvent(TENANT_EVENT));
   }, []);
+
+  const setActiveTenant = useCallback((tenant: TenantInfo | null) => {
+    if (typeof window === 'undefined') return;
+    if (tenant) {
+      localStorage.setItem(ACTIVE_TENANT_ID_KEY, tenant.id);
+      setActiveTenantId(tenant.id);
+    } else {
+      localStorage.removeItem(ACTIVE_TENANT_ID_KEY);
+      setActiveTenantId(null);
+    }
+    window.dispatchEvent(new CustomEvent(TENANT_EVENT));
+  }, []);
+
+  const activeTenant = tenantList.find((t) => t.id === activeTenantId) ?? null;
 
   return (
-    <TenantContext.Provider value={{ selectedTenantSlug, setSelectedTenantSlug }}>
+    <TenantContext.Provider value={{ activeTenant, tenantList, setActiveTenant, setTenantList }}>
       {children}
     </TenantContext.Provider>
   );

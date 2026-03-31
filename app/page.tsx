@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { fetchOidcConfigIfNeeded, getUserManager, OIDC_NOT_CONFIGURED_MESSAGE } from '@lib/oidc';
 import { useProductInfo } from '@lib/product-info-context';
 import { BrandMark } from '@/components/BrandMark';
@@ -9,7 +8,6 @@ import { BrandMark } from '@/components/BrandMark';
 type LoginType = 'tenant' | 'system';
 
 export default function Home() {
-  const router = useRouter();
   const { edition, loading: editionLoading } = useProductInfo();
   const isNexus =
     !editionLoading &&
@@ -208,7 +206,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   setShowLoginModal(false);
-                  router.push('/tenant/login');
+                  onLogin('tenant');
                 }}
                 className="w-full px-6 py-4 rounded-lg border-2 border-gray-200 hover:border-primary-500 hover:bg-primary-50 transition-all text-left"
               >

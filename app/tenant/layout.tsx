@@ -3,12 +3,11 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { CollapsibleSidebar } from '@/components/ui/organisms/collapsible-sidebar';
-import { TenantProvider } from '@/lib/tenant-context';
-import { useTenantId } from '@/lib/use-tenant-id';
+import { TenantProvider, useTenant } from '@/lib/tenant-context';
 
 function TenantShell({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { tenantId } = useTenantId();
+  const { activeTenant } = useTenant();
 
   return (
     <div className="min-h-screen bg-app">
@@ -16,7 +15,7 @@ function TenantShell({ children }: { children: React.ReactNode }) {
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         userRole="tenant"
-        tenantIdForSidebarCounts={tenantId}
+        tenantIdForSidebarCounts={activeTenant?.id ?? null}
       />
       <div className={`transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>{children}</div>
     </div>

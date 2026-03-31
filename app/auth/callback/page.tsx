@@ -3,9 +3,14 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchOidcConfigIfNeeded, getUserManager } from '@lib/oidc';
 import { apiGet } from '@lib/api';
+import { persistTenantContext, TenantInfo } from '@lib/tenant-context';
 
 interface BootstrapStatusDto {
   systemStatus: 'NOTREADY' | 'BOOTSTRAPPED' | 'READY';
+}
+
+interface TenantListResponse {
+  items?: Array<{ id?: string; name?: string; displayName?: string }>;
 }
 
 export default function Callback() {
@@ -25,7 +30,26 @@ export default function Callback() {
           sessionStorage.removeItem('loginType');
 
           if (loginType === 'tenant') {
-            router.replace('/tenant/dashboard');
+            try {
+              const tenantList = await apiGet<TenantListResponse>('/api/v1/tenants/mine');
+              const tenants: TenantInfo[] = (tenantList.items ?? [])
+                .filter((t): t is { id: string; name: string; displayName?: string } => !!t.id && !!t.name)
+                .map((t) => ({ id: t.id, name: t.name, displayName: t.displayName }));
+
+              if (tenants.length === 0) {
+                persistTenantContext([], null);
+                router.replace('/tenant/no-tenants');
+              } else if (tenants.length === 1) {
+                persistTenantContext(tenants, tenants[0].id);
+                router.replace('/tenant/dashboard');
+              } else {
+                persistTenantContext(tenants, null);
+                router.replace('/tenant/select');
+              }
+            } catch (error) {
+              console.error('Error resolving tenant memberships:', error);
+              router.replace('/tenant/no-tenants');
+            }
           } else {
             try {
               const status: BootstrapStatusDto = await apiGet('/api/v1/status');
