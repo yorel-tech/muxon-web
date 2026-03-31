@@ -309,9 +309,8 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
               )}>
                 {isOpen ? (
                   <>
-                    <p className="text-xs uppercase tracking-wide text-sidebar-item-muted mb-2">Active Tenant</p>
-                    <p className="text-sm font-medium text-[color:var(--text-primary)] truncate mb-2">
-                      {tenantCtx?.activeTenant?.displayName || tenantCtx?.activeTenant?.name || 'Not selected'}
+                    <p className="text-xs font-bold uppercase tracking-wide text-sidebar-item-muted mb-2 text-center">
+                      Active Tenant
                     </p>
                     <select
                       className="w-full rounded-md border border-sidebar-border bg-sidebar px-2 py-1.5 text-sm text-sidebar-item"

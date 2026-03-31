@@ -23,12 +23,17 @@ interface VmRow {
 }
 
 /** Tenant datacenter grant (from GET /api/v1/tenants/{id}/datacenters) */
+interface DatacenterSettings {
+  storageClasses?: string[];
+}
+
 interface TenantDatacenterGrant {
   id: string;
   tenantId?: string;
   datacenterId: string;
   datacenter?: { id: string; name?: string; description?: string };
   access?: boolean;
+  overrideSettings?: DatacenterSettings | null;
 }
 
 /** Form types aligned with OpenAPI vms.yaml (ComputeSpec, StorageSpec, NetworkSpec, OsSpec) */
@@ -104,6 +109,9 @@ export default function TenantVmsPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [grants, setGrants] = useState<TenantDatacenterGrant[]>([]);
   const [grantsLoading, setGrantsLoading] = useState(false);
+  const [storageClasses, setStorageClasses] = useState<string[]>([]);
+  const [storageClassesLoading, setStorageClassesLoading] = useState(false);
+  const [storageClassesError, setStorageClassesError] = useState<string | null>(null);
   const [wizardStep, setWizardStep] = useState(0);
   const [createForm, setCreateForm] = useState<VmCreateForm>(() => defaultCreateForm(''));
   const [createSubmitting, setCreateSubmitting] = useState(false);
@@ -171,6 +179,102 @@ export default function TenantVmsPage() {
       loadGrants();
     }
   }, [createModalOpen, tenantId, loadGrants]);
+
+  const loadStorageClasses = useCallback(
+    async (selectedGrantId: string) => {
+      if (!tenantId || !selectedGrantId) {
+        setStorageClasses([]);
+        setStorageClassesError(null);
+        return;
+      }
+      const selectedGrant = grants.find((g) => g.id === selectedGrantId);
+      if (!selectedGrant) {
+        setStorageClasses([]);
+        setStorageClassesError(null);
+        return;
+      }
+      const overrideStorageClasses = Array.from(
+        new Set((selectedGrant.overrideSettings?.storageClasses ?? []).filter(Boolean))
+      );
+      if (overrideStorageClasses.length > 0) {
+        setStorageClasses(overrideStorageClasses);
+        setStorageClassesLoading(false);
+        setStorageClassesError(null);
+        const allowed = new Set(overrideStorageClasses);
+        setCreateForm((f) => {
+          const vmStorageClass = f.spec.storage.vmStorageClass;
+          const nextVmStorageClass = vmStorageClass && allowed.has(vmStorageClass) ? vmStorageClass : undefined;
+          const nextDisks = f.spec.storage.disks.map((disk) => ({
+            ...disk,
+            storageClass: disk.storageClass && allowed.has(disk.storageClass) ? disk.storageClass : undefined,
+          }));
+          const diskChanged = nextDisks.some((d, i) => d.storageClass !== f.spec.storage.disks[i]?.storageClass);
+          if (!diskChanged && nextVmStorageClass === vmStorageClass) return f;
+          return {
+            ...f,
+            spec: {
+              ...f.spec,
+              storage: {
+                ...f.spec.storage,
+                vmStorageClass: nextVmStorageClass,
+                disks: nextDisks,
+              },
+            },
+          };
+        });
+        return;
+      }
+      const datacenterId = selectedGrant?.datacenterId || selectedGrant?.datacenter?.id;
+      if (!datacenterId) {
+        setStorageClasses([]);
+        setStorageClassesError('Selected datacenter grant is missing a datacenter ID.');
+        return;
+      }
+      setStorageClassesLoading(true);
+      setStorageClassesError(null);
+      try {
+        const data = await apiGet<string[] | { items?: string[] }>(
+          `/api/v1/tenants/${tenantId}/datacenters/${datacenterId}/storage-classes`
+        );
+        const raw = Array.isArray(data) ? data : data?.items ?? [];
+        const options = Array.from(new Set(raw.filter(Boolean)));
+        setStorageClasses(options);
+        const allowed = new Set(options);
+        setCreateForm((f) => {
+          const vmStorageClass = f.spec.storage.vmStorageClass;
+          const nextVmStorageClass = vmStorageClass && allowed.has(vmStorageClass) ? vmStorageClass : undefined;
+          const nextDisks = f.spec.storage.disks.map((disk) => ({
+            ...disk,
+            storageClass: disk.storageClass && allowed.has(disk.storageClass) ? disk.storageClass : undefined,
+          }));
+          const diskChanged = nextDisks.some((d, i) => d.storageClass !== f.spec.storage.disks[i]?.storageClass);
+          if (!diskChanged && nextVmStorageClass === vmStorageClass) return f;
+          return {
+            ...f,
+            spec: {
+              ...f.spec,
+              storage: {
+                ...f.spec.storage,
+                vmStorageClass: nextVmStorageClass,
+                disks: nextDisks,
+              },
+            },
+          };
+        });
+      } catch (e) {
+        setStorageClasses([]);
+        setStorageClassesError(e instanceof Error ? e.message : 'Failed to load storage classes.');
+      } finally {
+        setStorageClassesLoading(false);
+      }
+    },
+    [tenantId, grants]
+  );
+
+  useEffect(() => {
+    if (!createModalOpen) return;
+    void loadStorageClasses(createForm.tenant_datacenter_grant_id);
+  }, [createModalOpen, createForm.tenant_datacenter_grant_id, loadStorageClasses]);
 
   const handleOpenWizard = () => {
     setCreateModalOpen(true);
@@ -395,7 +499,12 @@ export default function TenantVmsPage() {
                     <select
                       className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-panel dark:bg-surface dark:text-gray-100"
                       value={createForm.tenant_datacenter_grant_id}
-                      onChange={(e) => setCreateForm((f) => ({ ...f, tenant_datacenter_grant_id: e.target.value }))}
+                      onChange={(e) =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          tenant_datacenter_grant_id: e.target.value,
+                        }))
+                      }
                       disabled={createSubmitting || grantsLoading}
                     >
                       <option value="">Select datacenter</option>
@@ -463,8 +572,8 @@ export default function TenantVmsPage() {
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       VM storage class (optional)
                     </label>
-                    <Input
-                      placeholder="e.g. ssd, hdd"
+                    <select
+                      className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-panel dark:bg-surface dark:text-gray-100"
                       value={createForm.spec.storage.vmStorageClass ?? ''}
                       onChange={(e) =>
                         setCreateForm((f) => ({
@@ -475,9 +584,20 @@ export default function TenantVmsPage() {
                           },
                         }))
                       }
-                      fullWidth
-                      disabled={createSubmitting}
-                    />
+                      disabled={createSubmitting || storageClassesLoading || storageClasses.length === 0}
+                    >
+                      <option value="">
+                        {storageClassesLoading ? 'Loading storage classes…' : 'Select storage class'}
+                      </option>
+                      {storageClasses.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                    {storageClassesError && (
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-300">{storageClassesError}</p>
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -520,8 +640,8 @@ export default function TenantVmsPage() {
                             className="w-32"
                             disabled={createSubmitting}
                           />
-                          <Input
-                            placeholder="Storage class"
+                          <select
+                            className="flex-1 rounded-md border border-panel bg-surface px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-panel dark:bg-surface dark:text-gray-100"
                             value={disk.storageClass ?? ''}
                             onChange={(e) =>
                               setCreateForm((f) => {
@@ -530,9 +650,17 @@ export default function TenantVmsPage() {
                                 return { ...f, spec: { ...f.spec, storage: { ...f.spec.storage, disks } } };
                               })
                             }
-                            className="flex-1"
-                            disabled={createSubmitting}
-                          />
+                            disabled={createSubmitting || storageClassesLoading || storageClasses.length === 0}
+                          >
+                            <option value="">
+                              {storageClassesLoading ? 'Loading storage classes…' : 'Select storage class'}
+                            </option>
+                            {storageClasses.map((name) => (
+                              <option key={name} value={name}>
+                                {name}
+                              </option>
+                            ))}
+                          </select>
                           <button
                             type="button"
                             onClick={() =>
@@ -557,6 +685,11 @@ export default function TenantVmsPage() {
                       ))}
                     </div>
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">At least one disk required. Size in MB.</p>
+                    {!storageClassesLoading && storageClasses.length === 0 && (
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        No storage classes available for the selected datacenter grant.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
