@@ -112,7 +112,6 @@ export default function TenantDatacentersPage() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Datacenters</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Read-only view of datacenters available to your tenant</p>
         </motion.div>
 
         <motion.div

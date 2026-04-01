@@ -91,7 +91,6 @@ export default function TenantUsersPage() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Users</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Tenant users and their roles</p>
         </motion.div>
 
         <motion.div

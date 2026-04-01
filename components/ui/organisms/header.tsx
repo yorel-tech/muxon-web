@@ -1,154 +1,141 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { forwardRef, useState } from 'react';
-import { Bell, Search, Menu, User, LogOut, Settings, ChevronDown, LogIn } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { forwardRef, useRef, useState } from 'react';
+import { Bell, ChevronDown, LogOut, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth-context';
 import { BrandMark } from '@/components/BrandMark';
+import { useOnClickOutside } from '@/lib/use-on-click-outside';
 
 export interface HeaderProps {
-  user?: {
-    name: string;
-    email?: string;
-    avatar?: string;
-  };
+  /** Optional slot rendered between the logo and the right-side actions (e.g. a tenant switcher). */
+  tenantSwitcher?: React.ReactNode;
   notifications?: number;
-  onSearch?: (query: string) => void;
-  onMenuClick?: () => void;
   onSettingsClick?: () => void;
   onLogout?: () => void;
   className?: string;
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(
-  ({ notifications = 0, onSearch, onMenuClick, onSettingsClick, onLogout, className = '' }: HeaderProps, ref,
-) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user, userRole } = useAuth();
+  ({ tenantSwitcher, notifications = 0, onSettingsClick, onLogout, className = '' }: HeaderProps, ref) => {
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const { isAuthenticated, user } = useAuth();
+    const userMenuRef = useRef<HTMLDivElement>(null);
+    const canShowUserMenu = isAuthenticated || Boolean(onSettingsClick) || Boolean(onLogout);
+    const userDisplayName = user?.name ?? 'User';
 
-  return (
-    <header
-      ref={ref}
-      className={cn(
-        'sticky top-0 z-30 bg-surface border-b border-panel',
-        className,
-      )}
-    >
-      <div className="flex items-center justify-between px-6 py-4">
-        {/* Left: Logo and Search */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <BrandMark size={32} className="h-8 w-8 rounded-lg" />
-            <span className="text-xl font-bold text-[color:var(--text-primary)]">infron</span>
-            {userRole === 'system' && (
-              <span className="ml-2 text-xs px-2 py-0.5 bg-sidebar-badge text-sidebar-badge-fg rounded-full font-medium">
-                Enterprise
-              </span>
+    useOnClickOutside(userMenuRef, () => setIsUserMenuOpen(false));
+
+    return (
+      <header
+        ref={ref}
+        className={cn(
+          'h-16 flex items-center bg-primary-600 dark:bg-primary-800 border-b border-primary-700 dark:border-primary-900',
+          className,
+        )}
+      >
+        <div className="flex items-center justify-between w-full px-4">
+          {/* Left: Logo + Tenant Switcher */}
+          <div className="flex items-center gap-5">
+            <div className="flex h-10 items-center gap-3 shrink-0">
+              <BrandMark size={32} className="h-8 w-8 rounded-md" />
+              <span className="text-xl font-bold text-white whitespace-nowrap">infron</span>
+            </div>
+            {tenantSwitcher && (
+              <div className="ml-4 flex h-10 items-center">
+                {tenantSwitcher}
+              </div>
             )}
           </div>
-          <div className="relative">
-            <motion.button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+
+          {/* Right: Notifications + User menu */}
+          <div className="flex items-center gap-1">
+            {/* Notifications (future-ready) */}
+            <button
+              className="relative p-2 rounded-md text-primary-100 hover:bg-primary-700 dark:hover:bg-primary-700 transition-colors"
+              aria-label="Notifications"
             >
-              <Search size={20} className="text-gray-500" />
-            </motion.button>
-            <AnimatePresence>
-              {isSearchOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute top-full left-0 mt-2 w-96 bg-surface rounded-lg border border-panel p-2"
+              <Bell size={20} strokeWidth={2.5} />
+              {notifications > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 rounded-full text-xs font-medium text-white flex items-center justify-center">
+                  {notifications > 99 ? '99+' : notifications}
+                </span>
+              )}
+            </button>
+
+            {/* User profile menu */}
+            {canShowUserMenu && (
+              <div ref={userMenuRef} className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen((v) => !v)}
+                  className="flex h-10 items-center gap-2 px-3 rounded-md border border-primary-400 bg-primary-700 dark:bg-primary-900 text-primary-100 hover:bg-primary-800 dark:hover:bg-primary-950 transition-colors"
+                  aria-label="User menu"
                 >
-                  <input
-                    type="search"
-                    placeholder="Search..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    autoFocus
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={userDisplayName}
+                      className="h-7 w-7 rounded-full object-cover ring-1 ring-primary-300"
+                    />
+                  ) : (
+                    <div className="h-7 w-7 rounded-full bg-primary-400 dark:bg-primary-600 flex items-center justify-center text-white text-base font-bold ring-1 ring-primary-300">
+                      {userDisplayName.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="hidden sm:block text-sm font-medium text-white max-w-[120px] truncate">
+                    {userDisplayName}
+                  </span>
+                  <ChevronDown size={14} className="text-primary-200" />
+                </button>
 
-        {/* Right: Notifications, Menu, User */}
-        <div className="flex items-center gap-4">
-          {/* Notifications */}
-          <button className="relative p-2 rounded-md hover:bg-gray-100 transition-colors">
-            <Bell size={20} className="text-gray-600" />
-            {notifications > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-error-500 rounded-full text-xs font-medium text-white flex items-center justify-center">
-                {notifications > 99 ? '99+' : notifications}
-              </span>
-            )}
-          </button>
-
-          {/* Menu */}
-          <button
-            onClick={onMenuClick}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-          >
-            <Menu size={20} className="text-gray-600" />
-          </button>
-
-          {/* User */}
-          {isAuthenticated && user ? (
-            <button className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 transition-colors">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="h-8 w-8 rounded-full object-cover"
-                />
-              ) : (
-                <div className="h-8 w-8 rounded-full flex items-center justify-center text-white font-medium" style={{ background: 'linear-gradient(to bottom right, #0EA5E9, #7C3AED)' }}>
-                  {user.name?.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <ChevronDown size={16} className="text-gray-400" />
-            </button>
-          ) : (
-            <button
-              onClick={() => window.location.href = '/login'}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-              aria-label="Sign in"
-            >
-              <LogIn size={20} className="text-gray-600" />
-              <span className="ml-2 hidden sm:inline">Sign In</span>
-            </button>
-          )}
-
-          {/* Actions */}
-          <div className="border-l border-gray-200 pl-4">
-            <button
-              onClick={onSettingsClick}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-              aria-label="Settings"
-            >
-              <Settings size={20} className="text-gray-600" />
-            </button>
-            {isAuthenticated && (
-              <button
-                onClick={onLogout}
-                className="p-2 rounded-md hover:bg-red-50 hover:bg-red-100 transition-colors text-error-600"
-                aria-label="Sign out"
-              >
-                <LogOut size={20} />
-                <span className="ml-2 hidden sm:inline">Sign Out</span>
-              </button>
+                <AnimatePresence>
+                  {isUserMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-1 w-48 bg-surface rounded-lg border border-panel shadow-lg py-1 z-50"
+                    >
+                      {user?.email && (
+                        <div className="px-4 py-2 border-b border-panel">
+                          <p className="text-xs font-medium text-[color:var(--text-primary)] truncate">{userDisplayName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                        </div>
+                      )}
+                      <button
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-[color:var(--text-primary)] hover:bg-sidebar-hover transition-colors"
+                        onClick={() => { setIsUserMenuOpen(false); }}
+                      >
+                        <User size={15} />
+                        Profile
+                      </button>
+                      <button
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-[color:var(--text-primary)] hover:bg-sidebar-hover transition-colors"
+                        onClick={() => { setIsUserMenuOpen(false); onSettingsClick?.(); }}
+                      >
+                        <Settings size={15} />
+                        Settings
+                      </button>
+                      <div className="border-t border-panel my-1" />
+                      <button
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        onClick={() => { setIsUserMenuOpen(false); onLogout?.(); }}
+                      >
+                        <LogOut size={15} />
+                        Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
           </div>
         </div>
-      </div>
-    </header>
-  );
-});
+      </header>
+    );
+  }
+);
 
 Header.displayName = 'Header';

@@ -25,7 +25,6 @@ import {
   HardDrive,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BrandMark } from '@/components/BrandMark';
 
 export interface SidebarItem {
   id: string;
@@ -44,6 +43,12 @@ export interface CollapsibleSidebarProps {
   /** Resolved tenant UUID for tenant portal VM counts (optional). */
   tenantIdForSidebarCounts?: string | null;
   isEnterprise?: boolean;
+  /** Whether to render the tenant switcher block inside the sidebar. Defaults to true. */
+  showTenantSwitcher?: boolean;
+  /** Whether to render the user profile / sign-out section at the bottom. Defaults to true. */
+  showUserSection?: boolean;
+  /** Pixel offset from the top (e.g. header height). Applied as inline top style. Defaults to 0. */
+  topOffset?: number;
   className?: string;
 }
 
@@ -151,6 +156,9 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
     userRole,
     tenantIdForSidebarCounts = null,
     isEnterprise = false,
+    showTenantSwitcher = true,
+    showUserSection = true,
+    topOffset = 0,
     className = '',
   }: CollapsibleSidebarProps, ref) => {
     const pathname = usePathname();
@@ -261,47 +269,17 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
         ref={ref}
         animate={{ width: isOpen ? 256 : 64 }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        style={{ top: topOffset }}
         className={cn(
-          'fixed inset-y-0 left-0 z-40 bg-sidebar border-r border-sidebar-border',
+          'fixed bottom-0 left-0 z-40 bg-sidebar border-r border-sidebar-border',
           'shadow-[4px_0_24px_-4px_rgba(15,23,42,0.12)]',
           'dark:shadow-[4px_0_28px_-4px_rgba(0,0,0,0.55)]',
           className,
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo / Brand */}
-          <div className={cn(
-            'flex items-center justify-center border-b border-sidebar-border',
-            isOpen ? 'p-6 justify-between' : 'py-4'
-          )}>
-            <div className={cn(
-              'flex items-center gap-2 overflow-hidden',
-              isOpen ? '' : 'justify-center'
-            )}>
-              <BrandMark size={32} className="h-8 w-8 rounded-lg" />
-              <AnimatePresence mode="wait">
-                {isOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center gap-2 overflow-hidden"
-                  >
-                    <span className="text-lg font-bold text-[color:var(--text-primary)] whitespace-nowrap">infron</span>
-                    {isEnterprise && (
-                      <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-sidebar-badge text-sidebar-badge-fg rounded-full whitespace-nowrap">
-                        Enterprise
-                      </span>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
           {/* Navigation */}
-          {userRole === 'tenant' && (
+          {userRole === 'tenant' && showTenantSwitcher && (
             <div className="px-4 pt-4">
               <div className={cn(
                 'rounded-lg border border-sidebar-border bg-sidebar-hover/60',
@@ -336,7 +314,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
               </div>
             </div>
           )}
-          <nav className="flex-1 overflow-y-auto p-4">
+          <nav className="flex-1 overflow-y-auto px-4 pb-4 pt-5">
             <ul className="space-y-1">
               {items.map((item) => (
                 <li key={item.id}>{renderSidebarItem(item)}</li>
@@ -345,7 +323,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
           </nav>
 
           {/* User Section */}
-          <div className={cn(
+          {showUserSection && <div className={cn(
             'border-t border-sidebar-border',
             isOpen ? 'p-4' : 'py-4'
           )}>
@@ -424,7 +402,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
                 )}
               </AnimatePresence>
             </button>
-          </div>
+          </div>}
         </div>
 
         {/* Toggle Button */}
