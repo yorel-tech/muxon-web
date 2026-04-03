@@ -1,16 +1,27 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/atoms/card';
 import { Table, Column } from '@/components/ui/organisms/table';
 import { Badge } from '@/components/ui/atoms/badge';
 import { Button } from '@/components/ui/atoms/button';
 import { Input } from '@/components/ui/atoms/input';
 import { Modal } from '@/components/ui/molecules/modal';
+import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
+import { RowActionsTrigger } from '@/components/DynamicContextMenu';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { apiGet, apiPost } from '@/lib/api';
 import { useTenantId } from '@/lib/use-tenant-id';
+import {
+  fetchTenantContentLibraries,
+  fetchAllContentItems,
+  getTenantContentItem,
+} from '@/lib/api/content-library';
+import type { ContentLibraryRow, ContentItemRow } from '@/types/content-library';
+import { AttachIsoModal } from '@/components/vm/AttachIsoModal';
+import { PublishTemplateModal } from '@/components/vm/PublishTemplateModal';
 
 interface VmRow {
   id: string;
@@ -74,9 +85,11 @@ interface VmCreateForm {
   description?: string;
   tenant_datacenter_grant_id: string;
   spec: VmSpec;
+  content_item_id?: string;
+  iso_content_item_ids?: string[];
 }
 
-const WIZARD_STEPS = ['Basics', 'Compute', 'Storage', 'Network', 'OS', 'Review'] as const;
+const WIZARD_STEPS = ['Basics', 'Template & ISOs', 'Compute', 'Storage', 'Network', 'OS', 'Review'] as const;
 const NAME_PATTERN = /^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?$/;
 
 function defaultVmSpec(): VmSpec {
@@ -99,11 +112,14 @@ function defaultCreateForm(initialGrantId: string): VmCreateForm {
     description: '',
     tenant_datacenter_grant_id: initialGrantId,
     spec: defaultVmSpec(),
+    content_item_id: undefined,
+    iso_content_item_ids: [],
   };
 }
 
-export default function TenantVmsPage() {
+function TenantVmsPageInner() {
   const { tenantId } = useTenantId();
+  const searchParams = useSearchParams();
   const [vms, setVms] = useState<VmRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -116,6 +132,17 @@ export default function TenantVmsPage() {
   const [createForm, setCreateForm] = useState<VmCreateForm>(() => defaultCreateForm(''));
   const [createSubmitting, setCreateSubmitting] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [useFromTemplate, setUseFromTemplate] = useState(false);
+  const [templateLibraryId, setTemplateLibraryId] = useState('');
+  const [templateItems, setTemplateItems] = useState<ContentItemRow[]>([]);
+  const [templateItemsLoading, setTemplateItemsLoading] = useState(false);
+  const [isoLibraryId, setIsoLibraryId] = useState('');
+  const [isoCandidates, setIsoCandidates] = useState<ContentItemRow[]>([]);
+  const [isoCandidatesLoading, setIsoCandidatesLoading] = useState(false);
+  const [contentLibraries, setContentLibraries] = useState<ContentLibraryRow[]>([]);
+  const [clLoading, setClLoading] = useState(false);
+  const [attachIsoVm, setAttachIsoVm] = useState<VmRow | null>(null);
+  const [publishVm, setPublishVm] = useState<VmRow | null>(null);
 
   const loadVms = useCallback(async () => {
     if (!tenantId) {
@@ -276,11 +303,86 @@ export default function TenantVmsPage() {
     void loadStorageClasses(createForm.tenant_datacenter_grant_id);
   }, [createModalOpen, createForm.tenant_datacenter_grant_id, loadStorageClasses]);
 
+  useEffect(() => {
+    if (!createModalOpen || !tenantId) return;
+    setClLoading(true);
+    (async () => {
+      try {
+        const data = await fetchTenantContentLibraries(tenantId, 1, 200);
+        setContentLibraries(data.items ?? []);
+      } catch {
+        setContentLibraries([]);
+      } finally {
+        setClLoading(false);
+      }
+    })();
+  }, [createModalOpen, tenantId]);
+
+  useEffect(() => {
+    if (!createModalOpen || !useFromTemplate || !templateLibraryId || !tenantId) {
+      setTemplateItems([]);
+      return;
+    }
+    setTemplateItemsLoading(true);
+    (async () => {
+      try {
+        const all = await fetchAllContentItems('tenant', templateLibraryId, tenantId);
+        setTemplateItems(all.filter((i) => (i.contentType ?? '').toLowerCase() === 'vm_template'));
+      } catch {
+        setTemplateItems([]);
+      } finally {
+        setTemplateItemsLoading(false);
+      }
+    })();
+  }, [createModalOpen, useFromTemplate, templateLibraryId, tenantId]);
+
+  useEffect(() => {
+    if (!createModalOpen || !isoLibraryId || !tenantId) {
+      setIsoCandidates([]);
+      return;
+    }
+    setIsoCandidatesLoading(true);
+    (async () => {
+      try {
+        const all = await fetchAllContentItems('tenant', isoLibraryId, tenantId);
+        setIsoCandidates(all.filter((i) => (i.contentType ?? '').toLowerCase() === 'iso'));
+      } catch {
+        setIsoCandidates([]);
+      } finally {
+        setIsoCandidatesLoading(false);
+      }
+    })();
+  }, [createModalOpen, isoLibraryId, tenantId]);
+
   const handleOpenWizard = () => {
     setCreateModalOpen(true);
     setWizardStep(0);
     setCreateError(null);
-    setCreateForm(defaultCreateForm(grants[0]?.id ?? ''));
+    const base = defaultCreateForm(grants[0]?.id ?? '');
+    setUseFromTemplate(false);
+    setTemplateLibraryId('');
+    setIsoLibraryId('');
+    setTemplateItems([]);
+    setIsoCandidates([]);
+    const ci = searchParams.get('contentItemId');
+    const lib = searchParams.get('libraryId');
+    if (tenantId && ci && lib) {
+      setUseFromTemplate(true);
+      setTemplateLibraryId(lib);
+      setCreateForm({ ...base, content_item_id: ci });
+      void (async () => {
+        try {
+          const item = await getTenantContentItem(tenantId, lib, ci);
+          if ((item.contentType ?? '').toLowerCase() !== 'vm_template') {
+            setCreateError('Linked content item is not a VM template.');
+          }
+        } catch {
+          setCreateError('Could not load template from content library link.');
+        }
+      })();
+    } else {
+      setCreateForm(base);
+    }
   };
 
   const handleCloseWizard = () => {
@@ -288,6 +390,11 @@ export default function TenantVmsPage() {
       setCreateModalOpen(false);
       setWizardStep(0);
       setCreateError(null);
+      setUseFromTemplate(false);
+      setTemplateLibraryId('');
+      setIsoLibraryId('');
+      setTemplateItems([]);
+      setIsoCandidates([]);
     }
   };
 
@@ -316,6 +423,13 @@ export default function TenantVmsPage() {
     return null;
   }
 
+  function validateTemplateStep(): string | null {
+    if (!useFromTemplate) return null;
+    if (!templateLibraryId) return 'Select a content library for the template.';
+    if (!createForm.content_item_id) return 'Select a VM template.';
+    return null;
+  }
+
   const handleNext = () => {
     setCreateError(null);
     if (wizardStep === 0) {
@@ -325,12 +439,18 @@ export default function TenantVmsPage() {
         return;
       }
     } else if (wizardStep === 1) {
-      const err = validateCompute();
+      const err = validateTemplateStep();
       if (err) {
         setCreateError(err);
         return;
       }
     } else if (wizardStep === 2) {
+      const err = validateCompute();
+      if (err) {
+        setCreateError(err);
+        return;
+      }
+    } else if (wizardStep === 3) {
       const err = validateStorage();
       if (err) {
         setCreateError(err);
@@ -341,7 +461,11 @@ export default function TenantVmsPage() {
   };
 
   const handleCreateVm = async () => {
-    const err = validateBasics() ?? validateCompute() ?? validateStorage();
+    const err =
+      validateBasics() ??
+      validateTemplateStep() ??
+      validateCompute() ??
+      validateStorage();
     if (err) {
       setCreateError(err);
       return;
@@ -357,6 +481,10 @@ export default function TenantVmsPage() {
         name: createForm.name.trim(),
         description: createForm.description?.trim() || undefined,
         tenant_datacenter_grant_id: createForm.tenant_datacenter_grant_id,
+        ...(createForm.content_item_id ? { content_item_id: createForm.content_item_id } : {}),
+        ...(createForm.iso_content_item_ids && createForm.iso_content_item_ids.length > 0
+          ? { iso_content_item_ids: createForm.iso_content_item_ids }
+          : {}),
         spec: {
           compute: createForm.spec.compute,
           storage: createForm.spec.storage,
@@ -382,7 +510,33 @@ export default function TenantVmsPage() {
     return 'warning';
   };
 
+  const vmActionOptions = (row: VmRow): DropdownOption[] => [
+    {
+      label: 'Attach ISO',
+      onClick: () => setAttachIsoVm(row),
+    },
+    {
+      label: 'Publish as template',
+      onClick: () => setPublishVm(row),
+    },
+  ];
+
   const columns: Column<VmRow>[] = [
+    {
+      key: 'actions',
+      header: '',
+      cell: (row) => (
+        <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
+          <Dropdown
+            trigger={<RowActionsTrigger title="VM actions" />}
+            options={vmActionOptions(row)}
+            position="right"
+            usePortal
+          />
+        </div>
+      ),
+      sortable: false,
+    },
     {
       key: 'name',
       header: 'Name',
@@ -523,8 +677,148 @@ export default function TenantVmsPage() {
                 </div>
               )}
 
-              {/* Step 1: Compute */}
+              {/* Step 1: Template & ISOs */}
               {wizardStep === 1 && (
+                <div className="space-y-4">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={useFromTemplate}
+                      onChange={(e) => {
+                        const on = e.target.checked;
+                        setUseFromTemplate(on);
+                        if (!on) {
+                          setTemplateLibraryId('');
+                          setCreateForm((f) => ({ ...f, content_item_id: undefined }));
+                        }
+                      }}
+                      disabled={createSubmitting}
+                    />
+                    Deploy from content library template
+                  </label>
+                  {useFromTemplate && (
+                    <div className="space-y-3 pl-1 border-l-2 border-primary-200 dark:border-primary-800 ml-1 py-1">
+                      {clLoading ? (
+                        <p className="text-sm text-gray-500 flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" /> Loading libraries…
+                        </p>
+                      ) : (
+                        <>
+                          <div>
+                            <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Content library</label>
+                            <select
+                              className="w-full rounded-md border border-panel bg-surface px-3 py-2 text-sm dark:text-gray-100"
+                              value={templateLibraryId}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                setTemplateLibraryId(v);
+                                setCreateForm((f) => ({ ...f, content_item_id: undefined }));
+                              }}
+                              disabled={createSubmitting}
+                            >
+                              <option value="">Select library</option>
+                              {contentLibraries.map((lib) => (
+                                <option key={lib.id} value={lib.id}>
+                                  {lib.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">VM template</label>
+                            {templateItemsLoading ? (
+                              <p className="text-sm text-gray-500">Loading templates…</p>
+                            ) : (
+                              <select
+                                className="w-full rounded-md border border-panel bg-surface px-3 py-2 text-sm dark:text-gray-100"
+                                value={createForm.content_item_id ?? ''}
+                                onChange={(e) =>
+                                  setCreateForm((f) => ({
+                                    ...f,
+                                    content_item_id: e.target.value || undefined,
+                                  }))
+                                }
+                                disabled={createSubmitting || !templateLibraryId}
+                              >
+                                <option value="">Select template</option>
+                                {templateItems.map((t) => (
+                                  <option key={t.id} value={t.id}>
+                                    {t.name} {t.version ? `(${t.version})` : ''}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Attach ISOs at creation (optional)
+                    </p>
+                    <div>
+                      <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">ISO library</label>
+                      <select
+                        className="w-full rounded-md border border-panel bg-surface px-3 py-2 text-sm dark:text-gray-100"
+                        value={isoLibraryId}
+                        onChange={(e) => {
+                          setIsoLibraryId(e.target.value);
+                          setCreateForm((f) => ({ ...f, iso_content_item_ids: [] }));
+                        }}
+                        disabled={createSubmitting}
+                      >
+                        <option value="">None</option>
+                        {contentLibraries.map((lib) => (
+                          <option key={lib.id} value={lib.id}>
+                            {lib.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {isoLibraryId && (
+                      <div className="mt-2">
+                        {isoCandidatesLoading ? (
+                          <p className="text-sm text-gray-500">Loading ISOs…</p>
+                        ) : (
+                          <ul className="max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md divide-y dark:divide-gray-800">
+                            {isoCandidates.map((iso) => {
+                              const selected = createForm.iso_content_item_ids?.includes(iso.id) ?? false;
+                              return (
+                                <li key={iso.id}>
+                                  <label className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
+                                    <input
+                                      type="checkbox"
+                                      checked={selected}
+                                      onChange={(e) => {
+                                        setCreateForm((f) => {
+                                          const cur = new Set(f.iso_content_item_ids ?? []);
+                                          if (e.target.checked) cur.add(iso.id);
+                                          else cur.delete(iso.id);
+                                          return { ...f, iso_content_item_ids: Array.from(cur) };
+                                        });
+                                      }}
+                                    />
+                                    <span>{iso.name}</span>
+                                  </label>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                        {(createForm.iso_content_item_ids?.length ?? 0) > 0 && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {createForm.iso_content_item_ids!.length} ISO(s) selected
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Compute */}
+              {wizardStep === 2 && (
                 <div className="space-y-4">
                   <Input
                     label="CPUs"
@@ -564,8 +858,8 @@ export default function TenantVmsPage() {
                 </div>
               )}
 
-              {/* Step 2: Storage */}
-              {wizardStep === 2 && (
+              {/* Step 3: Storage */}
+              {wizardStep === 3 && (
                 <div className="space-y-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -693,8 +987,8 @@ export default function TenantVmsPage() {
                 </div>
               )}
 
-              {/* Step 3: Network */}
-              {wizardStep === 3 && (
+              {/* Step 4: Network */}
+              {wizardStep === 4 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Network interfaces</label>
@@ -816,8 +1110,8 @@ export default function TenantVmsPage() {
                 </div>
               )}
 
-              {/* Step 4: OS */}
-              {wizardStep === 4 && (
+              {/* Step 5: OS */}
+              {wizardStep === 5 && (
                 <div className="space-y-4">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">OS type</label>
@@ -869,11 +1163,21 @@ export default function TenantVmsPage() {
                 </div>
               )}
 
-              {/* Step 5: Review */}
-              {wizardStep === 5 && (
+              {/* Step 6: Review */}
+              {wizardStep === 6 && (
                 <div className="space-y-3 text-sm">
                   <p><span className="font-medium text-gray-700 dark:text-gray-300">Name:</span> {createForm.name || '—'}</p>
                   <p><span className="font-medium text-gray-700 dark:text-gray-300">Datacenter:</span> {grants.find((g) => g.id === createForm.tenant_datacenter_grant_id)?.datacenter?.name ?? createForm.tenant_datacenter_grant_id ?? '—'}</p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Template:</span>{' '}
+                    {createForm.content_item_id ? createForm.content_item_id : '—'}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">ISOs at create:</span>{' '}
+                    {(createForm.iso_content_item_ids?.length ?? 0) > 0
+                      ? createForm.iso_content_item_ids!.join(', ')
+                      : '—'}
+                  </p>
                   <p><span className="font-medium text-gray-700 dark:text-gray-300">Compute:</span> {createForm.spec.compute.cpus} CPUs, {createForm.spec.compute.memorySizeMb} MB RAM</p>
                   <p><span className="font-medium text-gray-700 dark:text-gray-300">Storage:</span> {createForm.spec.storage.disks.length} disk(s) — {createForm.spec.storage.disks.map((d) => `${d.sizeMb} MB`).join(', ')}</p>
                   <p><span className="font-medium text-gray-700 dark:text-gray-300">Network:</span> {(createForm.spec.network?.nics?.length ?? 0) > 0 ? createForm.spec.network!.nics.length + ' NIC(s)' : 'default'}</p>
@@ -931,13 +1235,48 @@ export default function TenantVmsPage() {
                   columns={columns}
                   data={vms}
                   emptyMessage="No VMs yet. Create one to get started."
-                  overflowVisibleColumnKeys={[]}
+                  overflowVisibleColumnKeys={['actions']}
                 />
               )}
             </CardContent>
           </Card>
         </motion.div>
       </div>
+
+      {tenantId && attachIsoVm && (
+        <AttachIsoModal
+          isOpen
+          onClose={() => setAttachIsoVm(null)}
+          tenantId={tenantId}
+          vmId={attachIsoVm.id}
+          vmName={attachIsoVm.name}
+          onSuccess={() => void loadVms()}
+        />
+      )}
+      {tenantId && publishVm && (
+        <PublishTemplateModal
+          isOpen
+          onClose={() => setPublishVm(null)}
+          tenantId={tenantId}
+          vmId={publishVm.id}
+          vmName={publishVm.name}
+          onSuccess={() => void loadVms()}
+        />
+      )}
     </div>
+  );
+}
+
+export default function TenantVmsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-app flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      }
+    >
+      <TenantVmsPageInner />
+    </Suspense>
   );
 }

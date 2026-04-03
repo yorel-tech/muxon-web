@@ -21,7 +21,7 @@ function TenantSwitcherSelect() {
 
   return (
     <select
-      className="h-10 rounded-md border border-primary-400 bg-primary-700 dark:bg-primary-900 text-white text-sm px-3 focus:outline-none focus:ring-2 focus:ring-primary-300 min-w-[140px] max-w-[220px] truncate"
+      className="h-10 rounded-md border border-primary-400/80 bg-primary-100 text-[color:var(--text-primary)] text-sm px-3 focus:outline-none focus:ring-2 focus:ring-primary-500 min-w-[140px] max-w-[220px] truncate"
       value={activeTenant?.id ?? ''}
       onChange={handleChange}
     >

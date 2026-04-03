@@ -17,7 +17,7 @@ import {
   Building2,
   Shield,
   BookOpen,
-  BookMarked,
+  BookTemplate,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -73,6 +73,12 @@ const baseSystemUserItems: Omit<SidebarItem, 'badge'>[] = [
     href: '/system/storage-classes',
   },
   {
+    id: 'content-libraries',
+    label: 'Content Libraries',
+    icon: <BookTemplate size={20} />,
+    href: '/system/content-libraries',
+  },
+  {
     id: 'tenants',
     label: 'Tenants',
     icon: <Building2 size={20} />,
@@ -124,10 +130,10 @@ const baseTenantUserItems: Omit<SidebarItem, 'badge'>[] = [
     href: '/tenant/vms',
   },
   {
-    id: 'catalogs',
-    label: 'Catalogs',
-    icon: <BookMarked size={20} />,
-    href: '/tenant/catalogs',
+    id: 'content-libraries',
+    label: 'Content Libraries',
+    icon: <BookTemplate size={20} />,
+    href: '/tenant/content-libraries',
   },
   {
     id: 'users',

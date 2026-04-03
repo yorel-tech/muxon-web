@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
 import { Table, Column } from '@/components/ui/organisms/table';
 import { Badge } from '@/components/ui/atoms/badge';
@@ -15,10 +15,18 @@ import {
   CheckCircle2,
   RefreshCw,
   MoreHorizontal,
-  Menu,
+  Loader2,
 } from 'lucide-react';
 import { AlertsCard, Alert } from '@/components/ui/organisms/alerts-card';
 import { QuickActions, defaultQuickActions } from '@/components/ui/organisms/quick-actions';
+import { apiGet } from '@/lib/api';
+
+interface SystemOverviewResponse {
+  datacenterCount?: number;
+  tenantCount?: number;
+  tenantUserCount?: number;
+  vmCount?: number;
+}
 
 interface RecentActivity extends Record<string, any> {
   id: string;
@@ -160,6 +168,30 @@ const getStatusColor = (status: string) => {
 
 export default function SystemDashboardPage() {
   const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
+  const [overview, setOverview] = useState<SystemOverviewResponse | null>(null);
+  const [overviewLoading, setOverviewLoading] = useState(true);
+  const [overviewError, setOverviewError] = useState<string | null>(null);
+
+  const loadOverview = useCallback(async () => {
+    setOverviewLoading(true);
+    setOverviewError(null);
+    try {
+      const data = await apiGet<SystemOverviewResponse>('/api/v1/system-overview');
+      setOverview(data);
+    } catch (e) {
+      setOverviewError(e instanceof Error ? e.message : 'Failed to load overview');
+      setOverview(null);
+    } finally {
+      setOverviewLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOverview();
+  }, [loadOverview]);
+
+  const formatCount = (n: number | undefined) =>
+    typeof n === 'number' ? n.toLocaleString() : '0';
 
   const handleDismissAlert = (alertId: string) => {
     setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
@@ -236,8 +268,16 @@ export default function SystemDashboardPage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <RefreshCw className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <button
+                type="button"
+                title="Refresh"
+                disabled={overviewLoading}
+                onClick={() => loadOverview()}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw
+                  className={`h-5 w-5 text-gray-600 dark:text-gray-400 ${overviewLoading ? 'animate-spin' : ''}`}
+                />
               </button>
               <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                 <MoreHorizontal className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -246,7 +286,13 @@ export default function SystemDashboardPage() {
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
+        {overviewError && (
+          <div className="mb-6 rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-800 dark:border-error-900 dark:bg-error-950/40 dark:text-error-200">
+            {overviewError}
+          </div>
+        )}
+
+        {/* Stats Cards — Datacenters, Tenants, Tenant users, VMs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -262,39 +308,13 @@ export default function SystemDashboardPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Datacenters</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">3</p>
-                  </div>
-                </div>
-                <TrendingUp className="h-5 w-5 text-success-600 dark:text-success-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="transition-colors hover:border-primary-500">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
-                    <Database className="h-6 w-6 text-primary-600 dark:text-primary-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">VMs</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">43</p>
-                  </div>
-                </div>
-                <TrendingUp className="h-5 w-5 text-success-600 dark:text-success-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="transition-colors hover:border-primary-500">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success-50 dark:bg-success-900/30">
-                    <Users className="h-6 w-6 text-success-600 dark:text-success-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">System Users</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">12</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {overviewLoading ? (
+                        <Loader2 className="h-7 w-7 animate-spin text-gray-400" />
+                      ) : (
+                        formatCount(overview?.datacenterCount)
+                      )}
+                    </p>
                   </div>
                 </div>
                 <TrendingUp className="h-5 w-5 text-success-600 dark:text-success-400" />
@@ -310,7 +330,57 @@ export default function SystemDashboardPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Tenants</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">8</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {overviewLoading ? (
+                        <Loader2 className="h-7 w-7 animate-spin text-gray-400" />
+                      ) : (
+                        formatCount(overview?.tenantCount)
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <TrendingUp className="h-5 w-5 text-success-600 dark:text-success-400" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="transition-colors hover:border-primary-500">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success-50 dark:bg-success-900/30">
+                    <Users className="h-6 w-6 text-success-600 dark:text-success-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Tenant users</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {overviewLoading ? (
+                        <Loader2 className="h-7 w-7 animate-spin text-gray-400" />
+                      ) : (
+                        formatCount(overview?.tenantUserCount)
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <TrendingUp className="h-5 w-5 text-success-600 dark:text-success-400" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="transition-colors hover:border-primary-500">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
+                    <Database className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">VMs</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {overviewLoading ? (
+                        <Loader2 className="h-7 w-7 animate-spin text-gray-400" />
+                      ) : (
+                        formatCount(overview?.vmCount)
+                      )}
+                    </p>
                   </div>
                 </div>
                 <TrendingUp className="h-5 w-5 text-success-600 dark:text-success-400" />

@@ -31,7 +31,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
       <header
         ref={ref}
         className={cn(
-          'h-16 flex items-center bg-primary-600 dark:bg-primary-800 border-b border-primary-700 dark:border-primary-900',
+          'h-16 flex items-center bg-primary-300 border-b border-primary-400',
           className,
         )}
       >
@@ -40,7 +40,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
           <div className="flex items-center gap-5">
             <div className="flex h-10 items-center gap-3 shrink-0">
               <BrandMark size={32} className="h-8 w-8 rounded-md" />
-              <span className="text-xl font-bold text-white whitespace-nowrap">infron</span>
+              <span className="text-xl font-bold text-[color:var(--text-primary)] whitespace-nowrap">infron</span>
             </div>
             {tenantSwitcher && (
               <div className="ml-4 flex h-10 items-center">
@@ -53,7 +53,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
           <div className="flex items-center gap-1">
             {/* Notifications (future-ready) */}
             <button
-              className="relative p-2 rounded-md text-primary-100 hover:bg-primary-700 dark:hover:bg-primary-700 transition-colors"
+              className="relative p-2 rounded-md text-[color:var(--text-primary)] hover:bg-primary-400/35 transition-colors"
               aria-label="Notifications"
             >
               <Bell size={20} strokeWidth={2.5} />
@@ -69,24 +69,24 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
               <div ref={userMenuRef} className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen((v) => !v)}
-                  className="flex h-10 items-center gap-2 px-3 rounded-md border border-primary-400 bg-primary-700 dark:bg-primary-900 text-primary-100 hover:bg-primary-800 dark:hover:bg-primary-950 transition-colors"
+                  className="flex h-10 items-center gap-2 px-3 rounded-md border border-primary-500/40 bg-primary-100 text-[color:var(--text-primary)] hover:bg-primary-200/80 dark:hover:bg-primary-400/25 transition-colors"
                   aria-label="User menu"
                 >
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
                       alt={userDisplayName}
-                      className="h-7 w-7 rounded-full object-cover ring-1 ring-primary-300"
+                      className="h-7 w-7 rounded-full object-cover ring-1 ring-primary-500/50"
                     />
                   ) : (
-                    <div className="h-7 w-7 rounded-full bg-primary-400 dark:bg-primary-600 flex items-center justify-center text-white text-base font-bold ring-1 ring-primary-300">
+                    <div className="h-7 w-7 rounded-full bg-primary-500 flex items-center justify-center text-white text-base font-bold ring-1 ring-primary-400">
                       {userDisplayName.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <span className="hidden sm:block text-sm font-medium text-white max-w-[120px] truncate">
+                  <span className="hidden sm:block text-sm font-medium text-[color:var(--text-primary)] max-w-[120px] truncate">
                     {userDisplayName}
                   </span>
-                  <ChevronDown size={14} className="text-primary-200" />
+                  <ChevronDown size={14} className="text-[color:var(--text-secondary)]" />
                 </button>
 
                 <AnimatePresence>

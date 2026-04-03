@@ -5,13 +5,12 @@ import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
 import { Badge } from '@/components/ui/atoms/badge';
 import { motion } from 'framer-motion';
 import {
-  Server,
+  Building2,
   Database,
   Cpu,
   HardDrive,
   Activity,
-  TrendingUp,
-  Bell,
+  Users,
   Loader2,
 } from 'lucide-react';
 import { AlertsCard, Alert } from '@/components/ui/organisms/alerts-card';
@@ -23,6 +22,12 @@ interface QuotaUsage {
   vcpus: { used: number; limit: number };
   memoryGb: { used: number; limit: number };
   storageGb: { used: number; limit: number };
+}
+
+interface TenantOverviewResponse {
+  datacenterCount?: number;
+  userCount?: number;
+  vmCount?: number;
 }
 
 const placeholderAlerts: Alert[] = [
@@ -47,6 +52,7 @@ export default function TenantDashboardPage() {
   });
   const [alerts, setAlerts] = useState<Alert[]>(placeholderAlerts);
   const [loading, setLoading] = useState(true);
+  const [tenantOverview, setTenantOverview] = useState<TenantOverviewResponse | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -55,16 +61,16 @@ export default function TenantDashboardPage() {
         return;
       }
       try {
-        const [vmsRes, tenantRes] = await Promise.all([
-          apiGet<{ items?: unknown[]; total?: number }>(`/api/v1/tenants/${tenantId}/vms`).catch(() => ({
-            items: [],
-            total: 0,
-          })),
+        const [overviewRes, tenantRes] = await Promise.all([
+          apiGet<TenantOverviewResponse>(`/api/v1/tenants/${tenantId}/overview`).catch(
+            (): TenantOverviewResponse => ({}),
+          ),
           apiGet<{ settings?: { quotas?: Record<string, number> } }>(`/api/v1/tenants/${tenantId}`).catch(
             (): { settings?: { quotas?: Record<string, number> } } => ({}),
           ),
         ]);
-        const vmsTotal = typeof vmsRes?.total === 'number' ? vmsRes.total : (vmsRes?.items?.length ?? 0);
+        setTenantOverview(overviewRes);
+        const vmsTotal = typeof overviewRes.vmCount === 'number' ? overviewRes.vmCount : 0;
         const quotas = tenantRes?.settings?.quotas ?? {};
         setQuota({
           vms: { used: vmsTotal, limit: quotas.vms ?? 0 },
@@ -112,8 +118,38 @@ export default function TenantDashboardPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6"
       >
+        <Card className="transition-colors hover:border-primary-500">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
+                <Building2 className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Datacenters</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {tenantOverview?.datacenterCount ?? 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="transition-colors hover:border-primary-500">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success-50 dark:bg-success-900/30">
+                <Users className="h-6 w-6 text-success-600 dark:text-success-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Users</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {tenantOverview?.userCount ?? 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <Card className="transition-colors hover:border-primary-500">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">

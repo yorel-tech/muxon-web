@@ -17,13 +17,13 @@ import {
   Building2,
   Shield,
   Cloud,
-  BookMarked,
   SlidersHorizontal,
   ChevronRight,
   ChevronDown,
   ChevronLeft,
   LogOut,
   BookOpen,
+  BookTemplate,
   HardDrive,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -67,6 +67,12 @@ const baseSystemUserItems: Omit<SidebarItem, 'badge'>[] = [
     label: 'Storage',
     icon: <HardDrive size={20} />,
     href: '/system/storage-classes',
+  },
+  {
+    id: 'content-libraries',
+    label: 'Content Libraries',
+    icon: <BookTemplate size={20} />,
+    href: '/system/content-libraries',
   },
   {
     id: 'datacenters',
@@ -120,10 +126,10 @@ const baseTenantUserItems: Omit<SidebarItem, 'badge'>[] = [
     href: '/tenant/vms',
   },
   {
-    id: 'catalogs',
-    label: 'Catalogs',
-    icon: <BookMarked size={20} />,
-    href: '/tenant/catalogs',
+    id: 'content-libraries',
+    label: 'Content Libraries',
+    icon: <BookTemplate size={20} />,
+    href: '/tenant/content-libraries',
   },
   {
     id: 'users',

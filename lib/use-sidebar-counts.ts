@@ -17,8 +17,13 @@ export interface PaginatedResponse {
   items: any[];
 }
 
+interface SystemOverviewCounts {
+  tenantCount?: number;
+  vmCount?: number;
+}
+
 /**
- * @param tenantId - Required when userRole is tenant; VM count uses `/api/v1/tenants/{tenantId}/vms`.
+ * @param tenantId - Required when userRole is tenant; VM count uses `/api/v1/tenants/{tenantId}/vms` or overview when aligned.
  */
 export function useSidebarCounts(
   userRole: 'system' | 'tenant',
@@ -55,12 +60,12 @@ export function useSidebarCounts(
           );
 
           fetchPromises.push(
-            apiGet<PaginatedResponse>('/api/v1/tenants', {
+            apiGet<SystemOverviewCounts>('/api/v1/system-overview', {
               baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
               requireAuth: true,
             }).catch((err) => {
-              console.error('Error fetching tenants count:', err);
-              return { total: 0 };
+              console.error('Error fetching system overview:', err);
+              return {};
             }),
           );
         } else if (tenantId) {
@@ -85,8 +90,9 @@ export function useSidebarCounts(
 
         if (userRole === 'system') {
           newCounts.users = results[0]?.total ?? 0;
-          newCounts.tenants = results[1]?.total ?? 0;
-          newCounts.vms = 0;
+          const overview = results[1] as SystemOverviewCounts;
+          newCounts.tenants = typeof overview?.tenantCount === 'number' ? overview.tenantCount : 0;
+          newCounts.vms = typeof overview?.vmCount === 'number' ? overview.vmCount : 0;
         } else if (tenantId) {
           newCounts.vms = results[0]?.total ?? 0;
         }

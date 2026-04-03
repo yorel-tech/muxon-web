@@ -19,7 +19,7 @@ export function DetailRow({
   );
 }
 
-export function formatDetailDate(s: string | undefined): string {
+export function formatDetailDate(s: string | undefined | null): string {
   if (!s) return '—';
   try {
     return new Date(s).toLocaleString();
