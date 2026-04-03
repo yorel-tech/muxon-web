@@ -12,6 +12,7 @@ import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
 import { RowActionsTrigger } from '@/components/DynamicContextMenu';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { VmConsoleModal } from '@/components/ui/organisms/vm-console-modal';
 import { apiGet, apiPost } from '@/lib/api';
 import { useTenantId } from '@/lib/use-tenant-id';
 import {
@@ -143,6 +144,7 @@ function TenantVmsPageInner() {
   const [clLoading, setClLoading] = useState(false);
   const [attachIsoVm, setAttachIsoVm] = useState<VmRow | null>(null);
   const [publishVm, setPublishVm] = useState<VmRow | null>(null);
+  const [consoleVm, setConsoleVm] = useState<VmRow | null>(null);
 
   const loadVms = useCallback(async () => {
     if (!tenantId) {
@@ -510,16 +512,26 @@ function TenantVmsPageInner() {
     return 'warning';
   };
 
-  const vmActionOptions = (row: VmRow): DropdownOption[] => [
-    {
-      label: 'Attach ISO',
-      onClick: () => setAttachIsoVm(row),
-    },
-    {
-      label: 'Publish as template',
-      onClick: () => setPublishVm(row),
-    },
-  ];
+  const vmActionOptions = (row: VmRow): DropdownOption[] => {
+    const opts: DropdownOption[] = [];
+    if ((row.status ?? '').toUpperCase() === 'ACTIVE') {
+      opts.push({
+        label: 'View console',
+        onClick: () => setConsoleVm(row),
+      });
+    }
+    opts.push(
+      {
+        label: 'Attach ISO',
+        onClick: () => setAttachIsoVm(row),
+      },
+      {
+        label: 'Publish as template',
+        onClick: () => setPublishVm(row),
+      }
+    );
+    return opts;
+  };
 
   const columns: Column<VmRow>[] = [
     {
@@ -1261,6 +1273,15 @@ function TenantVmsPageInner() {
           vmId={publishVm.id}
           vmName={publishVm.name}
           onSuccess={() => void loadVms()}
+        />
+      )}
+      {tenantId && consoleVm && (
+        <VmConsoleModal
+          isOpen
+          onClose={() => setConsoleVm(null)}
+          tenantId={tenantId}
+          vmId={consoleVm.id}
+          vmName={consoleVm.name}
         />
       )}
     </div>
