@@ -3,12 +3,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/atoms/card';
 import { Table, Column } from '@/components/ui/organisms/table';
 import { Badge } from '@/components/ui/atoms/badge';
+import { Button } from '@/components/ui/atoms/button';
+import { CreateTenantContentLibraryModal } from '@/components/content-library/CreateTenantContentLibraryModal';
 import { fetchTenantContentLibraries } from '@/lib/api/content-library';
 import type { ContentLibraryRow } from '@/types/content-library';
+import { isPlatformContentLibrary } from '@/types/content-library';
 import { formatDetailDate } from '@/components/entity-detail/DetailRow';
 import { useTenantId } from '@/lib/use-tenant-id';
 
@@ -16,6 +19,7 @@ export default function TenantContentLibrariesPage() {
   const { tenantId } = useTenantId();
   const [libraries, setLibraries] = useState<ContentLibraryRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const load = useCallback(async () => {
     if (!tenantId) {
@@ -53,13 +57,14 @@ export default function TenantContentLibrariesPage() {
       sortable: true,
     },
     {
-      key: 'scope',
-      header: 'Scope',
+      key: 'source',
+      header: 'Source',
       cell: (row) => {
-        const owned = tenantId && row.tenantId === tenantId;
+        const owned = !!(tenantId && row.tenantId === tenantId);
+        const platform = isPlatformContentLibrary(row);
         return (
           <Badge variant={owned ? 'success' : 'secondary'}>
-            {owned ? 'Your library' : 'Provider (read-only)'}
+            {platform ? 'Platform (read-only)' : owned ? 'Your library' : '—'}
           </Badge>
         );
       },
@@ -116,10 +121,24 @@ export default function TenantContentLibrariesPage() {
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Content Libraries</h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
-            Libraries shared by your provider and your tenant-owned libraries.
-          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Content Libraries</h1>
+              <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
+                Libraries shared by your provider and your tenant-owned libraries.
+              </p>
+            </div>
+            {tenantId ? (
+              <Button
+                type="button"
+                leftIcon={<Plus className="h-4 w-4" />}
+                onClick={() => setCreateOpen(true)}
+                className="shrink-0"
+              >
+                Create library
+              </Button>
+            ) : null}
+          </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
@@ -142,6 +161,14 @@ export default function TenantContentLibrariesPage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {tenantId ? (
+          <CreateTenantContentLibraryModal
+            isOpen={createOpen}
+            onClose={() => setCreateOpen(false)}
+            tenantId={tenantId}
+          />
+        ) : null}
       </div>
     </div>
   );

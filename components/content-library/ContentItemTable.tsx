@@ -1,6 +1,7 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { useState, type MouseEvent } from 'react';
+import { Download, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/atoms/card';
 import { Table, Column } from '@/components/ui/organisms/table';
 import { Badge } from '@/components/ui/atoms/badge';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/atoms/button';
 import type { ContentItemRow } from '@/types/content-library';
 import { formatBytes } from '@/lib/format-bytes';
 import { formatDetailDate } from '@/components/entity-detail/DetailRow';
+import { downloadPlatformContentItem, downloadTenantContentItem } from '@/lib/api/content-library';
 
 export interface ContentItemTableProps {
   items: ContentItemRow[];
@@ -18,6 +20,12 @@ export interface ContentItemTableProps {
   onPageChange: (page: number) => void;
   onRowClick: (item: ContentItemRow) => void;
   emptyMessage?: string;
+  /** When set, shows a Download action that calls the content-item download API. */
+  downloadContext?: {
+    scope: 'platform' | 'tenant';
+    libraryId: string;
+    tenantId?: string | null;
+  };
 }
 
 export function ContentItemTable({
@@ -29,7 +37,10 @@ export function ContentItemTable({
   onPageChange,
   onRowClick,
   emptyMessage = 'No items in this library.',
+  downloadContext,
 }: ContentItemTableProps) {
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
   const columns: Column<ContentItemRow>[] = [
     {
       key: 'name',
@@ -64,13 +75,19 @@ export function ContentItemTable({
       sortable: true,
     },
     {
-      key: 'fetchStatus',
+      key: 'contentStatus',
       header: 'Status',
       cell: (row) => {
-        const s = (row.fetchStatus ?? '').toLowerCase();
+        const s = (row.contentStatus ?? '').toLowerCase();
         const variant =
-          s === 'available' ? 'success' : s === 'failed' ? 'error' : s === 'fetching' ? 'warning' : 'default';
-        return <Badge variant={variant}>{row.fetchStatus ?? '—'}</Badge>;
+          s === 'available'
+            ? 'success'
+            : s === 'failed'
+              ? 'error'
+              : s === 'replicating' || s === 'uploading'
+                ? 'warning'
+                : 'default';
+        return <Badge variant={variant}>{row.contentStatus ?? '—'}</Badge>;
       },
       sortable: true,
     },
@@ -84,6 +101,51 @@ export function ContentItemTable({
     },
   ];
 
+  if (downloadContext) {
+    const { scope, libraryId, tenantId } = downloadContext;
+    columns.push({
+      key: 'download',
+      header: '',
+      cell: (row) => {
+        const busy = downloadingId === row.id;
+        const s = (row.contentStatus ?? '').toLowerCase();
+        const canTry = s === 'available' || s === 'uploading';
+        const handle = (e: MouseEvent) => {
+          e.stopPropagation();
+          if (!canTry || busy) return;
+          setDownloadingId(row.id);
+          void (async () => {
+            try {
+              const res =
+                scope === 'platform'
+                  ? await downloadPlatformContentItem(libraryId, row.id)
+                  : await downloadTenantContentItem(tenantId!, libraryId, row.id);
+              if (res?.url) window.open(res.url, '_blank', 'noopener,noreferrer');
+            } catch {
+              // ignore; could toast
+            } finally {
+              setDownloadingId(null);
+            }
+          })();
+        };
+        return (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            className="shrink-0"
+            disabled={!canTry || busy}
+            onClick={handle}
+            title={canTry ? 'Open download link' : 'Content not available in store yet'}
+          >
+            <Download className="h-4 w-4" />
+          </Button>
+        );
+      },
+      sortable: false,
+    });
+  }
+
   return (
     <Card bordered>
       <CardContent className="p-0">
@@ -92,7 +154,12 @@ export function ContentItemTable({
             <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
           </div>
         ) : (
-          <Table columns={columns} data={items} emptyMessage={emptyMessage} overflowVisibleColumnKeys={[]} />
+          <Table
+            columns={columns}
+            data={items}
+            emptyMessage={emptyMessage}
+            overflowVisibleColumnKeys={downloadContext ? ['download'] : []}
+          />
         )}
         {!loading && totalFiltered > 0 && (
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 dark:border-gray-800 px-4 py-3">

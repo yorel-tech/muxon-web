@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Pencil, Trash2, Rocket } from 'lucide-react';
+import { X, Pencil, Trash2, Rocket, Download } from 'lucide-react';
 import { Button } from '@/components/ui/atoms/button';
 import { Input } from '@/components/ui/atoms/input';
 import { Modal } from '@/components/ui/molecules/modal';
@@ -12,6 +12,8 @@ import type { ContentItemRow } from '@/types/content-library';
 import {
   deletePlatformContentItem,
   deleteTenantContentItem,
+  downloadPlatformContentItem,
+  downloadTenantContentItem,
   updatePlatformContentItem,
   updateTenantContentItem,
 } from '@/lib/api/content-library';
@@ -48,6 +50,7 @@ export function ContentItemSidePanel({
   const [editVersion, setEditVersion] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const openEdit = () => {
@@ -116,6 +119,8 @@ export function ContentItemSidePanel({
   };
 
   const isTemplate = (item?.contentType ?? '').toLowerCase() === 'vm_template';
+  const statusLower = (item?.contentStatus ?? '').toLowerCase();
+  const canDownloadItem = statusLower === 'available' || statusLower === 'uploading';
 
   return (
     <>
@@ -154,7 +159,7 @@ export function ContentItemSidePanel({
                 <DetailRow label="ID" value={item.id} />
                 <DetailRow label="Content type" value={item.contentType} />
                 <DetailRow label="Version" value={item.version ?? '—'} />
-                <DetailRow label="Fetch status" value={item.fetchStatus ?? '—'} />
+                <DetailRow label="Content status" value={item.contentStatus ?? '—'} />
                 <DetailRow label="Size" value={formatBytes(item.sizeBytes)} />
                 <DetailRow label="Checksum" value={item.checksum ?? '—'} />
                 <DetailRow label="Algorithm" value={item.checksumAlgorithm ?? '—'} />
@@ -174,9 +179,37 @@ export function ContentItemSidePanel({
                 />
                 <DetailRow label="Created" value={formatDetailDate(item.createdAt)} />
                 <DetailRow label="Updated" value={formatDetailDate(item.updatedAt)} />
-                <DetailRow label="Last fetched" value={formatDetailDate(item.lastFetchedAt ?? undefined)} />
+                <DetailRow label="Last replicated" value={formatDetailDate(item.lastReplicatedAt ?? undefined)} />
               </div>
               <div className="border-t border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={!canDownloadItem || downloading}
+                  onClick={() => {
+                    if (!item || !canDownloadItem) return;
+                    setDownloading(true);
+                    void (async () => {
+                      try {
+                        const res =
+                          scope === 'platform'
+                            ? await downloadPlatformContentItem(libraryId, item.id)
+                            : tenantId
+                              ? await downloadTenantContentItem(tenantId, libraryId, item.id)
+                              : null;
+                        if (res?.url) window.open(res.url, '_blank', 'noopener,noreferrer');
+                      } catch (e) {
+                        alert(e instanceof Error ? e.message : 'Download failed');
+                      } finally {
+                        setDownloading(false);
+                      }
+                    })();
+                  }}
+                  title={canDownloadItem ? 'Open download link' : 'Content not available in store yet'}
+                >
+                  <Download className="h-4 w-4 mr-1" />
+                  {downloading ? 'Opening…' : 'Download'}
+                </Button>
                 {canWrite && (
                   <>
                     <Button variant="secondary" size="sm" onClick={openEdit}>

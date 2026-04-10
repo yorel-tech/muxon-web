@@ -23,14 +23,26 @@ function useTabsContext() {
 
 export function Tabs({
   defaultValue,
+  value: controlledValue,
+  onValueChange,
   className,
   children,
 }: {
   defaultValue: string;
+  /** When set, Tabs is controlled (use with onValueChange). */
+  value?: string;
+  onValueChange?: (value: string) => void;
   className?: string;
   children: ReactNode;
 }) {
-  const [value, setValue] = useState(defaultValue);
+  const [internal, setInternal] = useState(defaultValue);
+  const value = controlledValue !== undefined ? controlledValue : internal;
+  const setValue = (v: string) => {
+    if (controlledValue === undefined) {
+      setInternal(v);
+    }
+    onValueChange?.(v);
+  };
   return (
     <TabsContext.Provider value={{ value, setValue }}>
       <div className={cn('w-full', className)}>{children}</div>

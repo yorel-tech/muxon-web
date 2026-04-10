@@ -4,17 +4,25 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, Upload } from 'lucide-react';
+import { ArrowLeft, Loader2, Pencil, Plus, RefreshCw, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/atoms/button';
 import { Tabs } from '@/components/ui/molecules/tabs';
 import { ContentItemTable } from '@/components/content-library/ContentItemTable';
 import { ContentItemSidePanel } from '@/components/content-library/ContentItemSidePanel';
 import { ContentItemUploadModal } from '@/components/content-library/ContentItemUploadModal';
+import { EditContentLibraryModal } from '@/components/content-library/EditContentLibraryModal';
+import { PublishToDatacenterModal } from '@/components/content-library/PublishToDatacenterModal';
+import { DistributionReplicationDrawer } from '@/components/content-library/DistributionReplicationDrawer';
 import {
   fetchPlatformContentLibrary,
   fetchTenantContentLibrary,
+  listPlatformContentLibraryDistributions,
+  listTenantContentLibraryDistributions,
+  replicatePlatformContentLibrary,
+  syncPlatformContentLibrary,
 } from '@/lib/api/content-library';
-import type { ContentLibraryRow, ContentItemRow } from '@/types/content-library';
+import type { ContentLibraryDistributionRow, ContentLibraryRow, ContentItemRow } from '@/types/content-library';
+import { isPlatformContentLibrary, isRemoteContentLibrary } from '@/types/content-library';
 import { useContentItems, type ContentTypeTab } from '@/hooks/use-content-items';
 
 const PER_PAGE = 20;
@@ -41,6 +49,13 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
   const [selectedItem, setSelectedItem] = useState<ContentItemRow | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [published, setPublished] = useState<ContentLibraryDistributionRow[]>([]);
+  const [pubLoading, setPubLoading] = useState(false);
+  const [actionBusy, setActionBusy] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerDist, setDrawerDist] = useState<ContentLibraryDistributionRow | null>(null);
 
   const filterTab = tabToFilter(activeTab);
 
@@ -95,11 +110,52 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
     void loadLibrary();
   }, [loadLibrary, scope, tenantId]);
 
+  const loadPublished = useCallback(async () => {
+    if (!libraryId) return;
+    if (scope === 'tenant' && !tenantId) return;
+    setPubLoading(true);
+    try {
+      const res =
+        scope === 'platform'
+          ? await listPlatformContentLibraryDistributions(libraryId)
+          : await listTenantContentLibraryDistributions(tenantId!, libraryId);
+      setPublished(res.items ?? []);
+    } catch {
+      setPublished([]);
+    } finally {
+      setPubLoading(false);
+    }
+  }, [libraryId, scope, tenantId]);
+
+  useEffect(() => {
+    if (!library) return;
+    void loadPublished();
+  }, [library, loadPublished]);
+
+  useEffect(() => {
+    const replicating = published.some((p) => p.replicateStatus === 'replicating');
+    if (!replicating || !libraryId) return;
+    const id = window.setInterval(() => {
+      void loadPublished();
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [published, libraryId, loadPublished]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    setDrawerDist((prev) => {
+      if (!prev) return prev;
+      const next = published.find((p) => p.id === prev.id);
+      return next ?? prev;
+    });
+  }, [published, drawerOpen]);
+
   const tenantOwned = !!(tenantId && library?.tenantId === tenantId);
+  const readOnlyPlatformInTenantUi = scope === 'tenant' && !!library && isPlatformContentLibrary(library);
   const canWrite =
     scope === 'platform'
       ? true // backend enforces CONTENT_LIBRARY_WRITE
-      : tenantOwned;
+      : tenantOwned && !readOnlyPlatformInTenantUi;
 
   const showDeployVm = scope === 'tenant' && !!tenantId;
 
@@ -169,13 +225,136 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
             )}
             <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
               Type: {library.type ?? '—'} · Access: {library.accessMode ?? '—'} · Sync: {library.syncStatus ?? '—'}
+              {readOnlyPlatformInTenantUi && (
+                <span className="ml-2 rounded bg-amber-100 px-2 py-0.5 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
+                  Platform library (read-only)
+                </span>
+              )}
             </p>
           </div>
           {canWrite && (
-            <Button className="flex items-center gap-2" onClick={() => setUploadOpen(true)}>
-              <Upload size={18} />
-              Upload
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" className="flex items-center gap-2" onClick={() => setEditOpen(true)}>
+                <Pencil size={18} />
+                Edit
+              </Button>
+              <Button className="flex items-center gap-2" onClick={() => setUploadOpen(true)}>
+                <Upload size={18} />
+                Upload
+              </Button>
+            </div>
+          )}
+        </motion.div>
+
+        {scope === 'platform' && library && isRemoteContentLibrary(library) && canWrite && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-6 flex flex-wrap gap-2 rounded-lg border border-panel bg-surface p-4"
+          >
+            <Button
+              variant="secondary"
+              size="sm"
+              className="flex items-center gap-2"
+              disabled={!!actionBusy}
+              onClick={() => {
+                setActionBusy('sync');
+                void (async () => {
+                  try {
+                    await syncPlatformContentLibrary(libraryId);
+                    await loadLibrary();
+                  } finally {
+                    setActionBusy(null);
+                  }
+                })();
+              }}
+            >
+              <RefreshCw size={16} />
+              Sync metadata
             </Button>
+            <Button
+              size="sm"
+              className="flex items-center gap-2"
+              disabled={!!actionBusy}
+              onClick={() => {
+                setActionBusy('repl');
+                void (async () => {
+                  try {
+                    await replicatePlatformContentLibrary(libraryId);
+                    await loadLibrary();
+                    void refetch();
+                  } finally {
+                    setActionBusy(null);
+                  }
+                })();
+              }}
+            >
+              Replicate to content store
+            </Button>
+          </motion.div>
+        )}
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-6 rounded-lg border border-panel bg-surface p-4"
+        >
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Published datacenters</h2>
+            {canWrite && (
+              <Button size="sm" className="flex items-center gap-1" onClick={() => setPublishOpen(true)}>
+                <Plus size={16} />
+                Publish
+              </Button>
+            )}
+          </div>
+          <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+            Click a datacenter pill to open replication details, per-item status, and actions.
+          </p>
+          {pubLoading ? (
+            <p className="text-sm text-gray-500">Loading…</p>
+          ) : published.length === 0 ? (
+            <p className="text-sm text-gray-500">Not published to any datacenter yet.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {published.map((m) => {
+                const label = m.datacenter?.name?.trim() ? m.datacenter.name : m.datacenterId;
+                const pct = Math.min(100, Math.max(0, m.progressPercent ?? 0));
+                const status = m.replicateStatus;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      setDrawerDist(m);
+                      setDrawerOpen(true);
+                    }}
+                    className="min-w-[10rem] max-w-[16rem] flex-1 rounded-lg border border-panel bg-app px-3 py-2 text-left text-sm shadow-sm transition hover:border-blue-400 dark:hover:border-blue-500"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-medium text-gray-900 dark:text-gray-100">{label}</span>
+                      <span className="shrink-0 text-xs capitalize text-gray-600 dark:text-gray-300">{status}</span>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded bg-gray-200 dark:bg-gray-700">
+                      <div
+                        className={`h-full rounded ${
+                          status === 'failed'
+                            ? 'bg-red-500'
+                            : status === 'available'
+                              ? 'bg-emerald-500'
+                              : 'bg-blue-500'
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{pct}%</p>
+                    {m.errorMessage ? (
+                      <p className="mt-1 line-clamp-2 text-xs text-red-600 dark:text-red-400">{m.errorMessage}</p>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
           )}
         </motion.div>
 
@@ -202,6 +381,7 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
                   totalFiltered={totalFiltered}
                   onPageChange={setPage}
                   onRowClick={openPanel}
+                  downloadContext={{ scope, libraryId, tenantId }}
                 />
               ),
             },
@@ -217,6 +397,7 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
                   totalFiltered={totalFiltered}
                   onPageChange={setPage}
                   onRowClick={openPanel}
+                  downloadContext={{ scope, libraryId, tenantId }}
                 />
               ),
             },
@@ -232,6 +413,7 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
                   totalFiltered={totalFiltered}
                   onPageChange={setPage}
                   onRowClick={openPanel}
+                  downloadContext={{ scope, libraryId, tenantId }}
                 />
               ),
             },
@@ -247,6 +429,7 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
                   totalFiltered={totalFiltered}
                   onPageChange={setPage}
                   onRowClick={openPanel}
+                  downloadContext={{ scope, libraryId, tenantId }}
                 />
               ),
             },
@@ -276,6 +459,38 @@ export function ContentLibraryDetailView({ scope, tenantId, listHref }: ContentL
           scope={scope}
           tenantId={tenantId}
           onUploaded={() => void refetch()}
+        />
+
+        <EditContentLibraryModal
+          isOpen={editOpen}
+          onClose={() => setEditOpen(false)}
+          scope={scope}
+          tenantId={tenantId}
+          library={library}
+          onSaved={(row) => setLibrary(row)}
+        />
+
+        <PublishToDatacenterModal
+          isOpen={publishOpen}
+          onClose={() => setPublishOpen(false)}
+          scope={scope}
+          tenantId={tenantId}
+          libraryId={libraryId}
+          onPublished={() => void loadPublished()}
+        />
+
+        <DistributionReplicationDrawer
+          distribution={drawerDist}
+          isOpen={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+            setDrawerDist(null);
+          }}
+          scope={scope}
+          libraryId={libraryId}
+          tenantId={tenantId}
+          canWrite={canWrite}
+          onParentRefresh={() => void loadPublished()}
         />
       </div>
     </div>

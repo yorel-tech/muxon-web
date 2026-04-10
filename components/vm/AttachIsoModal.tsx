@@ -212,7 +212,7 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
                         <span className="flex-1 text-sm">
                           <span className="font-medium text-gray-900 dark:text-gray-100">{iso.name}</span>
                           <span className="block text-xs text-gray-500">
-                            {iso.version ?? '—'} · {formatBytes(iso.sizeBytes)} · {iso.fetchStatus ?? '—'}
+                            {iso.version ?? '—'} · {formatBytes(iso.sizeBytes)} · {iso.contentStatus ?? '—'}
                           </span>
                         </span>
                       </label>

@@ -105,7 +105,7 @@ export default function SystemContentLibrariesPage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Content Libraries</h1>
               <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
-                Platform-scoped libraries visible to operators.
+                Platform content libraries visible to operators (shared with tenants as read-only).
               </p>
             </div>
             <Button

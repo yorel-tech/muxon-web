@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { fetchOidcConfigIfNeeded, getUserManager } from '@lib/oidc';
 import { apiGet } from '@lib/api';
 import { persistTenantContext, TenantInfo } from '@lib/tenant-context';
+import { useAuth } from '@lib/auth-context';
 
 interface BootstrapStatusDto {
   systemStatus: 'NOTREADY' | 'BOOTSTRAPPED' | 'READY';
@@ -15,6 +16,7 @@ interface TenantListResponse {
 
 export default function Callback() {
   const router = useRouter();
+  const { checkAuth } = useAuth();
 
   useEffect(() => {
     let cancelled = false;
@@ -25,6 +27,8 @@ export default function Callback() {
       if (!um) return;
       um.signinRedirectCallback()
         .then(async () => {
+          if (cancelled) return;
+          await checkAuth();
           if (cancelled) return;
           const loginType = sessionStorage.getItem('loginType') || 'system';
           sessionStorage.removeItem('loginType');
@@ -72,7 +76,7 @@ export default function Callback() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, checkAuth]);
 
   return <main className="p-8">Signing you in…</main>;
 }
