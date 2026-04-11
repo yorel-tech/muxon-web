@@ -21,6 +21,7 @@ import {
   getTenantContentItem,
 } from '@/lib/api/content-library';
 import type { ContentLibraryRow, ContentItemRow } from '@/types/content-library';
+import type { VmTemplateSpec } from '@/types/vm-template-spec';
 import { AttachIsoModal } from '@/components/vm/AttachIsoModal';
 import { PublishTemplateModal } from '@/components/vm/PublishTemplateModal';
 
@@ -115,6 +116,21 @@ function defaultCreateForm(initialGrantId: string): VmCreateForm {
     spec: defaultVmSpec(),
     content_item_id: undefined,
     iso_content_item_ids: [],
+  };
+}
+
+/** Disk sizes aligned with VmsService.mergeTemplateIntoVmSpec (ceil bytes → MB). */
+function diskSpecsFromVmTemplate(templateSpec: VmTemplateSpec): DiskSpec[] {
+  return templateSpec.spec.disks.map((d) => ({
+    sizeMb: Math.max(1, Math.ceil(d.sizeBytes / (1024 * 1024))),
+    storageClass: undefined,
+  }));
+}
+
+function computeFromVmTemplate(templateSpec: VmTemplateSpec): ComputeSpec {
+  return {
+    cpus: templateSpec.spec.compute.cpuCores,
+    memorySizeMb: templateSpec.spec.compute.memoryMB,
   };
 }
 
@@ -355,6 +371,45 @@ function TenantVmsPageInner() {
       }
     })();
   }, [createModalOpen, isoLibraryId, tenantId]);
+
+  // When creating from a library template, preload compute + disks from templateSpec (GET item).
+  useEffect(() => {
+    if (!createModalOpen || !useFromTemplate || !tenantId || !templateLibraryId || !createForm.content_item_id) {
+      return;
+    }
+    const itemId = createForm.content_item_id;
+    const libId = templateLibraryId;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const item = await getTenantContentItem(tenantId, libId, itemId);
+        if (cancelled) return;
+        const templateSpec = item.templateSpec;
+        if (!templateSpec?.spec?.compute || !templateSpec.spec.disks?.length) {
+          return;
+        }
+        setCreateForm((f) => {
+          if (f.content_item_id !== itemId) return f;
+          return {
+            ...f,
+            spec: {
+              ...f.spec,
+              compute: computeFromVmTemplate(templateSpec),
+              storage: {
+                vmStorageClass: f.spec.storage.vmStorageClass,
+                disks: diskSpecsFromVmTemplate(templateSpec),
+              },
+            },
+          };
+        });
+      } catch {
+        /* validation step may still surface missing template */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [createModalOpen, useFromTemplate, tenantId, templateLibraryId, createForm.content_item_id]);
 
   const handleOpenWizard = () => {
     setCreateModalOpen(true);
@@ -701,7 +756,11 @@ function TenantVmsPageInner() {
                         setUseFromTemplate(on);
                         if (!on) {
                           setTemplateLibraryId('');
-                          setCreateForm((f) => ({ ...f, content_item_id: undefined }));
+                          setCreateForm((f) => ({
+                            ...f,
+                            content_item_id: undefined,
+                            spec: defaultVmSpec(),
+                          }));
                         }
                       }}
                       disabled={createSubmitting}

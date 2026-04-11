@@ -30,6 +30,11 @@ export interface ApiRequestOptions extends RequestInit {
    * or defaults to relative paths for Next.js API routes.
    */
   baseUrl?: string;
+  /**
+   * Abort the request after this many milliseconds (browser / Node fetch).
+   * Use for long-polling style endpoints (e.g. VM console resolve waiting on orchestrator).
+   */
+  timeoutMs?: number;
 }
 
 /**
@@ -88,6 +93,7 @@ export async function apiRequest<T = any>(
     requireAuth = true,
     baseUrl,
     headers: customHeaders,
+    timeoutMs,
     ...fetchOptions
   } = options;
 
@@ -125,10 +131,20 @@ export async function apiRequest<T = any>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  let signal: AbortSignal | undefined = fetchOptions.signal;
+  if (timeoutMs != null && timeoutMs > 0 && typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal) {
+    const timeoutSignal = AbortSignal.timeout(timeoutMs);
+    signal =
+      fetchOptions.signal != null
+        ? AbortSignal.any([fetchOptions.signal, timeoutSignal])
+        : timeoutSignal;
+  }
+
   // Make the request
   const response = await fetch(url, {
     ...fetchOptions,
     headers,
+    ...(signal !== undefined ? { signal } : {}),
   });
 
   // Handle non-OK responses
@@ -141,7 +157,8 @@ export async function apiRequest<T = any>(
       try {
         const errorJson = await response.json();
         errorCode = typeof errorJson?.code === 'string' ? errorJson.code : null;
-        errorBodyText = JSON.stringify(errorJson);
+        const apiMessage = typeof errorJson?.message === 'string' ? errorJson.message : null;
+        errorBodyText = apiMessage ?? JSON.stringify(errorJson);
       } catch {
         errorBodyText = '';
       }

@@ -31,13 +31,25 @@ export function VmConsoleModal({ isOpen, tenantId, vmId, vmName, onClose }: VmCo
     setLoading(true);
     setErr(null);
     setSession(null);
+    const path = `/api/v1/tenants/${tenantId}/vms/${vmId}/console`;
+    console.info('[VmConsoleModal] requesting console session', { tenantId, vmId, path });
     try {
-      const data = await apiGet<ConsoleSessionResponse>(
-        `/api/v1/tenants/${tenantId}/vms/${vmId}/console`
-      );
+      const data = await apiGet<ConsoleSessionResponse>(path, {
+        // Orchestrator resolve + DB can exceed default infra timeouts; keep below typical LB limits.
+        timeoutMs: 120_000,
+      });
+      console.info('[VmConsoleModal] console session response', {
+        hasUrl: Boolean(data?.url),
+        hasToken: Boolean(data?.token),
+        console_type: data?.console_type,
+        expires_at: data?.expires_at,
+        hasRemotePassword: data?.remote_password != null && data.remote_password !== '',
+      });
       setSession(data);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Failed to open console session');
+      const message = e instanceof Error ? e.message : 'Failed to open console session';
+      console.error('[VmConsoleModal] console session failed', { tenantId, vmId, message, err: e });
+      setErr(message);
     } finally {
       setLoading(false);
     }
@@ -72,6 +84,13 @@ export function VmConsoleModal({ isOpen, tenantId, vmId, vmName, onClose }: VmCo
           </div>
         )}
         {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
+        {!loading && session && !wsUrl && (
+          <p className="text-sm text-amber-700 dark:text-amber-400">
+            API returned a session without a <code className="text-xs">url</code> field. Check the browser
+            console for <code className="text-xs">[VmConsoleModal]</code> logs and core-services VM console
+            logs.
+          </p>
+        )}
         {!loading && session && wsUrl && (
           <VmConsole
             wsUrl={wsUrl}

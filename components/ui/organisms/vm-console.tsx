@@ -13,8 +13,9 @@ export interface VmConsoleProps {
 }
 
 /**
- * VNC is rendered via `public/vm-console.html`, which loads noVNC from a CDN (avoids Next.js bundling
- * issues with @novnc/novnc). SPICE/SERIAL are not supported in-browser here.
+ * VNC is rendered via `public/vm-console.html`, which loads noVNC from jsDelivr's ESM bundle (`+esm`;
+ * esm.sh’s deep file URL returned errors / wrong MIME for this package). SPICE/SERIAL are not supported
+ * in-browser here.
  */
 export function VmConsole({ wsUrl, remotePassword, consoleType, onDisconnect }: VmConsoleProps) {
   if (consoleType === 'SPICE') {

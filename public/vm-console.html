@@ -28,7 +28,17 @@
         throw new Error('missing ws');
       }
       try {
-        const { default: RFB } = await import('https://esm.sh/@novnc/novnc@1.6.0/lib/rfb.js');
+        const novncMod = await import(
+          'https://cdn.jsdelivr.net/npm/@novnc/novnc@1.6.0/+esm'
+        );
+        // jsDelivr's +esm bundle re-exports CJS: default is often `{ default: RFB }`, not RFB itself.
+        const RFB =
+          typeof novncMod.default === 'function'
+            ? novncMod.default
+            : novncMod.default?.default;
+        if (typeof RFB !== 'function') {
+          throw new Error('noVNC RFB export not found');
+        }
         const target = document.getElementById('screen');
         errEl.textContent = '';
         const rfb = new RFB(target, ws, { credentials: { password: pwd } });

@@ -54,6 +54,8 @@ export interface ContentItemRow {
   contentStatus?: ContentItemContentStatus | string;
   lastReplicatedAt?: string | null;
   metadata?: Record<string, string>;
+  /** Present on GET for `vm_template` items (see VmTemplateContentItem in API). */
+  templateSpec?: VmTemplateSpec;
   providerRelativePath?: string | null;
   infronInstanceSegment?: string | null;
   createdAt?: string;
