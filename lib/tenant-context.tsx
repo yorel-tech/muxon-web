@@ -50,6 +50,18 @@ export function persistTenantContext(list: TenantInfo[], activeTenantId: string 
   window.dispatchEvent(new CustomEvent(TENANT_EVENT));
 }
 
+/** Persist tenant scope and open the tenant dashboard in a new tab (shared localStorage + OIDC session). */
+export function openTenantPortalInNewTab(
+  tenant: Pick<TenantInfo, 'id' | 'name'> & { displayName?: string },
+): void {
+  if (typeof window === 'undefined') return;
+  persistTenantContext(
+    [{ id: tenant.id, name: tenant.name, displayName: tenant.displayName }],
+    tenant.id,
+  );
+  window.open(`${window.location.origin}/tenant/dashboard`, '_blank', 'noopener,noreferrer');
+}
+
 export function TenantProvider({ children }: { children: ReactNode }) {
   const [tenantList, setTenantListState] = useState<TenantInfo[]>([]);
   const [activeTenantId, setActiveTenantId] = useState<string | null>(null);

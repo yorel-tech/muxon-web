@@ -101,8 +101,8 @@ export function getUserManager(): UserManager | null {
     post_logout_redirect_uri,
     response_type: 'code',
     scope,
-    // Construct storage only when window exists
-    userStore: new WebStorageStateStore({ store: window.sessionStorage }),
+    // localStorage (not sessionStorage) so OIDC user/session is shared across tabs on the same origin.
+    userStore: new WebStorageStateStore({ store: window.localStorage }),
   });
 
   return _manager;

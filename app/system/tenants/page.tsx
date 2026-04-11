@@ -23,6 +23,7 @@ import { RowActionsTrigger } from '@/components/DynamicContextMenu';
 import { apiGet, apiPost } from '@/lib/api';
 import { executeLinkAction } from '@/lib/api';
 import { buildRowActionOptions, normalizeEntityLinks, getNavigationPath } from '@/lib/hateoas';
+import { openTenantPortalInNewTab } from '@/lib/tenant-context';
 import type { Link } from '@/types/provider';
 
 export interface Tenant extends Record<string, any> {
@@ -299,15 +300,7 @@ export default function TenantsPage() {
   };
 
   const openTenantPortal = (tenant: Tenant) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('activeTenantId', tenant.id);
-      localStorage.setItem(
-        'tenantList',
-        JSON.stringify([{ id: tenant.id, name: tenant.name, displayName: tenant.displayName }]),
-      );
-      window.dispatchEvent(new CustomEvent('infron:tenant-context-changed'));
-      window.location.href = '/tenant/dashboard';
-    }
+    openTenantPortalInNewTab(tenant);
   };
 
   const getContextMenuOptions = (tenant: Tenant): DropdownOption[] => [

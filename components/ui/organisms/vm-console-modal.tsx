@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/molecules/modal';
 import { VmConsole, type VmConsoleProtocol } from '@/components/ui/organisms/vm-console';
 import { apiGet } from '@/lib/api';
-import { Loader2 } from 'lucide-react';
+import { ExternalLink, Loader2 } from 'lucide-react';
 
 export interface VmConsoleModalProps {
   isOpen: boolean;
@@ -68,11 +68,33 @@ export function VmConsoleModal({ isOpen, tenantId, vmId, vmName, onClose }: VmCo
   const wsUrl = session?.url ? String(session.url) : '';
   const protocol = (session?.console_type?.toUpperCase() ?? 'VNC') as VmConsoleProtocol;
 
+  const openConsoleInNewTab = () => {
+    const q = vmName ? `?name=${encodeURIComponent(vmName)}` : '';
+    // Close this modal first so the in-modal WebSocket disconnects. The proxy marks the session
+    // CLOSED on disconnect; opening a new tab while still connected reuses the same token and
+    // opens a second VNC connection, which breaks the session.
+    onClose();
+    window.setTimeout(() => {
+      window.open(`/tenant/vms/${vmId}/console${q}`, '_blank', 'noopener,noreferrer');
+    }, 300);
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={vmName ? `Console — ${vmName}` : 'VM console'}
+      titleActions={
+        <button
+          type="button"
+          onClick={openConsoleInNewTab}
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          title="Open console in a new browser tab"
+        >
+          <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="hidden sm:inline">New tab</span>
+        </button>
+      }
       size="full"
       closeOnOverlayClick={false}
     >

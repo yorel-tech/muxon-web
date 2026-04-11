@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { apiGet, apiPut, apiPost, apiPatch, apiDelete, executeLinkAction } from '@/lib/api';
 import { findLink, normalizeEntityLinks } from '@/lib/hateoas';
+import { openTenantPortalInNewTab } from '@/lib/tenant-context';
 import { DetailRow, formatDetailDate } from '@/components/entity-detail/DetailRow';
 import { Tabs } from '@/components/ui/molecules/tabs';
 import type { Link as HateoasLink } from '@/types/provider';
@@ -929,17 +930,7 @@ export default function TenantDetailPage({
             </div>
             <Button
               variant="secondary"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  localStorage.setItem('activeTenantId', tenant.id);
-                  localStorage.setItem(
-                    'tenantList',
-                    JSON.stringify([{ id: tenant.id, name: tenant.name, displayName: tenant.displayName }]),
-                  );
-                  window.dispatchEvent(new CustomEvent('infron:tenant-context-changed'));
-                  window.location.href = '/tenant/dashboard';
-                }
-              }}
+              onClick={() => openTenantPortalInNewTab(tenant)}
               className="flex items-center gap-2"
             >
               <ExternalLink size={18} />

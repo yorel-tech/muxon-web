@@ -570,10 +570,29 @@ function TenantVmsPageInner() {
   const vmActionOptions = (row: VmRow): DropdownOption[] => {
     const opts: DropdownOption[] = [];
     if ((row.status ?? '').toUpperCase() === 'ACTIVE') {
-      opts.push({
-        label: 'View console',
-        onClick: () => setConsoleVm(row),
-      });
+      opts.push(
+        {
+          label: 'View console',
+          onClick: () => setConsoleVm(row),
+        },
+        {
+          label: 'Open console in new tab',
+          onClick: () => {
+            const q = row.name ? `?name=${encodeURIComponent(row.name)}` : '';
+            const hadModalForThisVm = consoleVm?.id === row.id;
+            if (hadModalForThisVm) {
+              setConsoleVm(null);
+            }
+            const open = () =>
+              window.open(`/tenant/vms/${row.id}/console${q}`, '_blank', 'noopener,noreferrer');
+            if (hadModalForThisVm) {
+              window.setTimeout(open, 300);
+            } else {
+              open();
+            }
+          },
+        }
+      );
     }
     opts.push(
       {
