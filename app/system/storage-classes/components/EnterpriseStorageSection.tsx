@@ -24,8 +24,8 @@ export default function EnterpriseStorageSection() {
         <CardHeader>
           <CardTitle className="text-base">Enterprise storage</CardTitle>
           <CardDescription>
-            Tier policies, performance history, and managed migrations are available in Nexus /
-            Enterprise editions.
+            Tier policies, performance history, and managed migrations are available in the
+            Enterprise edition.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -38,7 +38,8 @@ export default function EnterpriseStorageSection() {
   const tiles = [
     {
       title: "Performance history",
-      description: "GET /api/v1/storage/performance-history — telemetry and time series for provider storage.",
+      description:
+        "GET /api/v1/storage/performance-history — telemetry and time series for provider storage.",
       icon: <Activity className="h-5 w-5" />,
     },
     {
@@ -48,7 +49,8 @@ export default function EnterpriseStorageSection() {
     },
     {
       title: "Managed migrations",
-      description: "POST /api/v1/storage/migrations — request orchestrated volume moves between tiers.",
+      description:
+        "POST /api/v1/storage/migrations — request orchestrated volume moves between tiers.",
       icon: <Truck className="h-5 w-5" />,
     },
   ];

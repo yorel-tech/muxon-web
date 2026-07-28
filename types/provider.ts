@@ -2,7 +2,7 @@
 export interface Link {
   rel: string;
   href: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   title: string;
   enabled: boolean;
   reason?: string;
@@ -11,8 +11,8 @@ export interface Link {
 export interface Provider extends Record<string, any> {
   id: string;
   name: string;
-  type: 'proxmox' | 'libvirt';
-  status: 'online' | 'offline' | 'degraded';
+  type: "proxmox" | "libvirt";
+  status: "online" | "offline" | "degraded";
   nodes?: number;
   vms?: number;
   region?: string;
@@ -32,7 +32,7 @@ export interface NodeCluster extends Record<string, any> {
   id: string;
   name: string;
   providerId: string;
-  status: 'online' | 'offline' | 'degraded';
+  status: "online" | "offline" | "degraded";
   nodes?: number;
   vms?: number;
   description?: string;
@@ -44,7 +44,7 @@ export interface Node extends Record<string, any> {
   name: string;
   clusterId?: string;
   providerId: string;
-  status: 'online' | 'offline' | 'maintenance';
+  status: "online" | "offline" | "maintenance";
   cpu?: {
     cores: number;
     usage: number;

@@ -1,45 +1,45 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { forwardRef } from 'react';
+import { motion } from "framer-motion";
+import { forwardRef } from "react";
 
 export interface BadgeProps {
   variant?:
-    | 'default'
-    | 'success'
-    | 'warning'
-    | 'error'
-    | 'destructive'
-    | 'info'
-    | 'nexus'
-    | 'secondary'
-    | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+    | "default"
+    | "success"
+    | "warning"
+    | "error"
+    | "destructive"
+    | "info"
+    | "nexus"
+    | "secondary"
+    | "outline";
+  size?: "sm" | "md" | "lg";
   className?: string;
   children: React.ReactNode;
   dot?: boolean;
 }
 
 const variantStyles: Record<string, string> = {
-  default: 'bg-gray-100 text-gray-700',
-  success: 'bg-success-100 text-success-700',
-  warning: 'bg-warning-100 text-warning-700',
-  error: 'bg-error-100 text-error-700',
-  destructive: 'bg-error-100 text-error-700',
-  info: 'bg-info-100 text-info-700',
-  nexus: 'bg-nexus-100 text-nexus-700',
-  secondary: 'bg-gray-200 text-gray-600',
-  outline: 'bg-transparent ring-1 ring-inset ring-gray-300 text-gray-700',
+  default: "bg-gray-100 text-gray-700",
+  success: "bg-success-100 text-success-700",
+  warning: "bg-warning-100 text-warning-700",
+  error: "bg-error-100 text-error-700",
+  destructive: "bg-error-100 text-error-700",
+  info: "bg-info-100 text-info-700",
+  nexus: "bg-nexus-100 text-nexus-700",
+  secondary: "bg-gray-200 text-gray-600",
+  outline: "bg-transparent ring-1 ring-inset ring-gray-300 text-gray-700",
 };
 
 const sizeStyles: Record<string, string> = {
-  sm: 'px-2 py-0.5 text-xs',
-  md: 'px-2.5 py-0.5 text-sm',
-  lg: 'px-3 py-1 text-base',
+  sm: "px-2 py-0.5 text-xs",
+  md: "px-2.5 py-0.5 text-sm",
+  lg: "px-3 py-1 text-base",
 };
 
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ variant = 'default', size = 'md', className = '', children, dot = false }, ref) => {
+  ({ variant = "default", size = "md", className = "", children, dot = false }, ref) => {
     return (
       <motion.span
         ref={ref}
@@ -54,12 +54,10 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
         transition={{ duration: 0.2 }}
       >
         {children}
-        {dot && (
-          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-        )}
+        {dot && <span className="w-1.5 h-1.5 rounded-full bg-current" />}
       </motion.span>
     );
   }
 );
 
-Badge.displayName = 'Badge';
+Badge.displayName = "Badge";

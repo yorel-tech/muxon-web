@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Modal } from '@/components/ui/molecules/modal';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { Checkbox } from '@/components/ui/atoms/checkbox';
-import type { ContentStorageRow, ContentStorageTypeApi } from '@/types/content-storage';
-import { useCreateContentStorage, useUpdateContentStorage } from '../hooks/useContentStorages';
+import { useEffect, useState } from "react";
+import { Modal } from "@/components/ui/molecules/modal";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { Checkbox } from "@/components/ui/atoms/checkbox";
+import type { ContentStorageRow, ContentStorageTypeApi } from "@/types/content-storage";
+import { useCreateContentStorage, useUpdateContentStorage } from "../hooks/useContentStorages";
 
-export const DEFAULT_CONTENT_STORAGE_LOCAL_PATH = '/var/lib/infron/content-libraries';
+export const DEFAULT_CONTENT_STORAGE_LOCAL_PATH = "/var/lib/muxon/content-libraries";
 
 interface ContentStorageFormProps {
   storage: ContentStorageRow | null;
@@ -20,69 +20,69 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
   const createMutation = useCreateContentStorage();
   const updateMutation = useUpdateContentStorage();
 
-  const [name, setName] = useState('');
-  const [type, setType] = useState<ContentStorageTypeApi>('local');
+  const [name, setName] = useState("");
+  const [type, setType] = useState<ContentStorageTypeApi>("local");
   const [isDefault, setIsDefault] = useState(false);
 
   const [path, setPath] = useState(DEFAULT_CONTENT_STORAGE_LOCAL_PATH);
-  const [mountPath, setMountPath] = useState('');
-  const [nfsServer, setNfsServer] = useState('');
-  const [nfsExport, setNfsExport] = useState('');
+  const [mountPath, setMountPath] = useState("");
+  const [nfsServer, setNfsServer] = useState("");
+  const [nfsExport, setNfsExport] = useState("");
 
-  const [s3Bucket, setS3Bucket] = useState('');
-  const [s3Region, setS3Region] = useState('');
-  const [s3Prefix, setS3Prefix] = useState('');
-  const [s3Endpoint, setS3Endpoint] = useState('');
-  const [s3AccessKeyId, setS3AccessKeyId] = useState('');
-  const [s3SecretAccessKey, setS3SecretAccessKey] = useState('');
+  const [s3Bucket, setS3Bucket] = useState("");
+  const [s3Region, setS3Region] = useState("");
+  const [s3Prefix, setS3Prefix] = useState("");
+  const [s3Endpoint, setS3Endpoint] = useState("");
+  const [s3AccessKeyId, setS3AccessKeyId] = useState("");
+  const [s3SecretAccessKey, setS3SecretAccessKey] = useState("");
 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setError(null);
     if (storage) {
-      setName(storage.name ?? '');
+      setName(storage.name ?? "");
       setType(storage.type);
       setIsDefault(Boolean(storage.isDefault));
       const c = storage.config ?? {};
       setPath((c.path as string) ?? DEFAULT_CONTENT_STORAGE_LOCAL_PATH);
-      setMountPath((c.mountPath as string) ?? '');
-      setNfsServer((c.server as string) ?? '');
-      setNfsExport((c.export as string) ?? '');
-      setS3Bucket((c.bucket as string) ?? '');
-      setS3Region((c.region as string) ?? '');
-      setS3Prefix((c.prefix as string) ?? '');
-      setS3Endpoint((c.endpoint as string) ?? '');
-      setS3AccessKeyId((c.accessKeyId as string) ?? '');
-      setS3SecretAccessKey((c.secretAccessKey as string) ?? '');
+      setMountPath((c.mountPath as string) ?? "");
+      setNfsServer((c.server as string) ?? "");
+      setNfsExport((c.export as string) ?? "");
+      setS3Bucket((c.bucket as string) ?? "");
+      setS3Region((c.region as string) ?? "");
+      setS3Prefix((c.prefix as string) ?? "");
+      setS3Endpoint((c.endpoint as string) ?? "");
+      setS3AccessKeyId((c.accessKeyId as string) ?? "");
+      setS3SecretAccessKey((c.secretAccessKey as string) ?? "");
     } else {
-      setName('');
-      setType('local');
+      setName("");
+      setType("local");
       setIsDefault(false);
       setPath(DEFAULT_CONTENT_STORAGE_LOCAL_PATH);
-      setMountPath('');
-      setNfsServer('');
-      setNfsExport('');
-      setS3Bucket('');
-      setS3Region('');
-      setS3Prefix('');
-      setS3Endpoint('');
-      setS3AccessKeyId('');
-      setS3SecretAccessKey('');
+      setMountPath("");
+      setNfsServer("");
+      setNfsExport("");
+      setS3Bucket("");
+      setS3Region("");
+      setS3Prefix("");
+      setS3Endpoint("");
+      setS3AccessKeyId("");
+      setS3SecretAccessKey("");
     }
   }, [storage]);
 
   const buildConfig = (): Record<string, unknown> => {
     switch (type) {
-      case 'local':
+      case "local":
         return { path: path.trim() };
-      case 'nfs': {
+      case "nfs": {
         const o: Record<string, unknown> = { mountPath: mountPath.trim() };
         if (nfsServer.trim()) o.server = nfsServer.trim();
         if (nfsExport.trim()) o.export = nfsExport.trim();
         return o;
       }
-      case 's3': {
+      case "s3": {
         const o: Record<string, unknown> = {
           bucket: s3Bucket.trim(),
           region: s3Region.trim(),
@@ -101,16 +101,16 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
   const handleSubmit = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setError('Name is required.');
+      setError("Name is required.");
       return;
     }
-    if (type === 'nfs' && !mountPath.trim()) {
-      setError('NFS mount path is required.');
+    if (type === "nfs" && !mountPath.trim()) {
+      setError("NFS mount path is required.");
       return;
     }
-    if (type === 's3') {
+    if (type === "s3") {
       if (!s3Bucket.trim() || !s3Region.trim()) {
-        setError('S3 bucket and region are required.');
+        setError("S3 bucket and region are required.");
         return;
       }
     }
@@ -138,14 +138,14 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
       }
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Request failed');
+      setError(e instanceof Error ? e.message : "Request failed");
     }
   };
 
   const busy = createMutation.isPending || updateMutation.isPending;
 
   const selectClass =
-    'w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100';
+    "w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100";
 
   return (
     <Modal
@@ -153,12 +153,13 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
       onClose={() => {
         if (!busy) onClose();
       }}
-      title={isEdit ? 'Edit content storage' : 'Create content storage'}
+      title={isEdit ? "Edit content storage" : "Create content storage"}
       size="md"
     >
       <div className="space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Where content library uploads are stored (local disk, NFS mount, or S3-compatible object storage).
+          Where content library uploads are stored (local disk, NFS mount, or S3-compatible object
+          storage).
         </p>
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
@@ -166,10 +167,19 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
           </div>
         )}
 
-        <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth required />
+        <Input
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          fullWidth
+          required
+        />
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="cs-type">
+          <label
+            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="cs-type"
+          >
             Type
           </label>
           <select
@@ -188,7 +198,7 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
           )}
         </div>
 
-        {type === 'local' && (
+        {type === "local" && (
           <Input
             label="Root path"
             value={path}
@@ -198,7 +208,7 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
           />
         )}
 
-        {type === 'nfs' && (
+        {type === "nfs" && (
           <div className="space-y-3">
             <Input
               label="Mount path (on core-services host)"
@@ -207,15 +217,37 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
               fullWidth
               required
             />
-            <Input label="Server (informational)" value={nfsServer} onChange={(e) => setNfsServer(e.target.value)} fullWidth />
-            <Input label="Export (informational)" value={nfsExport} onChange={(e) => setNfsExport(e.target.value)} fullWidth />
+            <Input
+              label="Server (informational)"
+              value={nfsServer}
+              onChange={(e) => setNfsServer(e.target.value)}
+              fullWidth
+            />
+            <Input
+              label="Export (informational)"
+              value={nfsExport}
+              onChange={(e) => setNfsExport(e.target.value)}
+              fullWidth
+            />
           </div>
         )}
 
-        {type === 's3' && (
+        {type === "s3" && (
           <div className="space-y-3">
-            <Input label="Bucket" value={s3Bucket} onChange={(e) => setS3Bucket(e.target.value)} fullWidth required />
-            <Input label="Region" value={s3Region} onChange={(e) => setS3Region(e.target.value)} fullWidth required />
+            <Input
+              label="Bucket"
+              value={s3Bucket}
+              onChange={(e) => setS3Bucket(e.target.value)}
+              fullWidth
+              required
+            />
+            <Input
+              label="Region"
+              value={s3Region}
+              onChange={(e) => setS3Region(e.target.value)}
+              fullWidth
+              required
+            />
             <Input
               label="Key prefix (optional)"
               value={s3Prefix}
@@ -242,7 +274,8 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
               fullWidth
             />
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Omit access key and secret to use the default AWS credential provider chain on the host.
+              Omit access key and secret to use the default AWS credential provider chain on the
+              host.
             </p>
           </div>
         )}
@@ -258,7 +291,7 @@ export default function ContentStorageForm({ storage, onClose }: ContentStorageF
             Cancel
           </Button>
           <Button onClick={() => void handleSubmit()} disabled={busy}>
-            {busy ? 'Saving…' : isEdit ? 'Save' : 'Create'}
+            {busy ? "Saving…" : isEdit ? "Save" : "Create"}
           </Button>
         </div>
       </div>

@@ -1,6 +1,6 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Button } from '@/components/ui/atoms/button';
-import { Card, CardContent } from '@/components/ui/atoms/card';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Button } from "@/components/ui/atoms/button";
+import { Card, CardContent } from "@/components/ui/atoms/card";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -27,12 +27,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-    
+    console.error("Error caught by boundary:", error, errorInfo);
+
     // Log to external service in production
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
       // Integration with external logging service would go here
-      console.error('Production error:', {
+      console.error("Production error:", {
         error: error.message,
         stack: error.stack,
         componentStack: errorInfo.componentStack,
@@ -48,8 +48,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidUpdate(prevProps: ErrorBoundaryProps) {
     // Reset error boundary if resetKeys are provided and they changed
     if (this.state.hasError && this.props.resetKeys) {
-      const hasKeyChanged = this.props.resetKeys.some((key, index) => 
-        key !== prevProps.resetKeys?.[index]
+      const hasKeyChanged = this.props.resetKeys.some(
+        (key, index) => key !== prevProps.resetKeys?.[index]
       );
       if (hasKeyChanged) {
         this.setState({ hasError: false, error: undefined, errorInfo: undefined });
@@ -91,17 +91,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </div>
 
               {/* Error Title */}
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Something went wrong
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
 
               {/* Error Message */}
               <p className="text-gray-600 mb-6">
-                {this.state.error?.message || 'An unexpected error occurred'}
+                {this.state.error?.message || "An unexpected error occurred"}
               </p>
 
               {/* Error Details (Development Only) */}
-              {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+              {process.env.NODE_ENV === "development" && this.state.errorInfo && (
                 <details className="mb-6 text-left">
                   <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 mb-2">
                     Error Details
@@ -109,9 +107,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                   <div className="mt-2 p-4 bg-gray-100 rounded text-xs overflow-auto max-h-32">
                     <div className="mb-2">
                       <strong>Error:</strong>
-                      <pre className="whitespace-pre-wrap break-all">
-                        {this.state.error?.stack}
-                      </pre>
+                      <pre className="whitespace-pre-wrap break-all">{this.state.error?.stack}</pre>
                     </div>
                     <div>
                       <strong>Component Stack:</strong>
@@ -130,10 +126,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     Try Again
                   </Button>
                 )}
-                <Button 
-                  onClick={() => window.location.reload()} 
-                  variant="secondary"
-                >
+                <Button onClick={() => window.location.reload()} variant="secondary">
                   Reload Page
                 </Button>
               </div>
@@ -141,20 +134,21 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               {/* Help Link */}
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <p className="text-sm text-gray-500">
-                  If this problem persists, please{' '}
-                  <a 
-                    href="mailto:support@example.com" 
+                  If this problem persists, please{" "}
+                  <a
+                    href="mailto:support@example.com"
                     className="text-primary-600 hover:text-primary-700 underline"
                   >
                     contact support
-                  </a>
-                  {' '}or check our{' '}
-                  <a 
-                    href="/docs/troubleshooting" 
+                  </a>{" "}
+                  or check our{" "}
+                  <a
+                    href="/docs/troubleshooting"
                     className="text-primary-600 hover:text-primary-700 underline"
                   >
                     troubleshooting guide
-                  </a>.
+                  </a>
+                  .
                 </p>
               </div>
             </CardContent>
@@ -172,7 +166,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
  */
 export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>
+  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">
 ) => {
   const WrappedComponent = (props: P) => (
     <ErrorBoundary {...errorBoundaryProps}>
@@ -181,7 +175,7 @@ export const withErrorBoundary = <P extends object>(
   );
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 };
 
@@ -190,12 +184,12 @@ export const withErrorBoundary = <P extends object>(
  */
 export const useErrorHandler = () => {
   const handleError = (error: Error, errorInfo?: string) => {
-    console.error('Error handled by useErrorHandler:', error, errorInfo);
-    
+    console.error("Error handled by useErrorHandler:", error, errorInfo);
+
     // Log to external service in production
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    if (typeof window !== "undefined" && process.env.NODE_ENV === "production") {
       // Integration with external logging service would go here
-      console.error('Production error:', {
+      console.error("Production error:", {
         error: error.message,
         stack: error.stack,
         context: errorInfo,

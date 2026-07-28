@@ -1,34 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Plus,
-  X,
-  Loader2,
-  CheckCircle2,
-  MapPin,
-  Activity,
-} from 'lucide-react';
-import { RowActionsTrigger } from '@/components/DynamicContextMenu';
-import { apiGet, apiPost } from '@/lib/api';
-import { executeLinkAction } from '@/lib/api';
-import { buildRowActionOptions, normalizeEntityLinks, getNavigationPath } from '@/lib/hateoas';
-import type { Link } from '@/types/provider';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, X, Loader2, CheckCircle2, MapPin, Activity } from "lucide-react";
+import { RowActionsTrigger } from "@/components/DynamicContextMenu";
+import { apiGet, apiPost } from "@/lib/api";
+import { executeLinkAction } from "@/lib/api";
+import { buildRowActionOptions, normalizeEntityLinks, getNavigationPath } from "@/lib/hateoas";
+import type { Link } from "@/types/provider";
 
 export interface Datacenter extends Record<string, any> {
   id: string;
   name: string;
-  type: 'libvirt' | 'proxmox';
-  status: 'connected' | 'disconnected' | 'syncing' | 'error';
-  health: 'healthy' | 'degraded' | 'down';
+  type: "libvirt" | "proxmox";
+  status: "connected" | "disconnected" | "syncing" | "error";
+  health: "healthy" | "degraded" | "down";
   region: string;
   location: string;
   providerId: string;
@@ -55,14 +48,14 @@ export default function DatacentersPage() {
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [datacenterName, setDatacenterName] = useState<string>('');
-  const [datacenterDescription, setDatacenterDescription] = useState<string>('');
-  const [providerTypeFilter, setProviderTypeFilter] = useState<string>('');
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('');
-  const [selectedNodeClusterId, setSelectedNodeClusterId] = useState<string>('');
-  const [totalCpus, setTotalCpus] = useState<string>('1000');
-  const [totalMemoryGb, setTotalMemoryGb] = useState<string>('4096');
-  const [totalStorageGb, setTotalStorageGb] = useState<string>('20000');
+  const [datacenterName, setDatacenterName] = useState<string>("");
+  const [datacenterDescription, setDatacenterDescription] = useState<string>("");
+  const [providerTypeFilter, setProviderTypeFilter] = useState<string>("");
+  const [selectedProviderId, setSelectedProviderId] = useState<string>("");
+  const [selectedNodeClusterId, setSelectedNodeClusterId] = useState<string>("");
+  const [totalCpus, setTotalCpus] = useState<string>("1000");
+  const [totalMemoryGb, setTotalMemoryGb] = useState<string>("4096");
+  const [totalStorageGb, setTotalStorageGb] = useState<string>("20000");
   const [providers, setProviders] = useState<{ id: string; name: string; type?: string }[]>([]);
   const [clusters, setClusters] = useState<{ id: string; name: string }[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(false);
@@ -76,32 +69,32 @@ export default function DatacentersPage() {
   const fetchDatacenters = async () => {
     setIsLoading(true);
     try {
-      const data = await apiGet('/api/v1/datacenters');
+      const data = await apiGet("/api/v1/datacenters");
       // API returns { total, page, perPage, items: [...] }
-      const datacentersList = Array.isArray(data) ? data : (data?.items || []);
-      
+      const datacentersList = Array.isArray(data) ? data : data?.items || [];
+
       // Map backend data to frontend Datacenter interface; preserve _links from backend (HateoasLinkEnrichmentAdvice)
       const mappedDatacenters = datacentersList.map((dc: any) => ({
         id: dc.id,
         name: dc.name,
-        type: dc.settings?.providerType || 'libvirt',
-        status: 'connected', // Backend doesn't provide this yet, default to connected
-        health: 'healthy', // Backend doesn't provide this yet, default to healthy
-        region: dc.metadata?.region || '',
-        location: dc.description || '',
+        type: dc.settings?.providerType || "libvirt",
+        status: "connected", // Backend doesn't provide this yet, default to connected
+        health: "healthy", // Backend doesn't provide this yet, default to healthy
+        region: dc.metadata?.region || "",
+        location: dc.description || "",
         providerId: dc.id, // Use id as providerId for now
         totalCapacity: dc.capacity?.totalCpus || 0,
         usedCapacity: 0, // Backend doesn't provide this yet
         totalNodes: 0, // Backend doesn't provide this yet
         activeNodes: 0, // Backend doesn't provide this yet
-        createdAt: dc.createdAt || '',
-        lastSync: dc.updatedAt || '',
+        createdAt: dc.createdAt || "",
+        lastSync: dc.updatedAt || "",
         _links: normalizeEntityLinks(dc),
       }));
-      
+
       setDatacenters(mappedDatacenters);
     } catch (error) {
-      console.error('Error fetching datacenters:', error);
+      console.error("Error fetching datacenters:", error);
       setDatacenters([]);
     } finally {
       setIsLoading(false);
@@ -110,62 +103,73 @@ export default function DatacentersPage() {
 
   const handleRowAction = async (rel: string, datacenter: Datacenter, link?: Link) => {
     if (!link) return;
-    if (rel === 'delete' && !window.confirm(`Are you sure you want to delete datacenter "${datacenter.name}"?`)) {
+    if (
+      rel === "delete" &&
+      !window.confirm(`Are you sure you want to delete datacenter "${datacenter.name}"?`)
+    ) {
       return;
     }
     try {
-      if (rel === 'self' && link.method === 'GET') {
+      if (rel === "self" && link.method === "GET") {
         const path = getNavigationPath(link);
-        window.location.href = path.startsWith('http') ? path : path;
+        window.location.href = path.startsWith("http") ? path : path;
         return;
       }
-      await executeLinkAction(link, link.method !== 'GET' && link.method !== 'DELETE' ? {} : undefined);
-      if (['delete', 'edit', 'update'].includes(rel)) {
+      await executeLinkAction(
+        link,
+        link.method !== "GET" && link.method !== "DELETE" ? {} : undefined
+      );
+      if (["delete", "edit", "update"].includes(rel)) {
         await fetchDatacenters();
       }
     } catch (error) {
       console.error(`Datacenter action ${rel} failed:`, error);
-      alert(`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`Failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
   const getContextMenuOptions = (datacenter: Datacenter): DropdownOption[] =>
-    buildRowActionOptions(datacenter, 'datacenter', normalizeEntityLinks(datacenter), handleRowAction);
+    buildRowActionOptions(
+      datacenter,
+      "datacenter",
+      normalizeEntityLinks(datacenter),
+      handleRowAction
+    );
 
-  const getStatusBadgeVariant = (status: Datacenter['status']) => {
+  const getStatusBadgeVariant = (status: Datacenter["status"]) => {
     switch (status) {
-      case 'connected':
-        return 'success';
-      case 'disconnected':
-        return 'error';
-      case 'syncing':
-        return 'info';
-      case 'error':
-        return 'error';
+      case "connected":
+        return "success";
+      case "disconnected":
+        return "error";
+      case "syncing":
+        return "info";
+      case "error":
+        return "error";
       default:
-        return 'default';
+        return "default";
     }
   };
 
-  const getHealthBadgeVariant = (health: Datacenter['health']) => {
+  const getHealthBadgeVariant = (health: Datacenter["health"]) => {
     switch (health) {
-      case 'healthy':
-        return 'success';
-      case 'degraded':
-        return 'warning';
-      case 'down':
-        return 'error';
+      case "healthy":
+        return "success";
+      case "degraded":
+        return "warning";
+      case "down":
+        return "error";
       default:
-        return 'default';
+        return "default";
     }
   };
 
-  const getTypeLabel = (type: Datacenter['type']) => {
+  const getTypeLabel = (type: Datacenter["type"]) => {
     switch (type) {
-      case 'proxmox':
-        return 'Proxmox';
-      case 'libvirt':
-        return 'Libvirt';
+      case "proxmox":
+        return "Proxmox";
+      case "libvirt":
+        return "Libvirt";
       default:
         return type;
     }
@@ -175,19 +179,19 @@ export default function DatacentersPage() {
     setIsWizardOpen(true);
     setProviders([]);
     setClusters([]);
-    setSelectedProviderId('');
-    setSelectedNodeClusterId('');
+    setSelectedProviderId("");
+    setSelectedNodeClusterId("");
     await fetchProviders();
   };
 
   const fetchProviders = async () => {
     setLoadingProviders(true);
     try {
-      const data = await apiGet('/api/v1/providers?perPage=200');
-      const list = Array.isArray(data) ? data : data?.items ?? [];
+      const data = await apiGet("/api/v1/providers?perPage=200");
+      const list = Array.isArray(data) ? data : (data?.items ?? []);
       setProviders(list.map((p: any) => ({ id: p.id, name: p.name, type: p.type })));
     } catch (e) {
-      console.error('Failed to fetch providers', e);
+      console.error("Failed to fetch providers", e);
       setProviders([]);
     } finally {
       setLoadingProviders(false);
@@ -202,10 +206,10 @@ export default function DatacentersPage() {
     setLoadingClusters(true);
     try {
       const data = await apiGet(`/api/v1/providers/${providerId}/node-clusters?perPage=200`);
-      const list = Array.isArray(data) ? data : data?.items ?? [];
+      const list = Array.isArray(data) ? data : (data?.items ?? []);
       setClusters(list.map((c: any) => ({ id: c.id, name: c.name })));
     } catch (e) {
-      console.error('Failed to fetch node clusters', e);
+      console.error("Failed to fetch node clusters", e);
       setClusters([]);
     } finally {
       setLoadingClusters(false);
@@ -214,36 +218,36 @@ export default function DatacentersPage() {
 
   const handleCloseWizard = () => {
     setIsWizardOpen(false);
-    setDatacenterName('');
-    setDatacenterDescription('');
-    setProviderTypeFilter('');
-    setSelectedProviderId('');
-    setSelectedNodeClusterId('');
-    setTotalCpus('1000');
-    setTotalMemoryGb('4096');
-    setTotalStorageGb('20000');
+    setDatacenterName("");
+    setDatacenterDescription("");
+    setProviderTypeFilter("");
+    setSelectedProviderId("");
+    setSelectedNodeClusterId("");
+    setTotalCpus("1000");
+    setTotalMemoryGb("4096");
+    setTotalStorageGb("20000");
     setClusters([]);
   };
 
   const filteredProviders =
-    providerTypeFilter === ''
+    providerTypeFilter === ""
       ? providers
       : providers.filter((p) => String(p.type).toLowerCase() === providerTypeFilter.toLowerCase());
 
   const handleSaveDatacenter = async () => {
     if (!datacenterName.trim()) {
-      alert('Datacenter name is required');
+      alert("Datacenter name is required");
       return;
     }
     if (!selectedNodeClusterId) {
-      alert('Please select a node cluster');
+      alert("Please select a node cluster");
       return;
     }
     const cpus = parseInt(totalCpus, 10);
     const mem = parseInt(totalMemoryGb, 10);
     const storage = parseInt(totalStorageGb, 10);
     if (isNaN(cpus) || cpus < 1 || isNaN(mem) || mem < 1 || isNaN(storage) || storage < 1) {
-      alert('Capacity must be positive numbers (CPUs, memory GB, storage GB)');
+      alert("Capacity must be positive numbers (CPUs, memory GB, storage GB)");
       return;
     }
 
@@ -259,18 +263,18 @@ export default function DatacentersPage() {
           totalStorageGb: storage,
         },
         settings: {
-          vmClasses: ['small', 'medium', 'large'],
-          storageClasses: ['gold', 'silver'],
-          networkDomains: ['private', 'public'],
+          vmClasses: ["small", "medium", "large"],
+          storageClasses: ["gold", "silver"],
+          networkDomains: ["private", "public"],
         },
       };
 
-      await apiPost('/api/v1/datacenters', datacenterData);
+      await apiPost("/api/v1/datacenters", datacenterData);
       await fetchDatacenters();
       handleCloseWizard();
     } catch (error) {
-      console.error('Error creating datacenter:', error);
-      let errorMessage = 'Failed to create datacenter';
+      console.error("Error creating datacenter:", error);
+      let errorMessage = "Failed to create datacenter";
       if (error instanceof Error) {
         errorMessage = error.message;
         const match = errorMessage.match(/"message"\s*:\s*"([^"]+)"/);
@@ -284,8 +288,8 @@ export default function DatacentersPage() {
 
   const columns: Column<Datacenter>[] = [
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       cell: (row: Datacenter) => (
         <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           <Dropdown
@@ -299,44 +303,36 @@ export default function DatacentersPage() {
       sortable: false,
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
+      cell: (row: Datacenter) => <div className="font-medium text-gray-900">{row.name}</div>,
+      sortable: true,
+    },
+    {
+      key: "type",
+      header: "Type",
+      cell: (row: Datacenter) => <Badge variant="info">{getTypeLabel(row.type)}</Badge>,
+      sortable: true,
+    },
+    {
+      key: "status",
+      header: "Status",
       cell: (row: Datacenter) => (
-        <div className="font-medium text-gray-900">{row.name}</div>
+        <Badge variant={getStatusBadgeVariant(row.status)}>{row.status}</Badge>
       ),
       sortable: true,
     },
     {
-      key: 'type',
-      header: 'Type',
+      key: "health",
+      header: "Health",
       cell: (row: Datacenter) => (
-        <Badge variant="info">{getTypeLabel(row.type)}</Badge>
+        <Badge variant={getHealthBadgeVariant(row.health)}>{row.health}</Badge>
       ),
       sortable: true,
     },
     {
-      key: 'status',
-      header: 'Status',
-      cell: (row: Datacenter) => (
-        <Badge variant={getStatusBadgeVariant(row.status)}>
-          {row.status}
-        </Badge>
-      ),
-      sortable: true,
-    },
-    {
-      key: 'health',
-      header: 'Health',
-      cell: (row: Datacenter) => (
-        <Badge variant={getHealthBadgeVariant(row.health)}>
-          {row.health}
-        </Badge>
-      ),
-      sortable: true,
-    },
-    {
-      key: 'region',
-      header: 'Region',
+      key: "region",
+      header: "Region",
       cell: (row: Datacenter) => (
         <div className="flex items-center gap-1">
           <MapPin className="w-4 h-4 text-gray-500" />
@@ -346,8 +342,8 @@ export default function DatacentersPage() {
       sortable: true,
     },
     {
-      key: 'location',
-      header: 'Location',
+      key: "location",
+      header: "Location",
       cell: (row: Datacenter) => (
         <div className="flex items-center gap-1">
           <Activity className="w-4 h-4 text-gray-500" />
@@ -357,18 +353,22 @@ export default function DatacentersPage() {
       sortable: true,
     },
     {
-      key: 'capacity',
-      header: 'Capacity',
+      key: "capacity",
+      header: "Capacity",
       cell: (row: Datacenter) => (
-        <span className="text-gray-600">{row.usedCapacity} / {row.totalCapacity}</span>
+        <span className="text-gray-600">
+          {row.usedCapacity} / {row.totalCapacity}
+        </span>
       ),
       sortable: true,
     },
     {
-      key: 'nodes',
-      header: 'Nodes',
+      key: "nodes",
+      header: "Nodes",
       cell: (row: Datacenter) => (
-        <span className="text-gray-600">{row.activeNodes} / {row.totalNodes}</span>
+        <span className="text-gray-600">
+          {row.activeNodes} / {row.totalNodes}
+        </span>
       ),
       sortable: true,
     },
@@ -386,9 +386,7 @@ export default function DatacentersPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Datacenters
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">Datacenters</h1>
               <p className="text-gray-600 mt-2">
                 Manage and monitor your cloud infrastructure datacenters
               </p>
@@ -421,7 +419,7 @@ export default function DatacentersPage() {
                   data={datacenters}
                   emptyMessage="No datacenters configured"
                   onRowClick={(row) => handleViewDetails(row)}
-                  overflowVisibleColumnKeys={['actions']}
+                  overflowVisibleColumnKeys={["actions"]}
                 />
               )}
             </CardContent>
@@ -448,9 +446,7 @@ export default function DatacentersPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Add Datacenter
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900">Add Datacenter</h2>
                 <button
                   onClick={handleCloseWizard}
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -474,16 +470,14 @@ export default function DatacentersPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Provider *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Provider *</label>
                   <select
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     value={selectedProviderId}
                     onChange={(e) => {
                       const id = e.target.value;
                       setSelectedProviderId(id);
-                      setSelectedNodeClusterId('');
+                      setSelectedNodeClusterId("");
                       fetchClustersForProvider(id);
                     }}
                     disabled={loadingProviders}
@@ -491,7 +485,7 @@ export default function DatacentersPage() {
                     <option value="">Select provider</option>
                     {filteredProviders.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} {p.type ? `(${p.type})` : ''}
+                        {p.name} {p.type ? `(${p.type})` : ""}
                       </option>
                     ))}
                   </select>
@@ -576,16 +570,10 @@ export default function DatacentersPage() {
                 </div>
               </div>
               <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-                <Button
-                  variant="secondary"
-                  onClick={handleCloseWizard}
-                >
+                <Button variant="secondary" onClick={handleCloseWizard}>
                   Cancel
                 </Button>
-                <Button
-                  onClick={handleSaveDatacenter}
-                  disabled={isSaving}
-                >
+                <Button onClick={handleSaveDatacenter} disabled={isSaving}>
                   {isSaving ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

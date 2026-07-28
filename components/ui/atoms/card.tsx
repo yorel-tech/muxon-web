@@ -1,34 +1,44 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { forwardRef, type ReactNode } from 'react';
+import { motion } from "framer-motion";
+import { forwardRef, type ReactNode } from "react";
 
 export interface CardProps {
   children?: ReactNode;
   className?: string;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  padding?: "none" | "sm" | "md" | "lg";
   hover?: boolean;
   bordered?: boolean;
-  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  shadow?: "none" | "sm" | "md" | "lg" | "xl";
 }
 
 const paddingStyles: Record<string, string> = {
-  none: 'p-0',
-  sm: 'p-3',
-  md: 'p-5',
-  lg: 'p-7',
+  none: "p-0",
+  sm: "p-3",
+  md: "p-5",
+  lg: "p-7",
 };
 
 const shadowStyles: Record<string, string> = {
-  none: '',
-  sm: 'shadow-sm',
-  md: 'shadow-md',
-  lg: 'shadow-lg',
-  xl: 'shadow-xl',
+  none: "",
+  sm: "shadow-sm",
+  md: "shadow-md",
+  lg: "shadow-lg",
+  xl: "shadow-xl",
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ children, className = '', padding = 'md', hover = false, bordered: _bordered = false, shadow = 'none' }, ref) => {
+  (
+    {
+      children,
+      className = "",
+      padding = "md",
+      hover = false,
+      bordered: _bordered = false,
+      shadow = "none",
+    },
+    ref
+  ) => {
     return (
       <motion.div
         ref={ref}
@@ -36,7 +46,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           bg-surface rounded-lg border border-panel
           ${paddingStyles[padding]}
           ${shadowStyles[shadow]}
-          ${hover ? 'hover:border-primary-500' : ''}
+          ${hover ? "hover:border-primary-500" : ""}
           transition-colors duration-200
           ${className}
         `}
@@ -50,19 +60,15 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   }
 );
 
-Card.displayName = 'Card';
+Card.displayName = "Card";
 
 export interface CardHeaderProps {
   children: ReactNode;
   className?: string;
 }
 
-export const CardHeader = ({ children, className = '' }: CardHeaderProps) => {
-  return (
-    <div className={`px-6 py-4 border-b border-primary-600/25 ${className}`}>
-      {children}
-    </div>
-  );
+export const CardHeader = ({ children, className = "" }: CardHeaderProps) => {
+  return <div className={`px-6 py-4 border-b border-primary-600/25 ${className}`}>{children}</div>;
 };
 
 export interface CardContentProps {
@@ -70,12 +76,8 @@ export interface CardContentProps {
   className?: string;
 }
 
-export const CardContent = ({ children, className = '' }: CardContentProps) => {
-  return (
-    <div className={`p-6 ${className}`}>
-      {children}
-    </div>
-  );
+export const CardContent = ({ children, className = "" }: CardContentProps) => {
+  return <div className={`p-6 ${className}`}>{children}</div>;
 };
 
 export interface CardFooterProps {
@@ -83,9 +85,11 @@ export interface CardFooterProps {
   className?: string;
 }
 
-export const CardFooter = ({ children, className = '' }: CardFooterProps) => {
+export const CardFooter = ({ children, className = "" }: CardFooterProps) => {
   return (
-    <div className={`px-6 py-4 border-t border-primary-600/25 bg-surface rounded-b-lg ${className}`}>
+    <div
+      className={`px-6 py-4 border-t border-primary-600/25 bg-surface rounded-b-lg ${className}`}
+    >
       {children}
     </div>
   );
@@ -96,7 +100,7 @@ export interface CardTitleProps {
   className?: string;
 }
 
-export const CardTitle = ({ children, className = '' }: CardTitleProps) => (
+export const CardTitle = ({ children, className = "" }: CardTitleProps) => (
   <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>{children}</h3>
 );
 
@@ -105,6 +109,6 @@ export interface CardDescriptionProps {
   className?: string;
 }
 
-export const CardDescription = ({ children, className = '' }: CardDescriptionProps) => (
+export const CardDescription = ({ children, className = "" }: CardDescriptionProps) => (
   <p className={`text-sm text-[color:var(--text-secondary)] mt-1 ${className}`}>{children}</p>
 );

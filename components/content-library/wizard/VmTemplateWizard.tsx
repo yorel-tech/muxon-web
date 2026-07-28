@@ -1,77 +1,90 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useEffect } from 'react';
-import { Button } from '@/components/ui/atoms/button';
-import type { VmTemplateSpec, FileWithMetadata } from '@/types/vm-template-spec';
-import type { ContentTypeApi } from '@/types/content-library';
-import { createDefaultVmTemplateSpec, validateVmTemplateSpec, createDefaultDiskSpec } from '@/lib/vm-template-defaults';
-import { VmTemplateFilesStep } from './VmTemplateFilesStep';
-import { VmTemplateMetadataStep } from './VmTemplateMetadataStep';
-import { VmTemplateComputeStep } from './VmTemplateComputeStep';
-import { VmTemplateDisksStep } from './VmTemplateDisksStep';
-import { VmTemplateNetworkStep } from './VmTemplateNetworkStep';
-import { VmTemplateReviewStep } from './VmTemplateReviewStep';
+import { useState, useCallback, useEffect } from "react";
+import { Button } from "@/components/ui/atoms/button";
+import type { VmTemplateSpec, FileWithMetadata } from "@/types/vm-template-spec";
+import type { ContentTypeApi } from "@/types/content-library";
+import {
+  createDefaultVmTemplateSpec,
+  validateVmTemplateSpec,
+  createDefaultDiskSpec,
+} from "@/lib/vm-template-defaults";
+import { VmTemplateFilesStep } from "./VmTemplateFilesStep";
+import { VmTemplateMetadataStep } from "./VmTemplateMetadataStep";
+import { VmTemplateComputeStep } from "./VmTemplateComputeStep";
+import { VmTemplateDisksStep } from "./VmTemplateDisksStep";
+import { VmTemplateNetworkStep } from "./VmTemplateNetworkStep";
+import { VmTemplateReviewStep } from "./VmTemplateReviewStep";
 
 interface VmTemplateWizardProps {
-  onComplete: (templateSpec: VmTemplateSpec, files: FileWithMetadata[], name: string, version: string) => void;
+  onComplete: (
+    templateSpec: VmTemplateSpec,
+    files: FileWithMetadata[],
+    name: string,
+    version: string
+  ) => void;
   onCancel: () => void;
   /** Single-screen ISO/script: create item + upload one file (no wizard steps). */
   onSimpleContentUpload: (payload: {
     file: File;
     name: string;
     description: string;
-    contentType: 'iso' | 'script';
+    contentType: "iso" | "script";
   }) => void;
 }
 
 /** Full VM template flow; ISO and script are a single files screen only. */
-type WizardPhase = 'files' | 'metadata' | 'compute' | 'disks' | 'network' | 'review';
+type WizardPhase = "files" | "metadata" | "compute" | "disks" | "network" | "review";
 
 const VM_TEMPLATE_PHASES: WizardPhase[] = [
-  'files',
-  'metadata',
-  'compute',
-  'disks',
-  'network',
-  'review',
+  "files",
+  "metadata",
+  "compute",
+  "disks",
+  "network",
+  "review",
 ];
 
 const PHASE_LABELS: Record<WizardPhase, string> = {
-  files: 'Files',
-  metadata: 'Metadata',
-  compute: 'Compute',
-  disks: 'Disks',
-  network: 'Network',
-  review: 'Review',
+  files: "Files",
+  metadata: "Metadata",
+  compute: "Compute",
+  disks: "Disks",
+  network: "Network",
+  review: "Review",
 };
 
 function phasesForContentType(contentType: ContentTypeApi): WizardPhase[] {
-  if (contentType === 'vm_template') return VM_TEMPLATE_PHASES;
-  return ['files'];
+  if (contentType === "vm_template") return VM_TEMPLATE_PHASES;
+  return ["files"];
 }
 
-function isSimpleSingleFileType(t: ContentTypeApi): t is 'iso' | 'script' {
-  return t === 'iso' || t === 'script';
+function isSimpleSingleFileType(t: ContentTypeApi): t is "iso" | "script" {
+  return t === "iso" || t === "script";
 }
 
-export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }: VmTemplateWizardProps) {
-  const [currentPhase, setCurrentPhase] = useState<WizardPhase>('files');
+export function VmTemplateWizard({
+  onComplete,
+  onCancel,
+  onSimpleContentUpload,
+}: VmTemplateWizardProps) {
+  const [currentPhase, setCurrentPhase] = useState<WizardPhase>("files");
   const [files, setFiles] = useState<FileWithMetadata[]>([]);
-  const [name, setName] = useState('');
-  const [version, setVersion] = useState('');
-  const [description, setDescription] = useState('');
-  const [contentType, setContentType] = useState<ContentTypeApi>('vm_template');
+  const [name, setName] = useState("");
+  const [version, setVersion] = useState("");
+  const [description, setDescription] = useState("");
+  const [contentType, setContentType] = useState<ContentTypeApi>("vm_template");
   const [templateSpec, setTemplateSpec] = useState<VmTemplateSpec>(() =>
-    createDefaultVmTemplateSpec([], '')
+    createDefaultVmTemplateSpec([], "")
   );
 
   // Auto-derive name from first file
   useEffect(() => {
     if (files.length > 0 && !name) {
       const firstFile = files[0].file;
-      const baseName = firstFile.name.replace(/\.[^./\\]+$/u, '');
+      const baseName = firstFile.name.replace(/\.[^./\\]+$/u, "");
       setName(baseName);
-      setTemplateSpec(prev => ({
+      setTemplateSpec((prev) => ({
         ...prev,
         metadata: { ...prev.metadata, name: baseName },
       }));
@@ -83,7 +96,7 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
     const phases = phasesForContentType(contentType);
     setCurrentPhase((prev) => {
       if (phases.includes(prev)) return prev;
-      return 'files';
+      return "files";
     });
   }, [contentType]);
 
@@ -116,7 +129,7 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
             file,
             id: `file-${Date.now()}-0`,
             diskIndex: 0,
-            status: 'pending',
+            status: "pending",
           },
         ];
         setFiles(fileMetadata);
@@ -131,7 +144,7 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
         file,
         id: `file-${Date.now()}-${index}`,
         diskIndex: files.length + index,
-        status: 'pending',
+        status: "pending",
       }));
 
       const updatedFiles = [...files, ...fileMetadata];
@@ -145,57 +158,57 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
         spec: { ...prev.spec, disks: newDisks },
       }));
     },
-    [files, contentType],
+    [files, contentType]
   );
 
-  const handleFileRemove = useCallback((fileId: string) => {
-    const updatedFiles = files.filter(f => f.id !== fileId);
-    setFiles(updatedFiles);
+  const handleFileRemove = useCallback(
+    (fileId: string) => {
+      const updatedFiles = files.filter((f) => f.id !== fileId);
+      setFiles(updatedFiles);
 
-    // Update disk specs
-    const allFiles = updatedFiles.map(f => f.file);
-    const newDisks = allFiles.map((file, i) => createDefaultDiskSpec(file, i));
-    
-    setTemplateSpec(prev => ({
-      ...prev,
-      spec: { ...prev.spec, disks: newDisks },
-    }));
-  }, [files]);
+      // Update disk specs
+      const allFiles = updatedFiles.map((f) => f.file);
+      const newDisks = allFiles.map((file, i) => createDefaultDiskSpec(file, i));
+
+      setTemplateSpec((prev) => ({
+        ...prev,
+        spec: { ...prev.spec, disks: newDisks },
+      }));
+    },
+    [files]
+  );
 
   const canProceed = useCallback(() => {
     switch (currentPhase) {
-      case 'files':
+      case "files":
         if (isSimpleSingleFileType(contentType)) {
-          return files.length === 1 && name.trim() !== '';
+          return files.length === 1 && name.trim() !== "";
         }
-        return files.length > 0 && name.trim() !== '';
-      case 'metadata':
-        return templateSpec.metadata.name.trim() !== '';
-      case 'compute':
-        return (
-          templateSpec.spec.compute.cpuCores >= 1 &&
-          templateSpec.spec.compute.memoryMB >= 512
-        );
-      case 'disks': {
-        const bootDisks = templateSpec.spec.disks.filter(d => d.bootOrder === 1);
-        const diskIds = templateSpec.spec.disks.map(d => d.id);
+        return files.length > 0 && name.trim() !== "";
+      case "metadata":
+        return templateSpec.metadata.name.trim() !== "";
+      case "compute":
+        return templateSpec.spec.compute.cpuCores >= 1 && templateSpec.spec.compute.memoryMB >= 512;
+      case "disks": {
+        const bootDisks = templateSpec.spec.disks.filter((d) => d.bootOrder === 1);
+        const diskIds = templateSpec.spec.disks.map((d) => d.id);
         const uniqueDiskIds = new Set(diskIds);
         return (
           bootDisks.length === 1 &&
           uniqueDiskIds.size === diskIds.length &&
-          diskIds.every(id => id && id.trim() !== '')
+          diskIds.every((id) => id && id.trim() !== "")
         );
       }
-      case 'network': {
-        const networkIds = templateSpec.spec.network.map(n => n.id);
+      case "network": {
+        const networkIds = templateSpec.spec.network.map((n) => n.id);
         const uniqueNetworkIds = new Set(networkIds);
         return (
           templateSpec.spec.network.length > 0 &&
           uniqueNetworkIds.size === networkIds.length &&
-          networkIds.every(id => id && id.trim() !== '')
+          networkIds.every((id) => id && id.trim() !== "")
         );
       }
-      case 'review':
+      case "review":
         return true;
       default:
         return false;
@@ -231,7 +244,7 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
   const handleSubmit = () => {
     const errors = validateVmTemplateSpec(templateSpec);
     if (errors.length > 0) {
-      alert('Validation errors:\n' + errors.join('\n'));
+      alert("Validation errors:\n" + errors.join("\n"));
       return;
     }
     onComplete(templateSpec, files, name, version);
@@ -255,25 +268,24 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
                 <div
                   className={`
                   w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                  ${currentPhase === step.phase
-                    ? 'bg-primary text-white'
-                    : currentStepIndex > index
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                  ${
+                    currentPhase === step.phase
+                      ? "bg-primary text-white"
+                      : currentStepIndex > index
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                   }
                 `}
                 >
-                  {currentStepIndex > index ? '✓' : step.displayNumber}
+                  {currentStepIndex > index ? "✓" : step.displayNumber}
                 </div>
-                <span className="text-xs mt-1 text-gray-600 dark:text-gray-400">
-                  {step.label}
-                </span>
+                <span className="text-xs mt-1 text-gray-600 dark:text-gray-400">{step.label}</span>
               </div>
               {index < steps.length - 1 && (
                 <div
                   className={`
                   h-0.5 flex-1 mx-2
-                  ${currentStepIndex > index ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'}
+                  ${currentStepIndex > index ? "bg-green-500" : "bg-gray-200 dark:bg-gray-700"}
                 `}
                 />
               )}
@@ -284,7 +296,7 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
 
       {/* Step Content */}
       <div className="min-h-[400px]">
-        {currentPhase === 'files' && (
+        {currentPhase === "files" && (
           <VmTemplateFilesStep
             files={files}
             onFilesSelected={handleFilesSelected}
@@ -300,16 +312,14 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
           />
         )}
 
-        {currentPhase === 'metadata' && (
+        {currentPhase === "metadata" && (
           <VmTemplateMetadataStep
             metadata={templateSpec.metadata}
-            onChange={(metadata) =>
-              setTemplateSpec({ ...templateSpec, metadata })
-            }
+            onChange={(metadata) => setTemplateSpec({ ...templateSpec, metadata })}
           />
         )}
 
-        {currentPhase === 'compute' && (
+        {currentPhase === "compute" && (
           <VmTemplateComputeStep
             firmware={templateSpec.spec.firmware}
             onFirmwareChange={(firmware) =>
@@ -328,7 +338,7 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
           />
         )}
 
-        {currentPhase === 'disks' && (
+        {currentPhase === "disks" && (
           <VmTemplateDisksStep
             disks={templateSpec.spec.disks}
             onChange={(disks) =>
@@ -340,7 +350,7 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
           />
         )}
 
-        {currentPhase === 'network' && (
+        {currentPhase === "network" && (
           <VmTemplateNetworkStep
             network={templateSpec.spec.network}
             onNetworkChange={(network) =>
@@ -359,21 +369,15 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
           />
         )}
 
-        {currentPhase === 'review' && (
-          <VmTemplateReviewStep
-            templateSpec={templateSpec}
-            files={files}
-          />
+        {currentPhase === "review" && (
+          <VmTemplateReviewStep templateSpec={templateSpec} files={files} />
         )}
       </div>
 
       {/* Navigation Buttons */}
       <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
-        <Button
-          variant="secondary"
-          onClick={currentPhase === 'files' ? onCancel : handleBack}
-        >
-          {currentPhase === 'files' ? 'Cancel' : 'Back'}
+        <Button variant="secondary" onClick={currentPhase === "files" ? onCancel : handleBack}>
+          {currentPhase === "files" ? "Cancel" : "Back"}
         </Button>
 
         {showStepper && (
@@ -382,11 +386,11 @@ export function VmTemplateWizard({ onComplete, onCancel, onSimpleContentUpload }
           </div>
         )}
 
-        {isSimpleSingleFileType(contentType) && currentPhase === 'files' ? (
+        {isSimpleSingleFileType(contentType) && currentPhase === "files" ? (
           <Button onClick={handleSimpleContentUpload} disabled={!canProceed()}>
             Upload
           </Button>
-        ) : currentPhase !== 'review' ? (
+        ) : currentPhase !== "review" ? (
           <Button onClick={handleNext} disabled={!canProceed()}>
             Next
           </Button>

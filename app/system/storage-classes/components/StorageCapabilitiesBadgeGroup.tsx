@@ -11,7 +11,7 @@ export function StorageCapabilitiesBadgeGroup({ capabilities }: { capabilities: 
   }
 
   const entries = Object.entries(capabilities).filter(
-    ([, v]) => v !== undefined && v !== null && v !== "",
+    ([, v]) => v !== undefined && v !== null && v !== ""
   );
 
   if (entries.length === 0) {

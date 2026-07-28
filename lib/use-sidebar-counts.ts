@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { apiGet } from './api';
+import { useEffect, useState } from "react";
+import { apiGet } from "./api";
 
 export interface SidebarCounts {
   users: number;
@@ -26,9 +26,9 @@ interface SystemOverviewCounts {
  * @param tenantId - Required when userRole is tenant; VM count uses `/api/v1/tenants/{tenantId}/vms` or overview when aligned.
  */
 export function useSidebarCounts(
-  userRole: 'system' | 'tenant',
+  userRole: "system" | "tenant",
   enabled = true,
-  tenantId: string | null = null,
+  tenantId: string | null = null
 ) {
   const [counts, setCounts] = useState<SidebarCounts>({
     users: 0,
@@ -48,25 +48,25 @@ export function useSidebarCounts(
       try {
         const fetchPromises: Promise<any>[] = [];
 
-        if (userRole === 'system') {
+        if (userRole === "system") {
           fetchPromises.push(
-            apiGet<PaginatedResponse>('/api/v1/system-users', {
+            apiGet<PaginatedResponse>("/api/v1/system-users", {
               baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
               requireAuth: true,
             }).catch((err) => {
-              console.error('Error fetching users count:', err);
+              console.error("Error fetching users count:", err);
               return { total: 0 };
-            }),
+            })
           );
 
           fetchPromises.push(
-            apiGet<SystemOverviewCounts>('/api/v1/system-overview', {
+            apiGet<SystemOverviewCounts>("/api/v1/system-overview", {
               baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
               requireAuth: true,
             }).catch((err) => {
-              console.error('Error fetching system overview:', err);
+              console.error("Error fetching system overview:", err);
               return {};
-            }),
+            })
           );
         } else if (tenantId) {
           fetchPromises.push(
@@ -74,9 +74,9 @@ export function useSidebarCounts(
               baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
               requireAuth: true,
             }).catch((err) => {
-              console.error('Error fetching VMs count:', err);
+              console.error("Error fetching VMs count:", err);
               return { total: 0 };
-            }),
+            })
           );
         }
 
@@ -88,19 +88,19 @@ export function useSidebarCounts(
           vms: 0,
         };
 
-        if (userRole === 'system') {
+        if (userRole === "system") {
           newCounts.users = results[0]?.total ?? 0;
           const overview = results[1] as SystemOverviewCounts;
-          newCounts.tenants = typeof overview?.tenantCount === 'number' ? overview.tenantCount : 0;
-          newCounts.vms = typeof overview?.vmCount === 'number' ? overview.vmCount : 0;
+          newCounts.tenants = typeof overview?.tenantCount === "number" ? overview.tenantCount : 0;
+          newCounts.vms = typeof overview?.vmCount === "number" ? overview.vmCount : 0;
         } else if (tenantId) {
           newCounts.vms = results[0]?.total ?? 0;
         }
 
         setCounts(newCounts);
       } catch (err) {
-        console.error('Error fetching sidebar counts:', err);
-        setError(err instanceof Error ? err : new Error('Failed to fetch counts'));
+        console.error("Error fetching sidebar counts:", err);
+        setError(err instanceof Error ? err : new Error("Failed to fetch counts"));
       } finally {
         setIsLoading(false);
       }

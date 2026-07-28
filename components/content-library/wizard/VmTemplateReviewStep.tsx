@@ -1,22 +1,19 @@
-'use client';
+"use client";
 
-import type { VmTemplateSpec, FileWithMetadata } from '@/types/vm-template-spec';
-import { formatBytes } from '@/lib/vm-template-defaults';
-import { useState } from 'react';
+import type { VmTemplateSpec, FileWithMetadata } from "@/types/vm-template-spec";
+import { formatBytes } from "@/lib/vm-template-defaults";
+import { useState } from "react";
 
 interface VmTemplateReviewStepProps {
   templateSpec: VmTemplateSpec;
   files: FileWithMetadata[];
 }
 
-export function VmTemplateReviewStep({
-  templateSpec,
-  files,
-}: VmTemplateReviewStepProps) {
+export function VmTemplateReviewStep({ templateSpec, files }: VmTemplateReviewStepProps) {
   const [showJson, setShowJson] = useState(false);
 
   const totalSize = files.reduce((sum, f) => sum + f.file.size, 0);
-  const bootDisk = templateSpec.spec.disks.find(d => d.bootOrder === 1);
+  const bootDisk = templateSpec.spec.disks.find((d) => d.bootOrder === 1);
 
   return (
     <div className="space-y-6">
@@ -33,9 +30,7 @@ export function VmTemplateReviewStep({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Files Summary */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Files
-          </h4>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Files</h4>
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Count:</dt>
@@ -43,21 +38,23 @@ export function VmTemplateReviewStep({
             </div>
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Total Size:</dt>
-              <dd className="text-gray-900 dark:text-gray-100 font-medium">{formatBytes(totalSize)}</dd>
+              <dd className="text-gray-900 dark:text-gray-100 font-medium">
+                {formatBytes(totalSize)}
+              </dd>
             </div>
           </dl>
           <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 space-y-1">
             {files.map((f, i) => (
-              <div key={i} className="truncate">• {f.file.name}</div>
+              <div key={i} className="truncate">
+                • {f.file.name}
+              </div>
             ))}
           </div>
         </div>
 
         {/* Metadata Summary */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Metadata
-          </h4>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Metadata</h4>
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Name:</dt>
@@ -70,7 +67,8 @@ export function VmTemplateReviewStep({
                 <dt className="text-gray-600 dark:text-gray-400">OS:</dt>
                 <dd className="text-gray-900 dark:text-gray-100 font-medium">
                   {templateSpec.metadata.osFamily}
-                  {templateSpec.metadata.osDistribution && ` / ${templateSpec.metadata.osDistribution}`}
+                  {templateSpec.metadata.osDistribution &&
+                    ` / ${templateSpec.metadata.osDistribution}`}
                   {templateSpec.metadata.osVersion && ` ${templateSpec.metadata.osVersion}`}
                 </dd>
               </div>
@@ -80,9 +78,7 @@ export function VmTemplateReviewStep({
 
         {/* Compute Summary */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Compute
-          </h4>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Compute</h4>
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Firmware:</dt>
@@ -94,8 +90,9 @@ export function VmTemplateReviewStep({
               <dt className="text-gray-600 dark:text-gray-400">CPU:</dt>
               <dd className="text-gray-900 dark:text-gray-100 font-medium">
                 {templateSpec.spec.compute.cpuCores} cores
-                {templateSpec.spec.compute.cpuSockets && templateSpec.spec.compute.cpuSockets > 1 
-                  && ` × ${templateSpec.spec.compute.cpuSockets} sockets`}
+                {templateSpec.spec.compute.cpuSockets &&
+                  templateSpec.spec.compute.cpuSockets > 1 &&
+                  ` × ${templateSpec.spec.compute.cpuSockets} sockets`}
               </dd>
             </div>
             <div className="flex justify-between">
@@ -109,9 +106,7 @@ export function VmTemplateReviewStep({
 
         {/* Disks Summary */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Disks
-          </h4>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Disks</h4>
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Count:</dt>
@@ -132,9 +127,7 @@ export function VmTemplateReviewStep({
 
         {/* Network Summary */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Network
-          </h4>
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Network</h4>
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Interfaces:</dt>
@@ -145,7 +138,7 @@ export function VmTemplateReviewStep({
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Cloud-Init:</dt>
               <dd className="text-gray-900 dark:text-gray-100 font-medium">
-                {templateSpec.spec.cloudInit.enabled ? 'Enabled' : 'Disabled'}
+                {templateSpec.spec.cloudInit.enabled ? "Enabled" : "Disabled"}
               </dd>
             </div>
           </dl>
@@ -159,9 +152,9 @@ export function VmTemplateReviewStep({
           onClick={() => setShowJson(!showJson)}
           className="text-sm text-primary hover:text-primary-dark font-medium"
         >
-          {showJson ? '▼ Hide' : '▶ Show'} Template Spec JSON
+          {showJson ? "▼ Hide" : "▶ Show"} Template Spec JSON
         </button>
-        
+
         {showJson && (
           <div className="mt-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 overflow-auto max-h-96">
             <pre className="text-xs text-gray-800 dark:text-gray-200">

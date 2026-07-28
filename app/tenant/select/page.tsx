@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/atoms/input';
-import { Button } from '@/components/ui/atoms/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { apiGet } from '@/lib/api';
-import { useTenant } from '@/lib/tenant-context';
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/atoms/input";
+import { Button } from "@/components/ui/atoms/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { apiGet } from "@/lib/api";
+import { useTenant } from "@/lib/tenant-context";
 
 interface TenantListResponse {
   items?: Array<{ id?: string; name?: string; displayName?: string }>;
@@ -15,7 +15,7 @@ interface TenantListResponse {
 export default function TenantSelectPage() {
   const router = useRouter();
   const { tenantList, setTenantList, setActiveTenant } = useTenant();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -23,9 +23,11 @@ export default function TenantSelectPage() {
       if (tenantList.length > 0) return;
       setLoading(true);
       try {
-        const data = await apiGet<TenantListResponse>('/api/v1/tenants/mine');
+        const data = await apiGet<TenantListResponse>("/api/v1/tenants/mine");
         const list = (data.items ?? [])
-          .filter((t): t is { id: string; name: string; displayName?: string } => !!t.id && !!t.name)
+          .filter(
+            (t): t is { id: string; name: string; displayName?: string } => !!t.id && !!t.name
+          )
           .map((t) => ({ id: t.id, name: t.name, displayName: t.displayName }));
         setTenantList(list);
       } catch {
@@ -41,14 +43,14 @@ export default function TenantSelectPage() {
     const query = search.trim().toLowerCase();
     if (!query) return tenantList;
     return tenantList.filter((t) =>
-      `${t.displayName ?? ''} ${t.name}`.toLowerCase().includes(query),
+      `${t.displayName ?? ""} ${t.name}`.toLowerCase().includes(query)
     );
   }, [search, tenantList]);
 
   const handleSelect = (tenantId: string) => {
     const tenant = tenantList.find((t) => t.id === tenantId) ?? null;
     setActiveTenant(tenant);
-    router.replace('/tenant/dashboard');
+    router.replace("/tenant/dashboard");
   };
 
   return (
@@ -80,14 +82,16 @@ export default function TenantSelectPage() {
                   onClick={() => handleSelect(tenant.id)}
                   className="w-full rounded-lg border border-panel bg-surface px-4 py-3 text-left hover:border-primary-500 transition-colors"
                 >
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{tenant.displayName || tenant.name}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                    {tenant.displayName || tenant.name}
+                  </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{tenant.name}</p>
                 </button>
               ))}
             </div>
           )}
 
-          <Button variant="secondary" onClick={() => router.replace('/')}>
+          <Button variant="secondary" onClick={() => router.replace("/")}>
             Back to Home
           </Button>
         </CardContent>

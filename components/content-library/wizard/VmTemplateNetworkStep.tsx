@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { VmTemplateNetworkSpec, VmTemplateCloudInitSpec } from '@/types/vm-template-spec';
-import { Button } from '@/components/ui/atoms/button';
+import type { VmTemplateNetworkSpec, VmTemplateCloudInitSpec } from "@/types/vm-template-spec";
+import { Button } from "@/components/ui/atoms/button";
 
 interface VmTemplateNetworkStepProps {
   network: VmTemplateNetworkSpec[];
@@ -10,7 +10,7 @@ interface VmTemplateNetworkStepProps {
   onCloudInitChange: (cloudInit: VmTemplateCloudInitSpec) => void;
 }
 
-const NETWORK_MODELS = ['virtio', 'e1000', 'vmxnet3'] as const;
+const NETWORK_MODELS = ["virtio", "e1000", "vmxnet3"] as const;
 
 export function VmTemplateNetworkStep({
   network,
@@ -20,7 +20,7 @@ export function VmTemplateNetworkStep({
 }: VmTemplateNetworkStepProps) {
   const addNetworkInterface = () => {
     const newId = `net-${network.length}`;
-    onNetworkChange([...network, { id: newId, model: 'virtio' }]);
+    onNetworkChange([...network, { id: newId, model: "virtio" }]);
   };
 
   const removeNetworkInterface = (index: number) => {
@@ -36,7 +36,7 @@ export function VmTemplateNetworkStep({
   };
 
   // Check for duplicate IDs
-  const networkIds = network.map(n => n.id);
+  const networkIds = network.map((n) => n.id);
   const hasDuplicateIds = new Set(networkIds).size !== networkIds.length;
 
   return (
@@ -46,7 +46,8 @@ export function VmTemplateNetworkStep({
           Network & Cloud-Init
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Configure network interfaces and cloud-init support. At least one network interface is required.
+          Configure network interfaces and cloud-init support. At least one network interface is
+          required.
         </p>
       </div>
 
@@ -120,9 +121,9 @@ export function VmTemplateNetworkStep({
                   onChange={(e) => updateNetworkInterface(index, { model: e.target.value as any })}
                   className="w-full rounded-md border border-panel bg-surface px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100"
                 >
-                  {NETWORK_MODELS.map(model => (
+                  {NETWORK_MODELS.map((model) => (
                     <option key={model} value={model}>
-                      {model === 'virtio' ? 'VirtIO (Recommended)' : model.toUpperCase()}
+                      {model === "virtio" ? "VirtIO (Recommended)" : model.toUpperCase()}
                     </option>
                   ))}
                 </select>
@@ -137,7 +138,7 @@ export function VmTemplateNetworkStep({
         <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Cloud-Init Configuration
         </h4>
-        
+
         <label className="flex items-start cursor-pointer">
           <input
             type="checkbox"
@@ -150,8 +151,8 @@ export function VmTemplateNetworkStep({
               Enable Cloud-Init support
             </span>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Cloud-init allows automatic configuration of VMs on first boot, including network setup, 
-              SSH keys, user creation, and package installation.
+              Cloud-init allows automatic configuration of VMs on first boot, including network
+              setup, SSH keys, user creation, and package installation.
             </p>
           </div>
         </label>
@@ -160,8 +161,8 @@ export function VmTemplateNetworkStep({
       {/* Help Text */}
       <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-3">
         <p className="text-sm text-blue-800 dark:text-blue-300">
-          💡 <strong>Tip:</strong> VirtIO network model provides the best performance for Linux guests. 
-          Use E1000 for better compatibility with older operating systems.
+          💡 <strong>Tip:</strong> VirtIO network model provides the best performance for Linux
+          guests. Use E1000 for better compatibility with older operating systems.
         </p>
       </div>
     </div>

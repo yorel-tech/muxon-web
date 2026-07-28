@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080';
+const BACKEND_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080";
 
 export async function POST(
   request: NextRequest,
@@ -15,12 +15,12 @@ export async function POST(
 
     // Forward the request to the backend API
     const response = await fetch(backendUrl.toString(), {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         // Forward authorization header if present
-        ...(request.headers.get('authorization') && {
-          Authorization: request.headers.get('authorization')!,
+        ...(request.headers.get("authorization") && {
+          Authorization: request.headers.get("authorization")!,
         }),
       },
       body: JSON.stringify({}),
@@ -29,7 +29,10 @@ export async function POST(
     if (!response.ok) {
       const errorText = await response.text();
       return NextResponse.json(
-        { error: `Backend API error: ${response.status} ${response.statusText}`, details: errorText },
+        {
+          error: `Backend API error: ${response.status} ${response.statusText}`,
+          details: errorText,
+        },
         { status: response.status }
       );
     }
@@ -37,9 +40,12 @@ export async function POST(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error in datacenter sync API route:', error);
+    console.error("Error in datacenter sync API route:", error);
     return NextResponse.json(
-      { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

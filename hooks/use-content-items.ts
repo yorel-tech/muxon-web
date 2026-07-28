@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { ContentItemRow } from '@/types/content-library';
-import { fetchAllContentItems } from '@/lib/api/content-library';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ContentItemRow } from "@/types/content-library";
+import { fetchAllContentItems } from "@/lib/api/content-library";
 
-export type ContentTypeTab = 'all' | 'vm_template' | 'iso' | 'script';
+export type ContentTypeTab = "all" | "vm_template" | "iso" | "script";
 
 function matchesTab(item: ContentItemRow, tab: ContentTypeTab): boolean {
-  if (tab === 'all') return true;
-  const t = (item.contentType ?? '').toLowerCase();
+  if (tab === "all") return true;
+  const t = (item.contentType ?? "").toLowerCase();
   return t === tab;
 }
 
 export interface UseContentItemsOptions {
   libraryId: string;
-  scope: 'platform' | 'tenant';
+  scope: "platform" | "tenant";
   tenantId?: string | null;
   tab: ContentTypeTab;
   page: number;
@@ -41,7 +41,7 @@ export function useContentItems({
       setLoading(false);
       return;
     }
-    if (scope === 'tenant' && !tenantId) {
+    if (scope === "tenant" && !tenantId) {
       setAllItems([]);
       setLoading(false);
       return;
@@ -52,7 +52,7 @@ export function useContentItems({
       const items = await fetchAllContentItems(scope, libraryId, tenantId ?? undefined);
       setAllItems(items);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load items');
+      setError(e instanceof Error ? e.message : "Failed to load items");
       setAllItems([]);
     } finally {
       setLoading(false);
@@ -63,10 +63,7 @@ export function useContentItems({
     void refetch();
   }, [refetch]);
 
-  const filtered = useMemo(
-    () => allItems.filter((item) => matchesTab(item, tab)),
-    [allItems, tab],
-  );
+  const filtered = useMemo(() => allItems.filter((item) => matchesTab(item, tab)), [allItems, tab]);
 
   const totalFiltered = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / perPage));

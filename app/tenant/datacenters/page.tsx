@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import { apiGet } from '@/lib/api';
-import { useTenantId } from '@/lib/use-tenant-id';
+import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { apiGet } from "@/lib/api";
+import { useTenantId } from "@/lib/use-tenant-id";
 
 /** ResourceLimits per OpenAPI commons */
 interface ResourceLimits {
@@ -29,14 +29,18 @@ interface TenantDatacenterGrant {
 }
 
 function formatLimits(l: ResourceLimits | undefined): string {
-  if (!l || (l.maxVms == null && l.maxCpus == null && l.maxMemoryGb == null && l.maxStorageGb == null)) return '—';
+  if (
+    !l ||
+    (l.maxVms == null && l.maxCpus == null && l.maxMemoryGb == null && l.maxStorageGb == null)
+  )
+    return "—";
   const parts = [
     l.maxVms != null && `VMs: ${l.maxVms}`,
     l.maxCpus != null && `vCPUs: ${l.maxCpus}`,
     l.maxMemoryGb != null && `RAM: ${l.maxMemoryGb} GB`,
     l.maxStorageGb != null && `Storage: ${l.maxStorageGb} GB`,
   ].filter(Boolean);
-  return parts.join(', ');
+  return parts.join(", ");
 }
 
 export default function TenantDatacentersPage() {
@@ -55,7 +59,7 @@ export default function TenantDatacentersPage() {
       const data = await apiGet<{ items?: TenantDatacenterGrant[] } | TenantDatacenterGrant[]>(
         `/api/v1/tenants/${tenantId}/datacenters?perPage=100`
       );
-      const list = Array.isArray(data) ? data : data?.items ?? [];
+      const list = Array.isArray(data) ? data : (data?.items ?? []);
       const withAccess = list.filter((g: TenantDatacenterGrant) => g.access !== false);
       setGrants(withAccess);
     } catch {
@@ -71,8 +75,8 @@ export default function TenantDatacentersPage() {
 
   const columns: Column<TenantDatacenterGrant>[] = [
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row) => (
         <div className="font-medium text-gray-900 dark:text-gray-100">
           {row.datacenter?.name ?? row.datacenterId}
@@ -81,22 +85,20 @@ export default function TenantDatacentersPage() {
       sortable: true,
     },
     {
-      key: 'description',
-      header: 'Description',
+      key: "description",
+      header: "Description",
       cell: (row) => (
         <span className="text-gray-600 dark:text-gray-400 text-sm">
-          {row.datacenter?.description ?? '—'}
+          {row.datacenter?.description ?? "—"}
         </span>
       ),
       sortable: true,
     },
     {
-      key: 'limits',
-      header: 'Limits',
+      key: "limits",
+      header: "Limits",
       cell: (row) => (
-        <span className="text-gray-600 dark:text-gray-400 text-sm">
-          {formatLimits(row.limits)}
-        </span>
+        <span className="text-gray-600 dark:text-gray-400 text-sm">{formatLimits(row.limits)}</span>
       ),
       sortable: false,
     },

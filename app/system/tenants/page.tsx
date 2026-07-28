@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Loader2,
@@ -18,20 +18,20 @@ import {
   ChevronLeft,
   ExternalLink,
   Trash2,
-} from 'lucide-react';
-import { RowActionsTrigger } from '@/components/DynamicContextMenu';
-import { apiGet, apiPost } from '@/lib/api';
-import { executeLinkAction } from '@/lib/api';
-import { buildRowActionOptions, normalizeEntityLinks, getNavigationPath } from '@/lib/hateoas';
-import { openTenantPortalInNewTab } from '@/lib/tenant-context';
-import type { Link } from '@/types/provider';
+} from "lucide-react";
+import { RowActionsTrigger } from "@/components/DynamicContextMenu";
+import { apiGet, apiPost } from "@/lib/api";
+import { executeLinkAction } from "@/lib/api";
+import { buildRowActionOptions, normalizeEntityLinks, getNavigationPath } from "@/lib/hateoas";
+import { openTenantPortalInNewTab } from "@/lib/tenant-context";
+import type { Link } from "@/types/provider";
 
 export interface Tenant extends Record<string, any> {
   id: string;
   name: string;
   displayName?: string;
   slug?: string;
-  status: 'active' | 'inactive' | 'suspended' | 'pending';
+  status: "active" | "inactive" | "suspended" | "pending";
   users: number;
   datacenters: number;
   vms: number;
@@ -49,7 +49,6 @@ export interface Tenant extends Record<string, any> {
   [key: string]: any;
 }
 
-
 /** TenantCreate model per OpenAPI: name (required), displayName (optional), metadata (optional) */
 export interface TenantCreateForm {
   name: string;
@@ -57,7 +56,7 @@ export interface TenantCreateForm {
   metadata: Record<string, string>;
 }
 
-const WIZARD_STEPS = ['Basic info', 'Metadata (optional)'] as const;
+const WIZARD_STEPS = ["Basic info", "Metadata (optional)"] as const;
 
 export default function TenantsPage() {
   const router = useRouter();
@@ -70,11 +69,13 @@ export default function TenantsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [wizardError, setWizardError] = useState<string | null>(null);
   const [createForm, setCreateForm] = useState<TenantCreateForm>({
-    name: '',
-    displayName: '',
+    name: "",
+    displayName: "",
     metadata: {},
   });
-  const [metadataEntries, setMetadataEntries] = useState<{ key: string; value: string }[]>([{ key: '', value: '' }]);
+  const [metadataEntries, setMetadataEntries] = useState<{ key: string; value: string }[]>([
+    { key: "", value: "" },
+  ]);
 
   // Fetch tenants on mount
   useEffect(() => {
@@ -84,23 +85,23 @@ export default function TenantsPage() {
   const fetchTenants = async () => {
     setIsLoading(true);
     try {
-      const data = await apiGet('/api/v1/tenants');
-      const tenantsList = Array.isArray(data) ? data : (data?.items || []);
-      
+      const data = await apiGet("/api/v1/tenants");
+      const tenantsList = Array.isArray(data) ? data : data?.items || [];
+
       // If API fails or returns empty, use mock data for testing
       if (tenantsList.length === 0) {
         setTenants([
           {
-            id: '1',
-            name: 'Acme Corporation',
-            slug: 'acme-corp',
-            status: 'active',
+            id: "1",
+            name: "Acme Corporation",
+            slug: "acme-corp",
+            status: "active",
             users: 12,
             datacenters: 2,
             vms: 15,
-            createdAt: '2024-01-15T10:00:00Z',
+            createdAt: "2024-01-15T10:00:00Z",
             settings: {
-              idpId: 'idp-1',
+              idpId: "idp-1",
               quotas: {
                 vms: 50,
                 vcpus: 200,
@@ -110,16 +111,16 @@ export default function TenantsPage() {
             },
           },
           {
-            id: '2',
-            name: 'TechStart Inc',
-            slug: 'techstart',
-            status: 'active',
+            id: "2",
+            name: "TechStart Inc",
+            slug: "techstart",
+            status: "active",
             users: 5,
             datacenters: 1,
             vms: 8,
-            createdAt: '2024-02-01T14:30:00Z',
+            createdAt: "2024-02-01T14:30:00Z",
             settings: {
-              idpId: 'idp-1',
+              idpId: "idp-1",
               quotas: {
                 vms: 25,
                 vcpus: 100,
@@ -129,16 +130,16 @@ export default function TenantsPage() {
             },
           },
           {
-            id: '3',
-            name: 'Globex Industries',
-            slug: 'globex',
-            status: 'active',
+            id: "3",
+            name: "Globex Industries",
+            slug: "globex",
+            status: "active",
             users: 23,
             datacenters: 3,
             vms: 42,
-            createdAt: '2023-11-20T09:15:00Z',
+            createdAt: "2023-11-20T09:15:00Z",
             settings: {
-              idpId: 'idp-2',
+              idpId: "idp-2",
               quotas: {
                 vms: 100,
                 vcpus: 500,
@@ -148,16 +149,16 @@ export default function TenantsPage() {
             },
           },
           {
-            id: '4',
-            name: 'Startup Labs',
-            slug: 'startup-labs',
-            status: 'pending',
+            id: "4",
+            name: "Startup Labs",
+            slug: "startup-labs",
+            status: "pending",
             users: 3,
             datacenters: 0,
             vms: 0,
-            createdAt: '2024-01-28T16:45:00Z',
+            createdAt: "2024-01-28T16:45:00Z",
             settings: {
-              idpId: 'idp-1',
+              idpId: "idp-1",
               quotas: {
                 vms: 10,
                 vcpus: 40,
@@ -168,25 +169,23 @@ export default function TenantsPage() {
           },
         ]);
       } else {
-        setTenants(
-          tenantsList.map((t: any) => ({ ...t, _links: normalizeEntityLinks(t) }))
-        );
+        setTenants(tenantsList.map((t: any) => ({ ...t, _links: normalizeEntityLinks(t) })));
       }
     } catch (error) {
-      console.error('Error fetching tenants:', error);
+      console.error("Error fetching tenants:", error);
       // Use mock data even on error for testing
       setTenants([
         {
-          id: '1',
-          name: 'Acme Corporation',
-          slug: 'acme-corp',
-          status: 'active',
+          id: "1",
+          name: "Acme Corporation",
+          slug: "acme-corp",
+          status: "active",
           users: 12,
           datacenters: 2,
           vms: 15,
-          createdAt: '2024-01-15T10:00:00Z',
+          createdAt: "2024-01-15T10:00:00Z",
           settings: {
-            idpId: 'idp-1',
+            idpId: "idp-1",
             quotas: {
               vms: 50,
               vcpus: 200,
@@ -205,8 +204,8 @@ export default function TenantsPage() {
     setIsWizardOpen(true);
     setWizardStep(0);
     setWizardError(null);
-    setCreateForm({ name: '', displayName: '', metadata: {} });
-    setMetadataEntries([{ key: '', value: '' }]);
+    setCreateForm({ name: "", displayName: "", metadata: {} });
+    setMetadataEntries([{ key: "", value: "" }]);
   };
 
   const handleCloseWizard = () => {
@@ -220,12 +219,14 @@ export default function TenantsPage() {
   const handleSaveTenant = async () => {
     const name = createForm.name.trim();
     if (!name) {
-      setWizardError('Tenant name is required.');
+      setWizardError("Tenant name is required.");
       return;
     }
     // Name should be slug-like (lowercase, alphanumeric, hyphens)
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name.toLowerCase())) {
-      setWizardError('Name must be a valid slug (e.g. acme-corp): lowercase letters, numbers, and hyphens only.');
+      setWizardError(
+        "Name must be a valid slug (e.g. acme-corp): lowercase letters, numbers, and hyphens only."
+      );
       return;
     }
 
@@ -242,12 +243,12 @@ export default function TenantsPage() {
         displayName: createForm.displayName.trim() || undefined,
         ...(Object.keys(metadata).length > 0 ? { metadata } : {}),
       };
-      await apiPost('/api/v1/tenants', payload);
+      await apiPost("/api/v1/tenants", payload);
       await fetchTenants();
       handleCloseWizard();
     } catch (error) {
-      console.error('Error creating tenant:', error);
-      let message = 'Failed to create tenant.';
+      console.error("Error creating tenant:", error);
+      let message = "Failed to create tenant.";
       if (error instanceof Error && error.message) {
         const m = error.message;
         const jsonMatch = m.match(/\s-\s(\{.*\})$/);
@@ -268,30 +269,38 @@ export default function TenantsPage() {
     }
   };
 
-  const addMetadataRow = () => setMetadataEntries((prev) => [...prev, { key: '', value: '' }]);
+  const addMetadataRow = () => setMetadataEntries((prev) => [...prev, { key: "", value: "" }]);
   const removeMetadataRow = (index: number) =>
     setMetadataEntries((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev));
-  const updateMetadataEntry = (index: number, field: 'key' | 'value', value: string) =>
+  const updateMetadataEntry = (index: number, field: "key" | "value", value: string) =>
     setMetadataEntries((prev) => prev.map((e, i) => (i === index ? { ...e, [field]: value } : e)));
 
   const handleRowAction = async (rel: string, tenant: Tenant, link?: Link) => {
     if (!link) return;
-    if (rel === 'delete' && !window.confirm(`Are you sure you want to delete tenant "${tenant.displayName ?? tenant.name}"?`)) {
+    if (
+      rel === "delete" &&
+      !window.confirm(
+        `Are you sure you want to delete tenant "${tenant.displayName ?? tenant.name}"?`
+      )
+    ) {
       return;
     }
     try {
-      if (rel === 'self' && link.method === 'GET') {
+      if (rel === "self" && link.method === "GET") {
         const path = getNavigationPath(link);
-        window.location.href = path.startsWith('http') ? path : path;
+        window.location.href = path.startsWith("http") ? path : path;
         return;
       }
-      await executeLinkAction(link, link.method !== 'GET' && link.method !== 'DELETE' ? {} : undefined);
-      if (['delete', 'edit', 'update'].includes(rel)) {
+      await executeLinkAction(
+        link,
+        link.method !== "GET" && link.method !== "DELETE" ? {} : undefined
+      );
+      if (["delete", "edit", "update"].includes(rel)) {
         await fetchTenants();
       }
     } catch (error) {
       console.error(`Tenant action ${rel} failed:`, error);
-      alert(`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`Failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
@@ -304,42 +313,42 @@ export default function TenantsPage() {
   };
 
   const getContextMenuOptions = (tenant: Tenant): DropdownOption[] => [
-    ...buildRowActionOptions(tenant, 'tenant', normalizeEntityLinks(tenant), handleRowAction),
+    ...buildRowActionOptions(tenant, "tenant", normalizeEntityLinks(tenant), handleRowAction),
     {
-      label: 'Open Tenant Portal',
+      label: "Open Tenant Portal",
       icon: <ExternalLink size={14} />,
       onClick: () => openTenantPortal(tenant),
     },
   ];
 
-  const getStatusBadgeVariant = (status: Tenant['status']) => {
+  const getStatusBadgeVariant = (status: Tenant["status"]) => {
     switch (status) {
-      case 'active':
-        return 'success';
-      case 'suspended':
-        return 'warning';
-      case 'inactive':
-        return 'default';
-      case 'pending':
-        return 'info';
+      case "active":
+        return "success";
+      case "suspended":
+        return "warning";
+      case "inactive":
+        return "default";
+      case "pending":
+        return "info";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const columns: Column<Tenant>[] = [
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       cell: (row: Tenant) => (
         <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           <Dropdown
@@ -353,44 +362,36 @@ export default function TenantsPage() {
       sortable: false,
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row: Tenant) => (
         <div className="font-medium text-gray-900">{row.displayName ?? row.name}</div>
       ),
       sortable: true,
     },
     {
-      key: 'users',
-      header: 'Users',
-      cell: (row: Tenant) => (
-        <span className="text-gray-600">{row.users}</span>
-      ),
+      key: "users",
+      header: "Users",
+      cell: (row: Tenant) => <span className="text-gray-600">{row.users}</span>,
       sortable: true,
     },
     {
-      key: 'datacenters',
-      header: 'DCs',
-      cell: (row: Tenant) => (
-        <span className="text-gray-600">{row.datacenters}</span>
-      ),
+      key: "datacenters",
+      header: "DCs",
+      cell: (row: Tenant) => <span className="text-gray-600">{row.datacenters}</span>,
       sortable: true,
     },
     {
-      key: 'vms',
-      header: 'VMs',
-      cell: (row: Tenant) => (
-        <span className="text-gray-600">{row.vms}</span>
-      ),
+      key: "vms",
+      header: "VMs",
+      cell: (row: Tenant) => <span className="text-gray-600">{row.vms}</span>,
       sortable: true,
     },
     {
-      key: 'status',
-      header: 'Status',
+      key: "status",
+      header: "Status",
       cell: (row: Tenant) => (
-        <Badge variant={getStatusBadgeVariant(row.status)}>
-          {row.status}
-        </Badge>
+        <Badge variant={getStatusBadgeVariant(row.status)}>{row.status}</Badge>
       ),
       sortable: true,
     },
@@ -408,12 +409,8 @@ export default function TenantsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Tenants
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Manage organizations and their resources
-              </p>
+              <h1 className="text-3xl font-bold text-gray-900">Tenants</h1>
+              <p className="text-gray-600 mt-2">Manage organizations and their resources</p>
             </div>
             <button
               onClick={handleOpenWizard}
@@ -443,7 +440,7 @@ export default function TenantsPage() {
                   data={tenants}
                   emptyMessage="No tenants configured"
                   onRowClick={(row) => handleViewDetails(row)}
-                  overflowVisibleColumnKeys={['actions']}
+                  overflowVisibleColumnKeys={["actions"]}
                 />
               )}
             </CardContent>
@@ -485,7 +482,7 @@ export default function TenantsPage() {
                 {WIZARD_STEPS.map((label, i) => (
                   <span
                     key={label}
-                    className={`text-sm ${i === wizardStep ? 'font-medium text-primary-600' : 'text-gray-500'}`}
+                    className={`text-sm ${i === wizardStep ? "font-medium text-primary-600" : "text-gray-500"}`}
                   >
                     {i + 1}. {label}
                   </span>
@@ -512,7 +509,8 @@ export default function TenantsPage() {
                         onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
                       />
                       <p className="mt-1 text-xs text-gray-500">
-                        Unique identifier: lowercase letters, numbers, hyphens only (e.g. acme-corp).
+                        Unique identifier: lowercase letters, numbers, hyphens only (e.g.
+                        acme-corp).
                       </p>
                     </div>
                     <div>
@@ -523,7 +521,9 @@ export default function TenantsPage() {
                         type="text"
                         placeholder="ACME Corporation"
                         value={createForm.displayName}
-                        onChange={(e) => setCreateForm((f) => ({ ...f, displayName: e.target.value }))}
+                        onChange={(e) =>
+                          setCreateForm((f) => ({ ...f, displayName: e.target.value }))
+                        }
                       />
                     </div>
                   </div>
@@ -540,14 +540,14 @@ export default function TenantsPage() {
                           type="text"
                           placeholder="Key"
                           value={entry.key}
-                          onChange={(e) => updateMetadataEntry(index, 'key', e.target.value)}
+                          onChange={(e) => updateMetadataEntry(index, "key", e.target.value)}
                           className="flex-1"
                         />
                         <Input
                           type="text"
                           placeholder="Value"
                           value={entry.value}
-                          onChange={(e) => updateMetadataEntry(index, 'value', e.target.value)}
+                          onChange={(e) => updateMetadataEntry(index, "value", e.target.value)}
                           className="flex-1"
                         />
                         <button
@@ -570,7 +570,9 @@ export default function TenantsPage() {
               <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-between">
                 <Button
                   variant="secondary"
-                  onClick={() => (wizardStep > 0 ? setWizardStep((s) => s - 1) : handleCloseWizard())}
+                  onClick={() =>
+                    wizardStep > 0 ? setWizardStep((s) => s - 1) : handleCloseWizard()
+                  }
                   disabled={isSaving}
                 >
                   {wizardStep > 0 ? (
@@ -579,16 +581,16 @@ export default function TenantsPage() {
                       Back
                     </>
                   ) : (
-                    'Cancel'
+                    "Cancel"
                   )}
                 </Button>
                 {wizardStep < WIZARD_STEPS.length - 1 ? (
                   <Button
                     onClick={() => {
                       const name = createForm.name.trim();
-                      if (!name) setWizardError('Tenant name is required.');
+                      if (!name) setWizardError("Tenant name is required.");
                       else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name.toLowerCase())) {
-                        setWizardError('Name must be a valid slug (e.g. acme-corp).');
+                        setWizardError("Name must be a valid slug (e.g. acme-corp).");
                       } else {
                         setWizardError(null);
                         setWizardStep((s) => s + 1);

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { forwardRef, useState, type ReactNode } from 'react';
-import { ChevronDown, ChevronUp, MoreHorizontal, Search, Filter } from 'lucide-react';
+import { motion } from "framer-motion";
+import { forwardRef, useState, type ReactNode } from "react";
+import { ChevronDown, ChevronUp, MoreHorizontal, Search, Filter } from "lucide-react";
 
 export type Column<T> = {
   key: string;
@@ -15,9 +15,9 @@ export interface TableProps {
   columns: Column<any>[];
   data: any[];
   onRowClick?: (row: any) => void;
-  onSort?: (column: string, direction: 'asc' | 'desc') => void;
+  onSort?: (column: string, direction: "asc" | "desc") => void;
   sortColumn?: string;
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: "asc" | "desc";
   onFilter?: (query: string) => void;
   filterQuery?: string;
   emptyMessage?: string;
@@ -28,35 +28,37 @@ export interface TableProps {
 
 // Helper function to safely get string representation of any value for filtering
 function getFilterableValue(value: unknown): string {
-  if (typeof value === 'string') return value as string;
-  if (typeof value === 'number') return String(value);
-  if (typeof value === 'boolean') return String(value);
-  if (value === null || value === undefined) return '';
+  if (typeof value === "string") return value as string;
+  if (typeof value === "number") return String(value);
+  if (typeof value === "boolean") return String(value);
+  if (value === null || value === undefined) return "";
   return String(value);
 }
 
-function TableComponent({
-  columns,
-  data,
-  onRowClick,
-  onSort,
-  sortColumn,
-  sortDirection = 'asc',
-  onFilter,
-  filterQuery = '',
-  emptyMessage = 'No data available',
-  isLoading = false,
-  className = '',
-  overflowVisibleColumnKeys = [],
-}: TableProps,
-  ref: React.Ref<HTMLTableElement>,
+function TableComponent(
+  {
+    columns,
+    data,
+    onRowClick,
+    onSort,
+    sortColumn,
+    sortDirection = "asc",
+    onFilter,
+    filterQuery = "",
+    emptyMessage = "No data available",
+    isLoading = false,
+    className = "",
+    overflowVisibleColumnKeys = [],
+  }: TableProps,
+  ref: React.Ref<HTMLTableElement>
 ) {
   const [localSortColumn, setLocalSortColumn] = useState<string | null>(null);
-  const [localSortDirection, setLocalSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [localSortDirection, setLocalSortDirection] = useState<"asc" | "desc">("asc");
 
   const handleSort = (columnKey: string) => {
     if (onSort) {
-      const newDirection = localSortColumn === columnKey && localSortDirection === 'asc' ? 'desc' : 'asc';
+      const newDirection =
+        localSortColumn === columnKey && localSortDirection === "asc" ? "desc" : "asc";
       setLocalSortColumn(columnKey);
       setLocalSortDirection(newDirection);
       onSort(columnKey, newDirection);
@@ -75,7 +77,7 @@ function TableComponent({
         const rowObj = row as Record<string, unknown>;
         const rowValues = Object.values(rowObj);
         return rowValues.some((value) =>
-          getFilterableValue(value).toLowerCase().includes(filterQuery.toLowerCase()),
+          getFilterableValue(value).toLowerCase().includes(filterQuery.toLowerCase())
         );
       })
     : data;
@@ -84,10 +86,10 @@ function TableComponent({
     ? [...filteredData].sort((a, b) => {
         const aObj = a as Record<string, unknown>;
         const bObj = b as Record<string, unknown>;
-        const aValue = aObj[localSortColumn] ?? '';
-        const bValue = bObj[localSortColumn] ?? '';
-        const comparison = String(aValue ?? '').localeCompare(String(bValue ?? ''));
-        return localSortDirection === 'asc' ? comparison : -comparison;
+        const aValue = aObj[localSortColumn] ?? "";
+        const bValue = bObj[localSortColumn] ?? "";
+        const comparison = String(aValue ?? "").localeCompare(String(bValue ?? ""));
+        return localSortDirection === "asc" ? comparison : -comparison;
       })
     : filteredData;
 
@@ -133,7 +135,7 @@ function TableComponent({
                         transition={{ duration: 0.2 }}
                       >
                         {localSortColumn === column.key ? (
-                          localSortDirection === 'asc' ? (
+                          localSortDirection === "asc" ? (
                             <ChevronUp size={14} />
                           ) : (
                             <ChevronDown size={14} />
@@ -151,13 +153,19 @@ function TableComponent({
           <tbody className="divide-y divide-primary-600/20">
             {isLoading ? (
               <tr>
-                <td colSpan={columns.length} className="px-3 py-4 text-center text-sm text-gray-500">
+                <td
+                  colSpan={columns.length}
+                  className="px-3 py-4 text-center text-sm text-gray-500"
+                >
                   Loading...
                 </td>
               </tr>
             ) : sortedData.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-3 py-8 text-center text-sm text-gray-500">
+                <td
+                  colSpan={columns.length}
+                  className="px-3 py-8 text-center text-sm text-gray-500"
+                >
                   {emptyMessage}
                 </td>
               </tr>
@@ -172,7 +180,10 @@ function TableComponent({
                   className="group cursor-pointer hover:bg-primary-50/40 transition-colors"
                 >
                   {columns.map((column) => (
-                    <td key={column.key} className={`px-3 py-3 ${overflowVisibleColumnKeys.includes(column.key) ? 'overflow-visible' : 'whitespace-nowrap'}`}>
+                    <td
+                      key={column.key}
+                      className={`px-3 py-3 ${overflowVisibleColumnKeys.includes(column.key) ? "overflow-visible" : "whitespace-nowrap"}`}
+                    >
                       {column.cell(row)}
                     </td>
                   ))}
@@ -187,4 +198,4 @@ function TableComponent({
 }
 
 export const Table = forwardRef(TableComponent);
-Table.displayName = 'Table';
+Table.displayName = "Table";

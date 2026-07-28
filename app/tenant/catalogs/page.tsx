@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { motion } from 'framer-motion';
-import { BookMarked, Loader2 } from 'lucide-react';
-import { apiGet } from '@/lib/api';
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { motion } from "framer-motion";
+import { BookMarked, Loader2 } from "lucide-react";
+import { apiGet } from "@/lib/api";
 
 interface CatalogRow {
   id: string;
@@ -21,12 +21,12 @@ export default function TenantCatalogsPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await apiGet<{ items?: CatalogRow[] }>('/api/v1/catalogs');
-        const list = Array.isArray(data) ? data : data?.items ?? [];
+        const data = await apiGet<{ items?: CatalogRow[] }>("/api/v1/catalogs");
+        const list = Array.isArray(data) ? data : (data?.items ?? []);
         setCatalogs(
           (list as CatalogRow[]).map((c) => ({
-            id: String(c.id ?? ''),
-            name: String(c.name ?? c.id ?? ''),
+            id: String(c.id ?? ""),
+            name: String(c.name ?? c.id ?? ""),
             description: c.description,
             type: c.type,
           }))
@@ -42,21 +42,25 @@ export default function TenantCatalogsPage() {
 
   const columns: Column<CatalogRow>[] = [
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row) => <div className="font-medium text-gray-900 dark:text-gray-100">{row.name}</div>,
       sortable: true,
     },
     {
-      key: 'description',
-      header: 'Description',
-      cell: (row) => <span className="text-gray-600 dark:text-gray-400 text-sm">{row.description ?? '—'}</span>,
+      key: "description",
+      header: "Description",
+      cell: (row) => (
+        <span className="text-gray-600 dark:text-gray-400 text-sm">{row.description ?? "—"}</span>
+      ),
       sortable: true,
     },
     {
-      key: 'type',
-      header: 'Type',
-      cell: (row) => <span className="text-gray-600 dark:text-gray-400 text-sm">{row.type ?? '—'}</span>,
+      key: "type",
+      header: "Type",
+      cell: (row) => (
+        <span className="text-gray-600 dark:text-gray-400 text-sm">{row.type ?? "—"}</span>
+      ),
       sortable: true,
     },
   ];

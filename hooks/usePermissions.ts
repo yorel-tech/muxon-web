@@ -1,13 +1,13 @@
-import { useMemo } from 'react';
-import { Link } from '@/types/provider';
-import { 
-  findLink, 
-  isActionEnabled, 
-  getActionReason, 
+import { useMemo } from "react";
+import { Link } from "@/types/provider";
+import {
+  findLink,
+  isActionEnabled,
+  getActionReason,
   getEnabledActions,
   groupActionsByCategory,
-  sortActionsByPriority 
-} from '@/lib/hateoas';
+  sortActionsByPriority,
+} from "@/lib/hateoas";
 
 interface UsePermissionsProps {
   _links?: Link[];
@@ -22,28 +22,34 @@ export const usePermissions = ({ _links = [] }: UsePermissionsProps) => {
   /**
    * Check if a user can perform a specific action
    */
-  const canPerformAction = useMemo(() => 
-    (action: string): boolean => {
-      return isActionEnabled(links, action);
-    }, [links]
+  const canPerformAction = useMemo(
+    () =>
+      (action: string): boolean => {
+        return isActionEnabled(links, action);
+      },
+    [links]
   );
 
   /**
    * Get the reason why an action is disabled
    */
-  const getDisabledReason = useMemo(() =>
-    (action: string): string | undefined => {
-      return getActionReason(links, action);
-    }, [links]
+  const getDisabledReason = useMemo(
+    () =>
+      (action: string): string | undefined => {
+        return getActionReason(links, action);
+      },
+    [links]
   );
 
   /**
    * Get the link object for a specific action
    */
-  const getActionLink = useMemo(() => 
-    (action: string): Link | undefined => {
-      return findLink(links, action);
-    }, [links]
+  const getActionLink = useMemo(
+    () =>
+      (action: string): Link | undefined => {
+        return findLink(links, action);
+      },
+    [links]
   );
 
   /**
@@ -114,22 +120,22 @@ export const usePermissions = ({ _links = [] }: UsePermissionsProps) => {
     canPerformAction,
     getDisabledReason,
     getActionLink,
-    
+
     // Action collections
     enabledActions,
     sortedActions,
     actionsByCategory,
     primaryActions,
-    
+
     // Convenience checks
     hasAnyActions,
     hasDestructiveActions,
     hasManagementActions,
     hasCreationActions,
     actionCount,
-    
+
     // Raw links for advanced usage
-    links
+    links,
   };
 };
 
@@ -138,29 +144,29 @@ export const usePermissions = ({ _links = [] }: UsePermissionsProps) => {
  */
 export const useBulkPermissions = (entities: { _links?: Link[] }[]) => {
   const entityPermissions = useMemo(() => {
-    return entities.map(entity => usePermissions(entity));
+    return entities.map((entity) => usePermissions(entity));
   }, [entities]);
 
   /**
    * Check if action is available on all entities
    */
-  const canPerformOnAll = useMemo(() => 
-    (action: string): boolean => {
-      return entityPermissions.every(permissions => 
-        permissions.canPerformAction(action)
-      );
-    }, [entityPermissions]
+  const canPerformOnAll = useMemo(
+    () =>
+      (action: string): boolean => {
+        return entityPermissions.every((permissions) => permissions.canPerformAction(action));
+      },
+    [entityPermissions]
   );
 
   /**
    * Check if action is available on any entity
    */
-  const canPerformOnAny = useMemo(() => 
-    (action: string): boolean => {
-      return entityPermissions.some(permissions => 
-        permissions.canPerformAction(action)
-      );
-    }, [entityPermissions]
+  const canPerformOnAny = useMemo(
+    () =>
+      (action: string): boolean => {
+        return entityPermissions.some((permissions) => permissions.canPerformAction(action));
+      },
+    [entityPermissions]
   );
 
   /**
@@ -168,15 +174,11 @@ export const useBulkPermissions = (entities: { _links?: Link[] }[]) => {
    */
   const commonActions = useMemo(() => {
     if (entityPermissions.length === 0) return [];
-    
-    const firstEntityActions = new Set(
-      entityPermissions[0].enabledActions.map(link => link.rel)
-    );
-    
-    return entityPermissions[0].enabledActions.filter(link => 
-      entityPermissions.every(permissions => 
-        permissions.canPerformAction(link.rel)
-      )
+
+    const firstEntityActions = new Set(entityPermissions[0].enabledActions.map((link) => link.rel));
+
+    return entityPermissions[0].enabledActions.filter((link) =>
+      entityPermissions.every((permissions) => permissions.canPerformAction(link.rel))
     );
   }, [entityPermissions]);
 
@@ -184,6 +186,6 @@ export const useBulkPermissions = (entities: { _links?: Link[] }[]) => {
     entityPermissions,
     canPerformOnAll,
     canPerformOnAny,
-    commonActions
+    commonActions,
   };
 };

@@ -109,8 +109,8 @@
     --color-nexus-800: #4c1d95;
     --color-nexus-900: #2e1065;
 
-    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
 
     --text-xs: 0.75rem;
     --text-sm: 0.875rem;
@@ -181,8 +181,8 @@
   }
 
   /* Nexus / Enterprise — light */
-  html[data-edition='nexus']:not(.dark),
-  html[data-edition='enterprise']:not(.dark) {
+  html[data-edition="nexus"]:not(.dark),
+  html[data-edition="enterprise"]:not(.dark) {
     --text-primary: #2e1065;
     --text-secondary: #4c1d95;
     --shell-bg: #ffffff;
@@ -221,8 +221,8 @@
   }
 
   /* Nexus / Enterprise — dark */
-  html.dark[data-edition='nexus'],
-  html.dark[data-edition='enterprise'] {
+  html.dark[data-edition="nexus"],
+  html.dark[data-edition="enterprise"] {
     --text-primary: #f3e8ff;
     --text-secondary: #e9d5ff;
     --shell-bg: #1a1333;

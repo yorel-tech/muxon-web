@@ -1,10 +1,10 @@
-/** Types aligned with infron-core openapi/storage.yaml (subset for UI) */
+/** Types aligned with muxon-core openapi/storage.yaml (subset for UI) */
 
 export interface StorageCapabilities {
-  performance?: 'high' | 'medium' | 'low';
-  media?: 'ssd' | 'hdd' | 'nvme' | 'any';
+  performance?: "high" | "medium" | "low";
+  media?: "ssd" | "hdd" | "nvme" | "any";
   shared?: boolean;
-  redundancy?: 'replicated' | 'none';
+  redundancy?: "replicated" | "none";
 }
 
 export interface StorageConstraints {
@@ -45,7 +45,7 @@ export interface StorageClassUpdate {
 
 export interface MappedStorageClassInfo {
   storageClassName: string;
-  mappingSource: 'override' | 'scheduler';
+  mappingSource: "override" | "scheduler";
 }
 
 export interface ProviderStorageCapabilities extends StorageCapabilities {
@@ -94,7 +94,7 @@ export interface StorageClassOverrides {
 
 export interface StorageSyncResponse {
   providerId?: string;
-  status?: 'accepted' | 'completed' | 'failed';
+  status?: "accepted" | "completed" | "failed";
   discoveredCount?: number;
   message?: string;
 }

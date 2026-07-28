@@ -1,19 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Modal } from '@/components/ui/molecules/modal';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { Textarea } from '@/components/ui/atoms/textarea';
-import { updatePlatformContentLibrary, updateTenantContentLibrary } from '@/lib/api/content-library';
-import { listContentStorages } from '@/lib/api/content-storage';
-import type { ContentLibraryRow } from '@/types/content-library';
-import type { ContentStorageRow } from '@/types/content-storage';
+import { useEffect, useState } from "react";
+import { Modal } from "@/components/ui/molecules/modal";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { Textarea } from "@/components/ui/atoms/textarea";
+import {
+  updatePlatformContentLibrary,
+  updateTenantContentLibrary,
+} from "@/lib/api/content-library";
+import { listContentStorages } from "@/lib/api/content-storage";
+import type { ContentLibraryRow } from "@/types/content-library";
+import type { ContentStorageRow } from "@/types/content-storage";
 
 export interface EditContentLibraryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  scope: 'platform' | 'tenant';
+  scope: "platform" | "tenant";
   tenantId: string | null | undefined;
   library: ContentLibraryRow | null;
   onSaved: (row: ContentLibraryRow) => void;
@@ -27,25 +30,25 @@ export function EditContentLibraryModal({
   library,
   onSaved,
 }: EditContentLibraryModalProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [contentStorages, setContentStorages] = useState<ContentStorageRow[]>([]);
-  const [contentStorageId, setContentStorageId] = useState('');
+  const [contentStorageId, setContentStorageId] = useState("");
   const [csLoading, setCsLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !library) return;
-    setName(library.name ?? '');
-    setDescription(library.description ?? '');
-    setContentStorageId(library.contentStorageId ?? '');
+    setName(library.name ?? "");
+    setDescription(library.description ?? "");
+    setContentStorageId(library.contentStorageId ?? "");
     setError(null);
     setSubmitting(false);
   }, [isOpen, library]);
 
   useEffect(() => {
-    if (!isOpen || scope !== 'platform') return;
+    if (!isOpen || scope !== "platform") return;
     setCsLoading(true);
     void (async () => {
       try {
@@ -53,7 +56,7 @@ export function EditContentLibraryModal({
         setContentStorages(res.items ?? []);
       } catch {
         setContentStorages([]);
-        setError('Could not load content storages.');
+        setError("Could not load content storages.");
       } finally {
         setCsLoading(false);
       }
@@ -69,18 +72,18 @@ export function EditContentLibraryModal({
     if (!library) return;
     const trimmed = name.trim();
     if (!trimmed) {
-      setError('Name is required.');
+      setError("Name is required.");
       return;
     }
-    if (scope === 'platform' && !contentStorageId.trim()) {
-      setError('Content storage is required.');
+    if (scope === "platform" && !contentStorageId.trim()) {
+      setError("Content storage is required.");
       return;
     }
     setSubmitting(true);
     setError(null);
     try {
       const body =
-        scope === 'platform'
+        scope === "platform"
           ? {
               name: trimmed,
               description: description.trim() || undefined,
@@ -91,13 +94,13 @@ export function EditContentLibraryModal({
               description: description.trim() || undefined,
             };
       const row =
-        scope === 'platform'
+        scope === "platform"
           ? await updatePlatformContentLibrary(library.id, body)
           : await updateTenantContentLibrary(tenantId!, library.id, body);
       onSaved(row);
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to update library');
+      setError(e instanceof Error ? e.message : "Failed to update library");
     } finally {
       setSubmitting(false);
     }
@@ -106,7 +109,7 @@ export function EditContentLibraryModal({
   if (!library) return null;
 
   const selectClass =
-    'w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100';
+    "w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100";
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Edit content library" size="md">
@@ -116,15 +119,25 @@ export function EditContentLibraryModal({
             {error}
           </div>
         )}
-        <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth required />
-        {scope === 'tenant' && (
+        <Input
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          fullWidth
+          required
+        />
+        {scope === "tenant" && (
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Uploads use the platform default content storage (tenant libraries cannot pick a different store).
+            Uploads use the platform default content storage (tenant libraries cannot pick a
+            different store).
           </p>
         )}
-        {scope === 'platform' && (
+        {scope === "platform" && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="ed-cs">
+            <label
+              className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+              htmlFor="ed-cs"
+            >
               Content storage
             </label>
             <select
@@ -134,11 +147,11 @@ export function EditContentLibraryModal({
               onChange={(e) => setContentStorageId(e.target.value)}
               disabled={csLoading}
             >
-              <option value="">{csLoading ? 'Loading…' : 'Select content storage'}</option>
+              <option value="">{csLoading ? "Loading…" : "Select content storage"}</option>
               {contentStorages.map((cs) => (
                 <option key={cs.id} value={cs.id}>
                   {cs.name}
-                  {cs.isDefault ? ' (default)' : ''} — {cs.type}
+                  {cs.isDefault ? " (default)" : ""} — {cs.type}
                 </option>
               ))}
             </select>
@@ -156,9 +169,11 @@ export function EditContentLibraryModal({
           </Button>
           <Button
             onClick={() => void handleSubmit()}
-            disabled={submitting || !name.trim() || (scope === 'platform' && !contentStorageId.trim())}
+            disabled={
+              submitting || !name.trim() || (scope === "platform" && !contentStorageId.trim())
+            }
           >
-            {submitting ? 'Saving…' : 'Save'}
+            {submitting ? "Saving…" : "Save"}
           </Button>
         </div>
       </div>

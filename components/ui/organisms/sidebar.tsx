@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { forwardRef, useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useRouter } from 'next/navigation';
-import { useSidebarCounts } from '@/lib/use-sidebar-counts';
-import { useAuth } from '@/lib/auth-context';
-import { fetchOidcConfigIfNeeded, getUserManager } from '@/lib/oidc';
+import { motion, AnimatePresence } from "framer-motion";
+import { forwardRef, useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useSidebarCounts } from "@/lib/use-sidebar-counts";
+import { useAuth } from "@/lib/auth-context";
+import { fetchOidcConfigIfNeeded, getUserManager } from "@/lib/oidc";
 import {
   LayoutDashboard,
   Settings,
@@ -25,9 +25,9 @@ import {
   BookOpen,
   BookTemplate,
   HardDrive,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { BrandMark } from '@/components/BrandMark';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/BrandMark";
 
 export interface SidebarItem {
   id: string;
@@ -42,134 +42,137 @@ export interface SidebarItem {
 export interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  userRole: 'system' | 'tenant';
+  userRole: "system" | "tenant";
   tenantIdForSidebarCounts?: string | null;
   isEnterprise?: boolean;
   className?: string;
 }
 
 // Base sidebar items without badges
-const baseSystemUserItems: Omit<SidebarItem, 'badge'>[] = [
+const baseSystemUserItems: Omit<SidebarItem, "badge">[] = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
+    id: "dashboard",
+    label: "Dashboard",
     icon: <LayoutDashboard size={20} />,
-    href: '/system/dashboard',
+    href: "/system/dashboard",
   },
   {
-    id: 'providers',
-    label: 'Providers',
+    id: "providers",
+    label: "Providers",
     icon: <Cloud size={20} />,
-    href: '/providers',
+    href: "/providers",
   },
   {
-    id: 'storage',
-    label: 'Storage',
+    id: "storage",
+    label: "Storage",
     icon: <HardDrive size={20} />,
-    href: '/system/storage-classes',
+    href: "/system/storage-classes",
   },
   {
-    id: 'content-libraries',
-    label: 'Content Libraries',
+    id: "content-libraries",
+    label: "Content Libraries",
     icon: <BookTemplate size={20} />,
-    href: '/system/content-libraries',
+    href: "/system/content-libraries",
   },
   {
-    id: 'datacenters',
-    label: 'Datacenters',
+    id: "datacenters",
+    label: "Datacenters",
     icon: <Server size={20} />,
-    href: '/datacenters',
+    href: "/datacenters",
   },
   {
-    id: 'users',
-    label: 'Users',
+    id: "users",
+    label: "Users",
     icon: <Users size={20} />,
-    href: '/users',
+    href: "/users",
   },
   {
-    id: 'tenants',
-    label: 'Tenants',
+    id: "tenants",
+    label: "Tenants",
     icon: <Building2 size={20} />,
-    href: '/tenants',
+    href: "/tenants",
   },
   {
-    id: 'settings',
-    label: 'Settings',
+    id: "settings",
+    label: "Settings",
     icon: <Settings size={20} />,
-    href: '/settings',
+    href: "/settings",
   },
   {
-    id: 'swagger',
-    label: 'API Documentation',
+    id: "swagger",
+    label: "API Documentation",
     icon: <BookOpen size={20} />,
-    href: '/swagger-ui',
+    href: "/swagger-ui",
   },
 ];
 
-const baseTenantUserItems: Omit<SidebarItem, 'badge'>[] = [
+const baseTenantUserItems: Omit<SidebarItem, "badge">[] = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
+    id: "dashboard",
+    label: "Dashboard",
     icon: <LayoutDashboard size={20} />,
-    href: '/tenant/dashboard',
+    href: "/tenant/dashboard",
   },
   {
-    id: 'datacenters',
-    label: 'Datacenters',
+    id: "datacenters",
+    label: "Datacenters",
     icon: <Server size={20} />,
-    href: '/tenant/datacenters',
+    href: "/tenant/datacenters",
   },
   {
-    id: 'vms',
-    label: 'VMs',
+    id: "vms",
+    label: "VMs",
     icon: <Database size={20} />,
-    href: '/tenant/vms',
+    href: "/tenant/vms",
   },
   {
-    id: 'content-libraries',
-    label: 'Content Libraries',
+    id: "content-libraries",
+    label: "Content Libraries",
     icon: <BookTemplate size={20} />,
-    href: '/tenant/content-libraries',
+    href: "/tenant/content-libraries",
   },
   {
-    id: 'users',
-    label: 'Users',
+    id: "users",
+    label: "Users",
     icon: <Users size={20} />,
-    href: '/tenant/users',
+    href: "/tenant/users",
   },
   {
-    id: 'roles',
-    label: 'Roles',
+    id: "roles",
+    label: "Roles",
     icon: <Shield size={20} />,
-    href: '/tenant/roles',
+    href: "/tenant/roles",
   },
   {
-    id: 'administration',
-    label: 'Administration',
+    id: "administration",
+    label: "Administration",
     icon: <SlidersHorizontal size={20} />,
-    href: '/tenant/administration',
+    href: "/tenant/administration",
   },
 ];
 
 const enterpriseItems: SidebarItem[] = [
   {
-    id: 'billing',
-    label: 'Billing',
+    id: "billing",
+    label: "Billing",
     icon: <Database size={20} />,
-    href: '/billing',
+    href: "/billing",
     isEnterprise: true,
   },
 ];
 
 export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
-  ({
-    isOpen,
-    onClose,
-    userRole,
-    tenantIdForSidebarCounts = null,
-    isEnterprise = false,
-    className = '',
-  }: SidebarProps, ref) => {
+  (
+    {
+      isOpen,
+      onClose,
+      userRole,
+      tenantIdForSidebarCounts = null,
+      isEnterprise = false,
+      className = "",
+    }: SidebarProps,
+    ref
+  ) => {
     const pathname = usePathname();
     const router = useRouter();
     const { user } = useAuth();
@@ -184,7 +187,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
           await manager.signoutRedirect();
         }
       } catch (error) {
-        console.error('Error signing out:', error);
+        console.error("Error signing out:", error);
       }
     };
 
@@ -212,16 +215,14 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
             href={item.href}
             onClick={onClose}
             className={cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors',
-              'hover:bg-gray-100',
-              isActive(item.href) ? 'bg-primary-50 text-primary-700' : 'text-gray-700',
-              depth > 0 && 'ml-4',
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
+              "hover:bg-gray-100",
+              isActive(item.href) ? "bg-primary-50 text-primary-700" : "text-gray-700",
+              depth > 0 && "ml-4"
             )}
           >
             <div className="flex items-center gap-3 flex-1">
-              <div className="flex items-center gap-3 text-gray-400">
-                {item.icon}
-              </div>
+              <div className="flex items-center gap-3 text-gray-400">{item.icon}</div>
               <span className="text-sm font-medium">{item.label}</span>
             </div>
             {item.badge && (
@@ -238,11 +239,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
                 className="p-1 hover:bg-gray-100 rounded-md transition-colors"
                 aria-expanded={isExpanded}
               >
-                {isExpanded ? (
-                  <ChevronDown size={16} />
-                ) : (
-                  <ChevronRight size={16} />
-                )}
+                {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
             )}
           </Link>
@@ -251,7 +248,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
               {isExpanded && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
+                  animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                   className="ml-4 overflow-hidden"
@@ -266,22 +263,24 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
     };
 
     // Build sidebar items with dynamic badges
-    const items: SidebarItem[] = (userRole === 'system' ? baseSystemUserItems : baseTenantUserItems).map((item) => {
+    const items: SidebarItem[] = (
+      userRole === "system" ? baseSystemUserItems : baseTenantUserItems
+    ).map((item) => {
       const newItem = { ...item } as SidebarItem;
-      
+
       // Add badges based on item ID and user role
-      if (userRole === 'system') {
-        if (item.id === 'users' && counts.users > 0) {
+      if (userRole === "system") {
+        if (item.id === "users" && counts.users > 0) {
           newItem.badge = counts.users;
-        } else if (item.id === 'tenants' && counts.tenants > 0) {
+        } else if (item.id === "tenants" && counts.tenants > 0) {
           newItem.badge = counts.tenants;
         }
       } else {
-        if (item.id === 'vms' && counts.vms > 0) {
+        if (item.id === "vms" && counts.vms > 0) {
           newItem.badge = counts.vms;
         }
       }
-      
+
       return newItem;
     });
     const enterpriseFeatures = isEnterprise ? enterpriseItems : [];
@@ -289,12 +288,12 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
     return (
       <motion.div
         ref={ref}
-        initial={{ x: '-100%' }}
-        animate={{ x: isOpen ? '0%' : '-100%' }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        initial={{ x: "-100%" }}
+        animate={{ x: isOpen ? "0%" : "-100%" }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className={cn(
-          'fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-200 w-64 transform',
-          className,
+          "fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-200 w-64 transform",
+          className
         )}
       >
         <div className="flex flex-col h-full">
@@ -302,7 +301,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
           <div className="flex items-center gap-3 p-6 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <BrandMark size={32} className="h-8 w-8 rounded-lg" />
-              <span className="text-lg font-bold text-gray-900">infron</span>
+              <span className="text-lg font-bold text-gray-900">muxon</span>
               {isEnterprise && (
                 <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-nexus-100 text-nexus-700 rounded-full">
                   Enterprise
@@ -335,14 +334,14 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
               ) : (
                 <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center">
                   <span className="text-sm font-medium text-gray-600">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
                   </span>
                 </div>
               )}
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{user?.name || 'User'}</p>
+                <p className="text-sm font-medium text-gray-900">{user?.name || "User"}</p>
                 <p className="text-xs text-gray-500 capitalize">
-                  {userRole === 'system' ? 'System Admin' : 'Tenant User'}
+                  {userRole === "system" ? "System Admin" : "Tenant User"}
                 </p>
               </div>
             </div>
@@ -361,6 +360,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
         </div>
       </motion.div>
     );
-  });
+  }
+);
 
-Sidebar.displayName = 'Sidebar';
+Sidebar.displayName = "Sidebar";

@@ -1,11 +1,20 @@
-'use client';
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { Check, ChevronRight, ChevronLeft, Settings, Server, Users, Database, Key } from 'lucide-react';
-import { Button } from '@/components/ui/atoms/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { ProgressBar } from '@/components/ui/atoms/progress-bar';
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import {
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  Settings,
+  Server,
+  Users,
+  Database,
+  Key,
+} from "lucide-react";
+import { Button } from "@/components/ui/atoms/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { ProgressBar } from "@/components/ui/atoms/progress-bar";
 
 export interface OnboardingStep {
   id: string;
@@ -22,37 +31,38 @@ export interface OnboardingWizardProps {
 
 const steps: OnboardingStep[] = [
   {
-    id: 'welcome',
-    title: 'Welcome to Infron',
-    description: 'Let\'s get your cloud infrastructure configured in just a few minutes.',
+    id: "welcome",
+    title: "Welcome to Muxon",
+    description: "Let's get your cloud infrastructure configured in just a few minutes.",
     icon: <Server className="h-12 w-12" />,
     completed: false,
   },
   {
-    id: 'identity-provider',
-    title: 'Configure Identity Provider',
-    description: 'Set up an identity provider (like Keycloak) to manage user authentication and access.',
+    id: "identity-provider",
+    title: "Configure Identity Provider",
+    description:
+      "Set up an identity provider (like Keycloak) to manage user authentication and access.",
     icon: <Key className="h-12 w-12" />,
     completed: false,
   },
   {
-    id: 'datacenter',
-    title: 'Add Your First Datacenter',
-    description: 'Connect your first datacenter to start managing your infrastructure.',
+    id: "datacenter",
+    title: "Add Your First Datacenter",
+    description: "Connect your first datacenter to start managing your infrastructure.",
     icon: <Database className="h-12 w-12" />,
     completed: false,
   },
   {
-    id: 'users',
-    title: 'Create Your First User',
-    description: 'Add a system user to help manage your cloud infrastructure.',
+    id: "users",
+    title: "Create Your First User",
+    description: "Add a system user to help manage your cloud infrastructure.",
     icon: <Users className="h-12 w-12" />,
     completed: false,
   },
   {
-    id: 'complete',
-    title: 'You\'re All Set!',
-    description: 'Your Infron instance is ready. Start managing your cloud infrastructure.',
+    id: "complete",
+    title: "You're All Set!",
+    description: "Your Muxon instance is ready. Start managing your cloud infrastructure.",
     icon: <Check className="h-12 w-12" />,
     completed: false,
   },
@@ -98,13 +108,16 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
 
   const renderStepContent = () => {
     switch (currentStep.id) {
-      case 'welcome':
+      case "welcome":
         return (
           <div className="space-y-6">
-            <div className="rounded-lg p-8" style={{ background: 'linear-gradient(to bottom right, #dbeafe, #6366f1)' }}>
+            <div
+              className="rounded-lg p-8"
+              style={{ background: "linear-gradient(to bottom right, #dbeafe, #6366f1)" }}
+            >
               <Server className="h-16 w-16 text-primary mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-center text-gray-900">
-                Welcome to Infron Cloud Management
+                Welcome to Muxon Cloud Management
               </h3>
               <p className="text-center text-gray-600">
                 We'll guide you through the initial setup process to get your cloud infrastructure
@@ -116,7 +129,8 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 <CardContent className="p-6">
                   <h4 className="font-medium mb-2">System User Dashboard</h4>
                   <p className="text-sm text-gray-600">
-                    Manage providers, datacenters, users, and tenants from one centralized dashboard.
+                    Manage providers, datacenters, users, and tenants from one centralized
+                    dashboard.
                   </p>
                 </CardContent>
               </Card>
@@ -132,16 +146,19 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </div>
         );
 
-      case 'identity-provider':
+      case "identity-provider":
         return (
           <div className="space-y-6">
-            <div className="rounded-lg p-8" style={{ background: 'linear-gradient(to bottom right, #f3e8ff, #ec4899)' }}>
+            <div
+              className="rounded-lg p-8"
+              style={{ background: "linear-gradient(to bottom right, #f3e8ff, #ec4899)" }}
+            >
               <Key className="h-16 w-16 text-purple-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-center text-gray-900">
                 Configure Identity Provider
               </h3>
               <p className="text-center text-gray-600">
-                Infron uses OpenID Connect (OIDC) for authentication. We recommend Keycloak as your
+                Muxon uses OpenID Connect (OIDC) for authentication. We recommend Keycloak as your
                 identity provider.
               </p>
             </div>
@@ -159,19 +176,15 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Issuer URL
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Issuer URL</label>
                   <input
                     type="url"
-                    placeholder="https://your-idp.com/realms/infron"
+                    placeholder="https://your-idp.com/realms/muxon"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Client ID
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Client ID</label>
                   <input
                     type="text"
                     placeholder="your-client-id"
@@ -183,17 +196,20 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </div>
         );
 
-      case 'datacenter':
+      case "datacenter":
         return (
           <div className="space-y-6">
-            <div className="rounded-lg p-8" style={{ background: 'linear-gradient(to bottom right, #d1fae5d, #a7f3d0)' }}>
+            <div
+              className="rounded-lg p-8"
+              style={{ background: "linear-gradient(to bottom right, #d1fae5d, #a7f3d0)" }}
+            >
               <Database className="h-16 w-16 text-green-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-center text-gray-900">
                 Add Your First Datacenter
               </h3>
               <p className="text-center text-gray-600">
                 Connect your first datacenter to start provisioning virtual machines and networks.
-                Infron supports multiple providers including Proxmox and Libvirt.
+                Muxon supports multiple providers including Proxmox and Libvirt.
               </p>
             </div>
             <Card>
@@ -234,25 +250,26 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </div>
         );
 
-      case 'users':
+      case "users":
         return (
           <div className="space-y-6">
-            <div className="rounded-lg p-8" style={{ background: 'linear-gradient(to bottom right, #ffedd5, #f59e0b)' }}>
+            <div
+              className="rounded-lg p-8"
+              style={{ background: "linear-gradient(to bottom right, #ffedd5, #f59e0b)" }}
+            >
               <Users className="h-16 w-16 text-orange-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-center text-gray-900">
                 Create Your First User
               </h3>
               <p className="text-center text-gray-600">
-                Create a system user account to manage your Infron instance. This user will have
-                full administrative access to all resources.
+                Create a system user account to manage your Muxon instance. This user will have full
+                administrative access to all resources.
               </p>
             </div>
             <Card>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Username
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
                   <input
                     type="text"
                     placeholder="admin"
@@ -260,9 +277,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                   <input
                     type="email"
                     placeholder="admin@example.com"
@@ -270,9 +285,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                   <input
                     type="password"
                     placeholder="•••••••••••"
@@ -280,9 +293,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Role
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
                   <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                     <option>System Administrator</option>
                     <option>System Operator</option>
@@ -294,22 +305,23 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
           </div>
         );
 
-      case 'complete':
+      case "complete":
         return (
           <div className="space-y-6">
-            <div className="rounded-lg p-8 text-center" style={{ background: 'linear-gradient(to bottom right, #d1fae5d, #a7f3d0)' }}>
+            <div
+              className="rounded-lg p-8 text-center"
+              style={{ background: "linear-gradient(to bottom right, #d1fae5d, #a7f3d0)" }}
+            >
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.5, type: 'spring' }}
+                transition={{ duration: 0.5, type: "spring" }}
               >
                 <Check className="h-20 w-20 text-green-600 mx-auto mb-4" />
               </motion.div>
-              <h3 className="text-2xl font-bold text-center text-gray-900 mb-2">
-                Setup Complete!
-              </h3>
+              <h3 className="text-2xl font-bold text-center text-gray-900 mb-2">Setup Complete!</h3>
               <p className="text-center text-gray-600 mb-8">
-                Your Infron instance is now configured and ready to use. Here's what you can do next:
+                Your Muxon instance is now configured and ready to use. Here's what you can do next:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                 <Card className="transition-colors hover:border-primary-500">
@@ -344,7 +356,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                     <Key className="h-8 w-8 text-primary mx-auto mb-3" />
                     <h4 className="font-medium mb-2">View Documentation</h4>
                     <p className="text-sm text-gray-600">
-                      Learn more about Infron features and capabilities.
+                      Learn more about Muxon features and capabilities.
                     </p>
                   </CardContent>
                 </Card>
@@ -358,8 +370,11 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
     }
   };
 
-   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(to bottom right, #f9fafb, #f3f4f6)' }}>
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: "linear-gradient(to bottom right, #f9fafb, #f3f4f6)" }}
+    >
       <Card className="w-full max-w-4xl">
         <CardHeader className="border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
@@ -370,12 +385,12 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                     key={step.id}
                     className={`h-2 rounded-full transition-all ${
                       index <= currentStepIndex
-                        ? 'bg-primary'
+                        ? "bg-primary"
                         : index === currentStepIndex - 1
-                        ? 'bg-primary/50'
-                        : 'bg-gray-200'
+                          ? "bg-primary/50"
+                          : "bg-gray-200"
                     }`}
-                    style={{ width: '32px' }}
+                    style={{ width: "32px" }}
                   />
                 ))}
               </div>
@@ -402,11 +417,13 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             >
               <div className="mb-8">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={`p-3 rounded-lg ${
-                    completedSteps.has(currentStep.id) || currentStep.id === 'complete'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}>
+                  <div
+                    className={`p-3 rounded-lg ${
+                      completedSteps.has(currentStep.id) || currentStep.id === "complete"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
                     {currentStep.icon}
                   </div>
                   <div>
@@ -421,16 +438,12 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
               {renderStepContent()}
               <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
                 {currentStepIndex > 0 && (
-                  <Button
-                    variant="secondary"
-                    onClick={handleBack}
-                    disabled={isAnimating}
-                  >
+                  <Button variant="secondary" onClick={handleBack} disabled={isAnimating}>
                     <ChevronLeft className="h-4 w-4 mr-2" />
                     Back
                   </Button>
                 )}
-                {currentStep.id === 'complete' ? (
+                {currentStep.id === "complete" ? (
                   <Button onClick={handleComplete} isLoading={isAnimating}>
                     Get Started
                     <ChevronRight className="h-4 w-4 ml-2" />

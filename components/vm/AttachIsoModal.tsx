@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Loader2 } from 'lucide-react';
-import { Modal } from '@/components/ui/molecules/modal';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { fetchTenantContentLibraries, fetchAllContentItems } from '@/lib/api/content-library';
-import { attachIsoToVm } from '@/lib/api/vm';
-import type { ContentLibraryRow, ContentItemRow } from '@/types/content-library';
-import { formatBytes } from '@/lib/format-bytes';
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { Loader2 } from "lucide-react";
+import { Modal } from "@/components/ui/molecules/modal";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { fetchTenantContentLibraries, fetchAllContentItems } from "@/lib/api/content-library";
+import { attachIsoToVm } from "@/lib/api/vm";
+import type { ContentLibraryRow, ContentItemRow } from "@/types/content-library";
+import { formatBytes } from "@/lib/format-bytes";
 
 const PAGE_SIZE = 8;
 
@@ -21,26 +21,33 @@ export interface AttachIsoModalProps {
   onSuccess: () => void;
 }
 
-type Step = 'library' | 'iso';
+type Step = "library" | "iso";
 
-export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSuccess }: AttachIsoModalProps) {
-  const [step, setStep] = useState<Step>('library');
+export function AttachIsoModal({
+  isOpen,
+  onClose,
+  tenantId,
+  vmId,
+  vmName,
+  onSuccess,
+}: AttachIsoModalProps) {
+  const [step, setStep] = useState<Step>("library");
   const [libraries, setLibraries] = useState<ContentLibraryRow[]>([]);
   const [libsLoading, setLibsLoading] = useState(false);
   const [selectedLibraryId, setSelectedLibraryId] = useState<string | null>(null);
   const [isos, setIsos] = useState<ContentItemRow[]>([]);
   const [isosLoading, setIsosLoading] = useState(false);
-  const [isoQuery, setIsoQuery] = useState('');
+  const [isoQuery, setIsoQuery] = useState("");
   const [isoPage, setIsoPage] = useState(0);
   const [selectedIsoId, setSelectedIsoId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
-    setStep('library');
+    setStep("library");
     setSelectedLibraryId(null);
     setIsos([]);
-    setIsoQuery('');
+    setIsoQuery("");
     setIsoPage(0);
     setSelectedIsoId(null);
     setError(null);
@@ -75,11 +82,11 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
     setIsosLoading(true);
     setError(null);
     try {
-      const all = await fetchAllContentItems('tenant', selectedLibraryId, tenantId);
-      const onlyIso = all.filter((i) => (i.contentType ?? '').toLowerCase() === 'iso');
+      const all = await fetchAllContentItems("tenant", selectedLibraryId, tenantId);
+      const onlyIso = all.filter((i) => (i.contentType ?? "").toLowerCase() === "iso");
       setIsos(onlyIso);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load ISOs');
+      setError(e instanceof Error ? e.message : "Failed to load ISOs");
       setIsos([]);
     } finally {
       setIsosLoading(false);
@@ -87,7 +94,7 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
   }, [selectedLibraryId, tenantId]);
 
   useEffect(() => {
-    if (step === 'iso' && selectedLibraryId) {
+    if (step === "iso" && selectedLibraryId) {
       void loadIsos();
     }
   }, [step, selectedLibraryId, loadIsos]);
@@ -95,12 +102,15 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
   const filteredIsos = useMemo(() => {
     const q = isoQuery.trim().toLowerCase();
     if (!q) return isos;
-    return isos.filter((i) => (i.name ?? '').toLowerCase().includes(q));
+    return isos.filter((i) => (i.name ?? "").toLowerCase().includes(q));
   }, [isos, isoQuery]);
 
   const totalIsoPages = Math.max(1, Math.ceil(filteredIsos.length / PAGE_SIZE));
   const currentIsoPage = Math.min(isoPage, totalIsoPages - 1);
-  const isoSlice = filteredIsos.slice(currentIsoPage * PAGE_SIZE, currentIsoPage * PAGE_SIZE + PAGE_SIZE);
+  const isoSlice = filteredIsos.slice(
+    currentIsoPage * PAGE_SIZE,
+    currentIsoPage * PAGE_SIZE + PAGE_SIZE
+  );
 
   useEffect(() => {
     setIsoPage(0);
@@ -108,9 +118,9 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
 
   const goNext = () => {
     if (!selectedLibraryId) return;
-    setStep('iso');
+    setStep("iso");
     setSelectedIsoId(null);
-    setIsoQuery('');
+    setIsoQuery("");
     setIsoPage(0);
   };
 
@@ -123,7 +133,7 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
       onSuccess();
       handleClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Attach failed');
+      setError(e instanceof Error ? e.message : "Attach failed");
     } finally {
       setSubmitting(false);
     }
@@ -133,7 +143,7 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={step === 'library' ? `Attach ISO — ${vmName}` : `Select ISO — ${vmName}`}
+      title={step === "library" ? `Attach ISO — ${vmName}` : `Select ISO — ${vmName}`}
       size="lg"
     >
       <div className="space-y-4 max-h-[70vh] overflow-y-auto">
@@ -143,7 +153,7 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
           </div>
         )}
 
-        {step === 'library' && (
+        {step === "library" && (
           <>
             <p className="text-sm text-gray-600 dark:text-gray-400">Choose a content library.</p>
             {libsLoading ? (
@@ -160,11 +170,13 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
                       type="button"
                       onClick={() => setSelectedLibraryId(lib.id)}
                       className={`w-full text-left px-3 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                        selectedLibraryId === lib.id ? 'bg-primary-50 dark:bg-primary-900/30' : ''
+                        selectedLibraryId === lib.id ? "bg-primary-50 dark:bg-primary-900/30" : ""
                       }`}
                     >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{lib.name}</span>
-                      <span className="block text-xs text-gray-500">{lib.type ?? ''}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {lib.name}
+                      </span>
+                      <span className="block text-xs text-gray-500">{lib.type ?? ""}</span>
                     </button>
                   </li>
                 ))}
@@ -181,9 +193,9 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
           </>
         )}
 
-        {step === 'iso' && (
+        {step === "iso" && (
           <>
-            <Button variant="secondary" size="sm" onClick={() => setStep('library')}>
+            <Button variant="secondary" size="sm" onClick={() => setStep("library")}>
               ← Back to libraries
             </Button>
             <Input
@@ -210,9 +222,12 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
                           onChange={() => setSelectedIsoId(iso.id)}
                         />
                         <span className="flex-1 text-sm">
-                          <span className="font-medium text-gray-900 dark:text-gray-100">{iso.name}</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">
+                            {iso.name}
+                          </span>
                           <span className="block text-xs text-gray-500">
-                            {iso.version ?? '—'} · {formatBytes(iso.sizeBytes)} · {iso.contentStatus ?? '—'}
+                            {iso.version ?? "—"} · {formatBytes(iso.sizeBytes)} ·{" "}
+                            {iso.contentStatus ?? "—"}
                           </span>
                         </span>
                       </label>
@@ -252,7 +267,7 @@ export function AttachIsoModal({ isOpen, onClose, tenantId, vmId, vmName, onSucc
                 Cancel
               </Button>
               <Button onClick={() => void handleSave()} disabled={!selectedIsoId || submitting}>
-                {submitting ? 'Saving…' : 'Attach ISO'}
+                {submitting ? "Saving…" : "Attach ISO"}
               </Button>
             </div>
           </>

@@ -1,6 +1,6 @@
-import { Suspense } from 'react';
-import { Loader2 } from 'lucide-react';
-import { VmConsolePageContent } from './VmConsolePageContent';
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
+import { VmConsolePageContent } from "./VmConsolePageContent";
 
 function ConsolePageFallback() {
   return (

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 export function Alert({
-  variant = 'default',
+  variant = "default",
   className,
   children,
 }: {
-  variant?: 'default' | 'destructive';
+  variant?: "default" | "destructive";
   className?: string;
   children?: React.ReactNode;
 }) {
@@ -15,11 +15,11 @@ export function Alert({
     <div
       role="alert"
       className={cn(
-        'rounded-lg border p-4 text-sm',
-        variant === 'destructive'
-          ? 'border-red-200 bg-red-50 text-red-800'
-          : 'border-gray-200 bg-gray-50 text-gray-900',
-        className,
+        "rounded-lg border p-4 text-sm",
+        variant === "destructive"
+          ? "border-red-200 bg-red-50 text-red-800"
+          : "border-gray-200 bg-gray-50 text-gray-900",
+        className
       )}
     >
       {children}
@@ -34,5 +34,5 @@ export function AlertDescription({
   className?: string;
   children?: React.ReactNode;
 }) {
-  return <div className={cn('leading-relaxed', className)}>{children}</div>;
+  return <div className={cn("leading-relaxed", className)}>{children}</div>;
 }

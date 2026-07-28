@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import { forwardRef, type ReactNode, type MouseEvent, type FocusEvent } from 'react';
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { forwardRef, type ReactNode, type MouseEvent, type FocusEvent } from "react";
 
 export interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
@@ -17,51 +17,51 @@ export interface ButtonProps {
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
   onFocus?: (event: FocusEvent<HTMLButtonElement>) => void;
   onBlur?: (event: FocusEvent<HTMLButtonElement>) => void;
-  type?: 'button' | 'submit' | 'reset';
+  type?: "button" | "submit" | "reset";
   name?: string;
   value?: string;
   id?: string;
   title?: string;
-  'aria-label'?: string;
-  'aria-disabled'?: boolean;
+  "aria-label"?: string;
+  "aria-disabled"?: boolean;
 }
 
 const variantStyles: Record<string, string> = {
-  primary: 'bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500',
+  primary: "bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500",
   secondary:
-    'bg-primary-50 text-primary-800 hover:bg-primary-100 focus:ring-primary-400 dark:bg-primary-900/30 dark:text-primary-100 dark:hover:bg-primary-900/50',
-  ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400',
-  danger: 'bg-error-500 text-white hover:bg-error-600 focus:ring-error-500',
+    "bg-primary-50 text-primary-800 hover:bg-primary-100 focus:ring-primary-400 dark:bg-primary-900/30 dark:text-primary-100 dark:hover:bg-primary-900/50",
+  ghost: "bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400",
+  danger: "bg-error-500 text-white hover:bg-error-600 focus:ring-error-500",
 };
 
 const sizeStyles: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-lg',
+  sm: "px-3 py-1.5 text-sm",
+  md: "px-4 py-2 text-base",
+  lg: "px-6 py-3 text-lg",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
-      variant = 'primary',
-      size = 'md',
+      variant = "primary",
+      size = "md",
       isLoading = false,
       leftIcon,
       rightIcon,
       fullWidth = false,
       disabled = false,
-      className = '',
+      className = "",
       children,
       onClick,
       onFocus,
       onBlur,
-      type = 'button',
+      type = "button",
       name,
       value,
       id,
       title,
-      'aria-label': ariaLabel,
-      'aria-disabled': ariaDisabled,
+      "aria-label": ariaLabel,
+      "aria-disabled": ariaDisabled,
     }: ButtonProps,
     ref: React.Ref<HTMLButtonElement>
   ) => {
@@ -70,7 +70,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
       disabled:opacity-50 disabled:cursor-not-allowed
       ${variantStyles[variant]} ${sizeStyles[size]}
-      ${fullWidth ? 'w-full' : ''}
+      ${fullWidth ? "w-full" : ""}
       ${className}
     `;
 
@@ -106,4 +106,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-Button.displayName = 'Button';
+Button.displayName = "Button";

@@ -1,34 +1,33 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
-import { fetchOidcConfigIfNeeded, getUserManager } from './oidc';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { fetchOidcConfigIfNeeded, getUserManager } from "./oidc";
 
 /** Best-effort display label from OIDC claims (IdPs vary: name, preferred_username, given+family, email, sub). */
 function displayNameFromProfile(profile: Record<string, unknown>): string {
   const name = profile.name;
-  if (typeof name === 'string' && name.trim()) return name.trim();
+  if (typeof name === "string" && name.trim()) return name.trim();
 
-  const preferred =
-    profile.preferred_username ?? profile.preferredUsername;
-  if (typeof preferred === 'string' && preferred.trim()) return preferred.trim();
+  const preferred = profile.preferred_username ?? profile.preferredUsername;
+  if (typeof preferred === "string" && preferred.trim()) return preferred.trim();
 
   const gn = profile.given_name;
   const fn = profile.family_name;
-  const given = typeof gn === 'string' ? gn.trim() : '';
-  const family = typeof fn === 'string' ? fn.trim() : '';
-  const combined = [given, family].filter(Boolean).join(' ');
+  const given = typeof gn === "string" ? gn.trim() : "";
+  const family = typeof fn === "string" ? fn.trim() : "";
+  const combined = [given, family].filter(Boolean).join(" ");
   if (combined) return combined;
 
   const email = profile.email;
-  if (typeof email === 'string' && email.includes('@')) {
-    const local = email.split('@')[0]?.trim();
+  if (typeof email === "string" && email.includes("@")) {
+    const local = email.split("@")[0]?.trim();
     if (local) return local;
   }
 
   const sub = profile.sub;
-  if (typeof sub === 'string' && sub.trim()) return sub.trim();
+  if (typeof sub === "string" && sub.trim()) return sub.trim();
 
-  return 'User';
+  return "User";
 }
 
 interface AuthContextType {
@@ -40,7 +39,7 @@ interface AuthContextType {
     email: string;
     avatar?: string;
   };
-  userRole?: 'system' | 'tenant';
+  userRole?: "system" | "tenant";
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<{ name: string; email: string; avatar?: string }>();
-  const [userRole, setUserRole] = useState<'system' | 'tenant'>('tenant');
+  const [userRole, setUserRole] = useState<"system" | "tenant">("tenant");
 
   const checkAuth = useCallback(async () => {
     setIsLoading(true);
@@ -67,8 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const rawProfile = userData.profile as Record<string, unknown>;
         setUser({
           name: displayNameFromProfile(rawProfile),
-          email: (typeof rawProfile.email === 'string' ? rawProfile.email : '') || '',
-          avatar: typeof rawProfile.picture === 'string' ? rawProfile.picture : undefined,
+          email: (typeof rawProfile.email === "string" ? rawProfile.email : "") || "",
+          avatar: typeof rawProfile.picture === "string" ? rawProfile.picture : undefined,
         });
 
         // Extract roles from OIDC token
@@ -82,15 +81,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Determine user role based on roles
         // 'system:admin' maps to 'system', other roles map to 'tenant'
         const hasSystemRole = roles.some(
-          (role: string) => role === 'system:admin' || role.startsWith('system:')
+          (role: string) => role === "system:admin" || role.startsWith("system:")
         );
-        setUserRole(hasSystemRole ? 'system' : 'tenant');
+        setUserRole(hasSystemRole ? "system" : "tenant");
       } else {
         setIsAuthenticated(false);
         setUser(undefined);
       }
     } catch (error) {
-      console.error('Error checking auth:', error);
+      console.error("Error checking auth:", error);
       setIsAuthenticated(false);
       setUser(undefined);
     } finally {
@@ -135,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 }

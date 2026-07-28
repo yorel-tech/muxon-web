@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { forwardRef, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useSidebarCounts } from '@/lib/use-sidebar-counts';
-import { useAuth } from '@/lib/auth-context';
-import { useTenantOptional } from '@/lib/tenant-context';
-import { fetchOidcConfigIfNeeded, getUserManager } from '@/lib/oidc';
+import { motion, AnimatePresence } from "framer-motion";
+import { forwardRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSidebarCounts } from "@/lib/use-sidebar-counts";
+import { useAuth } from "@/lib/auth-context";
+import { useTenantOptional } from "@/lib/tenant-context";
+import { fetchOidcConfigIfNeeded, getUserManager } from "@/lib/oidc";
 import {
   LayoutDashboard,
   Settings,
@@ -23,8 +23,8 @@ import {
   LogOut,
   SlidersHorizontal,
   HardDrive,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface SidebarItem {
   id: string;
@@ -39,7 +39,7 @@ export interface SidebarItem {
 export interface CollapsibleSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
-  userRole: 'system' | 'tenant';
+  userRole: "system" | "tenant";
   /** Resolved tenant UUID for tenant portal VM counts (optional). */
   tenantIdForSidebarCounts?: string | null;
   isEnterprise?: boolean;
@@ -53,120 +53,123 @@ export interface CollapsibleSidebarProps {
 }
 
 // Base sidebar items without badges
-const baseSystemUserItems: Omit<SidebarItem, 'badge'>[] = [
+const baseSystemUserItems: Omit<SidebarItem, "badge">[] = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
+    id: "dashboard",
+    label: "Dashboard",
     icon: <LayoutDashboard size={20} />,
-    href: '/system/dashboard',
+    href: "/system/dashboard",
   },
   {
-    id: 'providers',
-    label: 'Providers',
+    id: "providers",
+    label: "Providers",
     icon: <Cloud size={20} />,
-    href: '/system/providers',
+    href: "/system/providers",
   },
   {
-    id: 'storage',
-    label: 'Storage',
+    id: "storage",
+    label: "Storage",
     icon: <HardDrive size={20} />,
-    href: '/system/storage-classes',
+    href: "/system/storage-classes",
   },
   {
-    id: 'content-libraries',
-    label: 'Content Libraries',
+    id: "content-libraries",
+    label: "Content Libraries",
     icon: <BookTemplate size={20} />,
-    href: '/system/content-libraries',
+    href: "/system/content-libraries",
   },
   {
-    id: 'tenants',
-    label: 'Tenants',
+    id: "tenants",
+    label: "Tenants",
     icon: <Building2 size={20} />,
-    href: '/system/tenants',
+    href: "/system/tenants",
   },
   {
-    id: 'datacenters',
-    label: 'Datacenters',
+    id: "datacenters",
+    label: "Datacenters",
     icon: <Server size={20} />,
-    href: '/system/datacenters',
+    href: "/system/datacenters",
   },
   {
-    id: 'users',
-    label: 'Users',
+    id: "users",
+    label: "Users",
     icon: <Users size={20} />,
-    href: '/system/users',
+    href: "/system/users",
   },
   {
-    id: 'settings',
-    label: 'System Settings',
+    id: "settings",
+    label: "System Settings",
     icon: <Settings size={20} />,
-    href: '/system/settings',
+    href: "/system/settings",
   },
   {
-    id: 'swagger',
-    label: 'API Documentation',
+    id: "swagger",
+    label: "API Documentation",
     icon: <BookOpen size={20} />,
-    href: '/swagger-ui',
+    href: "/swagger-ui",
   },
 ];
 
-const baseTenantUserItems: Omit<SidebarItem, 'badge'>[] = [
+const baseTenantUserItems: Omit<SidebarItem, "badge">[] = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
+    id: "dashboard",
+    label: "Dashboard",
     icon: <LayoutDashboard size={20} />,
-    href: '/tenant/dashboard',
+    href: "/tenant/dashboard",
   },
   {
-    id: 'datacenters',
-    label: 'Datacenters',
+    id: "datacenters",
+    label: "Datacenters",
     icon: <Server size={20} />,
-    href: '/tenant/datacenters',
+    href: "/tenant/datacenters",
   },
   {
-    id: 'vms',
-    label: 'VMs',
+    id: "vms",
+    label: "VMs",
     icon: <Cloud size={20} />,
-    href: '/tenant/vms',
+    href: "/tenant/vms",
   },
   {
-    id: 'content-libraries',
-    label: 'Content Libraries',
+    id: "content-libraries",
+    label: "Content Libraries",
     icon: <BookTemplate size={20} />,
-    href: '/tenant/content-libraries',
+    href: "/tenant/content-libraries",
   },
   {
-    id: 'users',
-    label: 'Users',
+    id: "users",
+    label: "Users",
     icon: <Users size={20} />,
-    href: '/tenant/users',
+    href: "/tenant/users",
   },
   {
-    id: 'roles',
-    label: 'Roles',
+    id: "roles",
+    label: "Roles",
     icon: <Shield size={20} />,
-    href: '/tenant/roles',
+    href: "/tenant/roles",
   },
   {
-    id: 'administration',
-    label: 'Administration',
+    id: "administration",
+    label: "Administration",
     icon: <SlidersHorizontal size={20} />,
-    href: '/tenant/administration',
+    href: "/tenant/administration",
   },
 ];
 
 export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarProps>(
-  ({
-    isOpen,
-    onToggle,
-    userRole,
-    tenantIdForSidebarCounts = null,
-    isEnterprise = false,
-    showTenantSwitcher = true,
-    showUserSection = true,
-    topOffset = 0,
-    className = '',
-  }: CollapsibleSidebarProps, ref) => {
+  (
+    {
+      isOpen,
+      onToggle,
+      userRole,
+      tenantIdForSidebarCounts = null,
+      isEnterprise = false,
+      showTenantSwitcher = true,
+      showUserSection = true,
+      topOffset = 0,
+      className = "",
+    }: CollapsibleSidebarProps,
+    ref
+  ) => {
     const pathname = usePathname();
     const { user } = useAuth();
     const tenantCtx = useTenantOptional();
@@ -181,7 +184,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
           await manager.signoutRedirect();
         }
       } catch (error) {
-        console.error('Error signing out:', error);
+        console.error("Error signing out:", error);
       }
     };
 
@@ -209,23 +212,21 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
           <Link
             href={item.href}
             className={cn(
-              'flex items-center gap-3 py-2.5 rounded-lg transition-colors',
-              'hover:bg-sidebar-hover',
-              isOpen ? 'px-3' : 'justify-center px-0',
+              "flex items-center gap-3 py-2.5 rounded-lg transition-colors",
+              "hover:bg-sidebar-hover",
+              isOpen ? "px-3" : "justify-center px-0",
               isActive(item.href)
-                ? 'bg-sidebar-active text-sidebar-active-fg'
-                : 'text-sidebar-item',
-              depth > 0 && 'ml-4',
+                ? "bg-sidebar-active text-sidebar-active-fg"
+                : "text-sidebar-item",
+              depth > 0 && "ml-4"
             )}
           >
-            <div className="flex items-center gap-3 flex-shrink-0">
-              {item.icon}
-            </div>
+            <div className="flex items-center gap-3 flex-shrink-0">{item.icon}</div>
             <AnimatePresence mode="wait">
               {isOpen && (
                 <motion.span
                   initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: 'auto' }}
+                  animate={{ opacity: 1, width: "auto" }}
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.2 }}
                   className="text-sm font-medium whitespace-nowrap overflow-hidden"
@@ -251,22 +252,24 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
     };
 
     // Build sidebar items with dynamic badges
-    const items: SidebarItem[] = (userRole === 'system' ? baseSystemUserItems : baseTenantUserItems).map((item) => {
+    const items: SidebarItem[] = (
+      userRole === "system" ? baseSystemUserItems : baseTenantUserItems
+    ).map((item) => {
       const newItem = { ...item } as SidebarItem;
-      
+
       // Add badges based on item ID and user role
-      if (userRole === 'system') {
-        if (item.id === 'users' && counts.users > 0) {
+      if (userRole === "system") {
+        if (item.id === "users" && counts.users > 0) {
           newItem.badge = counts.users;
-        } else if (item.id === 'tenants' && counts.tenants > 0) {
+        } else if (item.id === "tenants" && counts.tenants > 0) {
           newItem.badge = counts.tenants;
         }
       } else {
-        if (item.id === 'vms' && counts.vms > 0) {
+        if (item.id === "vms" && counts.vms > 0) {
           newItem.badge = counts.vms;
         }
       }
-      
+
       return newItem;
     });
 
@@ -274,23 +277,25 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
       <motion.div
         ref={ref}
         animate={{ width: isOpen ? 256 : 64 }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
         style={{ top: topOffset }}
         className={cn(
-          'fixed bottom-0 left-0 z-40 bg-sidebar border-r border-sidebar-border',
-          'shadow-[4px_0_24px_-4px_rgba(15,23,42,0.12)]',
-          'dark:shadow-[4px_0_28px_-4px_rgba(0,0,0,0.55)]',
-          className,
+          "fixed bottom-0 left-0 z-40 bg-sidebar border-r border-sidebar-border",
+          "shadow-[4px_0_24px_-4px_rgba(15,23,42,0.12)]",
+          "dark:shadow-[4px_0_28px_-4px_rgba(0,0,0,0.55)]",
+          className
         )}
       >
         <div className="flex flex-col h-full">
           {/* Navigation */}
-          {userRole === 'tenant' && showTenantSwitcher && (
+          {userRole === "tenant" && showTenantSwitcher && (
             <div className="px-4 pt-4">
-              <div className={cn(
-                'rounded-lg border border-sidebar-border bg-sidebar-hover/60',
-                isOpen ? 'p-3' : 'p-2'
-              )}>
+              <div
+                className={cn(
+                  "rounded-lg border border-sidebar-border bg-sidebar-hover/60",
+                  isOpen ? "p-3" : "p-2"
+                )}
+              >
                 {isOpen ? (
                   <>
                     <p className="text-xs font-bold uppercase tracking-wide text-sidebar-item-muted mb-2 text-center">
@@ -298,9 +303,10 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
                     </p>
                     <select
                       className="w-full rounded-md border border-sidebar-border bg-sidebar px-2 py-1.5 text-sm text-sidebar-item"
-                      value={tenantCtx?.activeTenant?.id ?? ''}
+                      value={tenantCtx?.activeTenant?.id ?? ""}
                       onChange={(e) => {
-                        const selected = tenantCtx?.tenantList.find((t) => t.id === e.target.value) ?? null;
+                        const selected =
+                          tenantCtx?.tenantList.find((t) => t.id === e.target.value) ?? null;
                         tenantCtx?.setActiveTenant(selected);
                       }}
                     >
@@ -315,7 +321,10 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
                     </select>
                   </>
                 ) : (
-                  <div className="h-2 w-2 mx-auto rounded-full bg-primary-500" title="Tenant context" />
+                  <div
+                    className="h-2 w-2 mx-auto rounded-full bg-primary-500"
+                    title="Tenant context"
+                  />
                 )}
               </div>
             </div>
@@ -329,98 +338,99 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
           </nav>
 
           {/* User Section */}
-          {showUserSection && <div className={cn(
-            'border-t border-sidebar-border',
-            isOpen ? 'p-4' : 'py-4'
-          )}>
-            <div className={cn(
-              'flex items-center gap-3 mb-4',
-              isOpen ? '' : 'justify-center'
-            )}>
-              {user?.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="flex-shrink-0 h-8 w-8 rounded-full object-cover"
-                />
-              ) : (
-                <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary-200/80 dark:bg-primary-900/40 flex items-center justify-center">
-                  <span className="text-sm font-medium text-sidebar-item">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
-                  </span>
-                </div>
-              )}
-              <AnimatePresence mode="wait">
-                {isOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex-1 overflow-hidden"
-                  >
-                    <p className="text-sm font-medium text-[color:var(--text-primary)] whitespace-nowrap">{user?.name || 'User'}</p>
-                    <p className="text-xs text-sidebar-item-muted whitespace-nowrap capitalize">
-                      {userRole === 'system' ? 'System Admin' : 'Tenant User'}
-                    </p>
-                  </motion.div>
+          {showUserSection && (
+            <div className={cn("border-t border-sidebar-border", isOpen ? "p-4" : "py-4")}>
+              <div className={cn("flex items-center gap-3 mb-4", isOpen ? "" : "justify-center")}>
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="flex-shrink-0 h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary-200/80 dark:bg-primary-900/40 flex items-center justify-center">
+                    <span className="text-sm font-medium text-sidebar-item">
+                      {user?.name?.charAt(0).toUpperCase() || "U"}
+                    </span>
+                  </div>
                 )}
-              </AnimatePresence>
+                <AnimatePresence mode="wait">
+                  {isOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex-1 overflow-hidden"
+                    >
+                      <p className="text-sm font-medium text-[color:var(--text-primary)] whitespace-nowrap">
+                        {user?.name || "User"}
+                      </p>
+                      <p className="text-xs text-sidebar-item-muted whitespace-nowrap capitalize">
+                        {userRole === "system" ? "System Admin" : "Tenant User"}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              <button
+                className={cn(
+                  "flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-sidebar-item hover:bg-sidebar-hover transition-colors",
+                  isOpen ? "px-3" : "justify-center px-0"
+                )}
+              >
+                <Settings size={16} className="flex-shrink-0" />
+                <AnimatePresence mode="wait">
+                  {isOpen && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="whitespace-nowrap"
+                    >
+                      Settings
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+              <button
+                onClick={handleSignOut}
+                className={cn(
+                  "flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-sidebar-item hover:bg-sidebar-hover transition-colors",
+                  isOpen ? "px-3" : "justify-center px-0"
+                )}
+              >
+                <LogOut size={16} className="flex-shrink-0" />
+                <AnimatePresence mode="wait">
+                  {isOpen && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="whitespace-nowrap"
+                    >
+                      Sign Out
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
             </div>
-            <button className={cn(
-              'flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-sidebar-item hover:bg-sidebar-hover transition-colors',
-              isOpen ? 'px-3' : 'justify-center px-0'
-            )}>
-              <Settings size={16} className="flex-shrink-0" />
-              <AnimatePresence mode="wait">
-                {isOpen && (
-                  <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: 'auto' }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="whitespace-nowrap"
-                  >
-                    Settings
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-            <button
-              onClick={handleSignOut}
-              className={cn(
-                'flex items-center gap-3 w-full py-2 rounded-lg text-sm font-medium text-sidebar-item hover:bg-sidebar-hover transition-colors',
-                isOpen ? 'px-3' : 'justify-center px-0'
-              )}
-            >
-              <LogOut size={16} className="flex-shrink-0" />
-              <AnimatePresence mode="wait">
-                {isOpen && (
-                  <motion.span
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: 'auto' }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="whitespace-nowrap"
-                  >
-                    Sign Out
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-          </div>}
+          )}
         </div>
 
         {/* Toggle Button */}
         <button
           onClick={onToggle}
           className="absolute top-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center bg-surface border border-sidebar-border shadow-md text-sidebar-item hover:bg-sidebar-hover transition-colors z-50"
-          aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+          aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
           {isOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
         </button>
       </motion.div>
     );
-  });
+  }
+);
 
-CollapsibleSidebar.displayName = 'CollapsibleSidebar';
+CollapsibleSidebar.displayName = "CollapsibleSidebar";

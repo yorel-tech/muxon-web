@@ -1,20 +1,20 @@
-import type { Link } from '@/types/provider';
-import type { VmTemplateSpec } from './vm-template-spec';
+import type { Link } from "@/types/provider";
+import type { VmTemplateSpec } from "./vm-template-spec";
 
-/** Matches {@link com.onetattva.infron.core.common.Constants#SYSTEM_ID} */
-export const SYSTEM_TENANT_ID = '215012d9-8b1e-5dc5-b54f-89022875fe1e';
+/** Matches {@link com.yorel.muxon.core.common.Constants#SYSTEM_ID} */
+export const SYSTEM_TENANT_ID = "215012d9-8b1e-5dc5-b54f-89022875fe1e";
 
-export function isPlatformContentLibrary(lib: Pick<ContentLibraryRow, 'tenantId'>): boolean {
+export function isPlatformContentLibrary(lib: Pick<ContentLibraryRow, "tenantId">): boolean {
   return lib.tenantId === SYSTEM_TENANT_ID;
 }
 
-export function isRemoteContentLibrary(lib: Pick<ContentLibraryRow, 'type'>): boolean {
-  return lib.type === 'remote';
+export function isRemoteContentLibrary(lib: Pick<ContentLibraryRow, "type">): boolean {
+  return lib.type === "remote";
 }
 
-export type ContentLibraryTypeApi = 'local' | 'remote';
-export type ContentLibraryAccessMode = 'read_only' | 'read_write';
-export type ContentSyncStatus = 'never_synced' | 'in_progress' | 'synced' | 'failed';
+export type ContentLibraryTypeApi = "local" | "remote";
+export type ContentLibraryAccessMode = "read_only" | "read_write";
+export type ContentSyncStatus = "never_synced" | "in_progress" | "synced" | "failed";
 
 export interface ContentLibraryRow {
   id: string;
@@ -32,13 +32,9 @@ export interface ContentLibraryRow {
   _links?: Link[];
 }
 
-export type ContentItemContentStatus = 'pending' | 'replicating' | 'available' | 'failed' | 'uploading';
-export type ContentTypeApi =
-  | 'vm_template'
-  | 'iso'
-  | 'script'
-  | 'container_image'
-  | 'helm_chart';
+export type ContentItemContentStatus =
+  "pending" | "replicating" | "available" | "failed" | "uploading";
+export type ContentTypeApi = "vm_template" | "iso" | "script" | "container_image" | "helm_chart";
 
 export interface ContentItemRow {
   id: string;
@@ -57,7 +53,7 @@ export interface ContentItemRow {
   /** Present on GET for `vm_template` items (see VmTemplateContentItem in API). */
   templateSpec?: VmTemplateSpec;
   providerRelativePath?: string | null;
-  infronInstanceSegment?: string | null;
+  muxonInstanceSegment?: string | null;
   createdAt?: string;
   updatedAt?: string;
   _links?: Link[];
@@ -92,7 +88,7 @@ export interface ContentItemCreateBody {
 export interface VmTemplateContentItemCreate {
   name: string;
   description?: string;
-  contentType: 'vm_template';
+  contentType: "vm_template";
   version?: string;
   metadata?: Record<string, string>;
   templateSpec: VmTemplateSpec;
@@ -101,7 +97,7 @@ export interface VmTemplateContentItemCreate {
 export interface IsoContentItemCreate {
   name: string;
   description?: string;
-  contentType: 'iso';
+  contentType: "iso";
   version?: string;
   metadata?: Record<string, string>;
 }
@@ -109,7 +105,7 @@ export interface IsoContentItemCreate {
 export interface ScriptContentItemCreate {
   name: string;
   description?: string;
-  contentType: 'script';
+  contentType: "script";
   version?: string;
   metadata?: Record<string, string>;
 }
@@ -117,7 +113,7 @@ export interface ScriptContentItemCreate {
 export interface ContainerImageContentItemCreate {
   name: string;
   description?: string;
-  contentType: 'container_image';
+  contentType: "container_image";
   version?: string;
   metadata?: Record<string, string>;
 }
@@ -125,14 +121,14 @@ export interface ContainerImageContentItemCreate {
 export interface HelmChartContentItemCreate {
   name: string;
   description?: string;
-  contentType: 'helm_chart';
+  contentType: "helm_chart";
   version?: string;
   metadata?: Record<string, string>;
 }
 
-export type ContentItemCreateRequest = 
-  | VmTemplateContentItemCreate 
-  | IsoContentItemCreate 
+export type ContentItemCreateRequest =
+  | VmTemplateContentItemCreate
+  | IsoContentItemCreate
   | ScriptContentItemCreate
   | ContainerImageContentItemCreate
   | HelmChartContentItemCreate;
@@ -148,7 +144,7 @@ export interface ContentItemUpdateBody {
 }
 
 export interface ContentSourceConfig {
-  type?: 'http' | 'https' | 's3' | 'nfs';
+  type?: "http" | "https" | "s3" | "nfs";
   url?: string;
   bucket?: string;
   prefix?: string;
@@ -196,7 +192,7 @@ export interface ContentLibraryDistributionRow {
   storageClassName?: string | null;
   /** Populated by API with id + name for display */
   datacenter?: ContentLibraryDistributionRef;
-  replicateStatus: 'pending' | 'replicating' | 'available' | 'failed';
+  replicateStatus: "pending" | "replicating" | "available" | "failed";
   progressPercent?: number;
   errorMessage?: string | null;
   lastReplicatedAt?: string | null;
@@ -208,7 +204,7 @@ export interface ContentLibraryDistributionListResponse {
   items?: ContentLibraryDistributionRow[];
 }
 
-export type ContentItemDistributionStatus = 'PENDING' | 'COPYING' | 'READY' | 'FAILED';
+export type ContentItemDistributionStatus = "PENDING" | "COPYING" | "READY" | "FAILED";
 
 export interface ContentItemDistributionRow {
   id: string;

@@ -1,20 +1,17 @@
-'use client';
+"use client";
 
-import type { VmTemplateDiskSpec } from '@/types/vm-template-spec';
-import { formatBytes } from '@/lib/vm-template-defaults';
+import type { VmTemplateDiskSpec } from "@/types/vm-template-spec";
+import { formatBytes } from "@/lib/vm-template-defaults";
 
 interface VmTemplateDisksStepProps {
   disks: VmTemplateDiskSpec[];
   onChange: (disks: VmTemplateDiskSpec[]) => void;
 }
 
-const DISK_FORMATS = ['qcow2', 'vmdk', 'raw', 'ova', 'ovf'] as const;
-const DISK_BUS_TYPES = ['scsi', 'virtio', 'ide', 'sata'] as const;
+const DISK_FORMATS = ["qcow2", "vmdk", "raw", "ova", "ovf"] as const;
+const DISK_BUS_TYPES = ["scsi", "virtio", "ide", "sata"] as const;
 
-export function VmTemplateDisksStep({
-  disks,
-  onChange,
-}: VmTemplateDisksStepProps) {
+export function VmTemplateDisksStep({ disks, onChange }: VmTemplateDisksStepProps) {
   const updateDisk = (index: number, updates: Partial<VmTemplateDiskSpec>) => {
     const newDisks = [...disks];
     newDisks[index] = { ...newDisks[index], ...updates };
@@ -22,8 +19,8 @@ export function VmTemplateDisksStep({
   };
 
   // Validation
-  const bootDisks = disks.filter(d => d.bootOrder === 1);
-  const diskIds = disks.map(d => d.id);
+  const bootDisks = disks.filter((d) => d.bootOrder === 1);
+  const diskIds = disks.map((d) => d.id);
   const hasDuplicateIds = new Set(diskIds).size !== diskIds.length;
 
   return (
@@ -33,8 +30,8 @@ export function VmTemplateDisksStep({
           Disk Configuration
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Configure each disk with controller settings, bus type, and boot order.
-          Exactly one disk must have boot order 1.
+          Configure each disk with controller settings, bus type, and boot order. Exactly one disk
+          must have boot order 1.
         </p>
       </div>
 
@@ -42,9 +39,10 @@ export function VmTemplateDisksStep({
       {bootDisks.length !== 1 && (
         <div className="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-3">
           <p className="text-sm text-yellow-800 dark:text-yellow-300">
-            ⚠️ {bootDisks.length === 0 
-              ? 'No boot disk selected. One disk must have boot order 1.' 
-              : 'Multiple boot disks selected. Only one disk can have boot order 1.'}
+            ⚠️{" "}
+            {bootDisks.length === 0
+              ? "No boot disk selected. One disk must have boot order 1."
+              : "Multiple boot disks selected. Only one disk can have boot order 1."}
           </p>
         </div>
       )}
@@ -100,7 +98,7 @@ export function VmTemplateDisksStep({
                 </label>
                 <input
                   type="text"
-                  value={disk.name || ''}
+                  value={disk.name || ""}
                   onChange={(e) => updateDisk(index, { name: e.target.value })}
                   placeholder="Display name"
                   className="w-full rounded-md border border-panel bg-surface px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100"
@@ -117,8 +115,10 @@ export function VmTemplateDisksStep({
                   onChange={(e) => updateDisk(index, { format: e.target.value as any })}
                   className="w-full rounded-md border border-panel bg-surface px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100"
                 >
-                  {DISK_FORMATS.map(fmt => (
-                    <option key={fmt} value={fmt}>{fmt.toUpperCase()}</option>
+                  {DISK_FORMATS.map((fmt) => (
+                    <option key={fmt} value={fmt}>
+                      {fmt.toUpperCase()}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -133,8 +133,10 @@ export function VmTemplateDisksStep({
                   onChange={(e) => updateDisk(index, { bus: e.target.value as any })}
                   className="w-full rounded-md border border-panel bg-surface px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100"
                 >
-                  {DISK_BUS_TYPES.map(bus => (
-                    <option key={bus} value={bus}>{bus.toUpperCase()}</option>
+                  {DISK_BUS_TYPES.map((bus) => (
+                    <option key={bus} value={bus}>
+                      {bus.toUpperCase()}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -180,9 +182,7 @@ export function VmTemplateDisksStep({
                   className="w-full rounded-md border border-panel bg-surface px-3 py-1.5 text-sm text-gray-900 dark:text-gray-100"
                   required
                 />
-                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                  1 = boot disk
-                </p>
+                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">1 = boot disk</p>
               </div>
 
               {/* Read-only */}
@@ -194,9 +194,7 @@ export function VmTemplateDisksStep({
                     onChange={(e) => updateDisk(index, { readonly: e.target.checked })}
                     className="mr-2"
                   />
-                  <span className="text-xs text-gray-700 dark:text-gray-300">
-                    Read-only disk
-                  </span>
+                  <span className="text-xs text-gray-700 dark:text-gray-300">Read-only disk</span>
                 </label>
               </div>
             </div>
@@ -207,8 +205,9 @@ export function VmTemplateDisksStep({
       {/* Help Text */}
       <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-3">
         <p className="text-sm text-blue-800 dark:text-blue-300">
-          💡 <strong>Tip:</strong> The disk with boot order 1 will be used as the primary boot device. 
-          Additional disks can have sequential boot orders (2, 3, etc.) as fallback boot devices.
+          💡 <strong>Tip:</strong> The disk with boot order 1 will be used as the primary boot
+          device. Additional disks can have sequential boot orders (2, 3, etc.) as fallback boot
+          devices.
         </p>
       </div>
     </div>

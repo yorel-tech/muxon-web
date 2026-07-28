@@ -1,14 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   listContentStorages,
   createContentStorage,
   updateContentStorage,
   deleteContentStorage,
-} from '@/lib/api/content-storage';
-import type { ContentStorageTypeApi } from '@/types/content-storage';
-import { useToast } from '@/lib/toast';
+} from "@/lib/api/content-storage";
+import type { ContentStorageTypeApi } from "@/types/content-storage";
+import { useToast } from "@/lib/toast";
 
-export const CONTENT_STORAGES_QUERY_KEY = ['content-storages'] as const;
+export const CONTENT_STORAGES_QUERY_KEY = ["content-storages"] as const;
 
 export function useContentStoragesList() {
   return useQuery({
@@ -33,10 +33,10 @@ export function useCreateContentStorage() {
     }) => createContentStorage(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CONTENT_STORAGES_QUERY_KEY });
-      toast.success('Content storage created');
+      toast.success("Content storage created");
     },
     onError: (err: Error) => {
-      toast.error('Create failed', err.message);
+      toast.error("Create failed", err.message);
     },
   });
 }
@@ -55,10 +55,10 @@ export function useUpdateContentStorage() {
     }) => updateContentStorage(id, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CONTENT_STORAGES_QUERY_KEY });
-      toast.success('Content storage updated');
+      toast.success("Content storage updated");
     },
     onError: (err: Error) => {
-      toast.error('Update failed', err.message);
+      toast.error("Update failed", err.message);
     },
   });
 }
@@ -71,10 +71,10 @@ export function useDeleteContentStorage() {
     mutationFn: async (id: string) => deleteContentStorage(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CONTENT_STORAGES_QUERY_KEY });
-      toast.success('Content storage deleted');
+      toast.success("Content storage deleted");
     },
     onError: (err: Error) => {
-      toast.error('Delete failed', err.message);
+      toast.error("Delete failed", err.message);
     },
   });
 }

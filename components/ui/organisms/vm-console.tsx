@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/atoms/button';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/atoms/button";
+import { Maximize2, Minimize2 } from "lucide-react";
 
-export type VmConsoleProtocol = 'VNC' | 'SPICE' | 'SERIAL';
+export type VmConsoleProtocol = "VNC" | "SPICE" | "SERIAL";
 
 export interface VmConsoleProps {
   wsUrl: string;
@@ -28,8 +28,8 @@ export function VmConsole({
   remotePassword,
   consoleType,
   onDisconnect,
-  className = '',
-  iframeClassName = 'w-full min-h-[480px] rounded-lg border border-gray-700 bg-black',
+  className = "",
+  iframeClassName = "w-full min-h-[480px] rounded-lg border border-gray-700 bg-black",
 }: VmConsoleProps) {
   const fullscreenRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -38,7 +38,7 @@ export function VmConsole({
   const notifyIframeLayout = useCallback(() => {
     const win = iframeRef.current?.contentWindow;
     if (!win) return;
-    const send = () => win.postMessage({ type: 'infron-console-layout' }, window.location.origin);
+    const send = () => win.postMessage({ type: "muxon-console-layout" }, window.location.origin);
     send();
     window.setTimeout(send, 120);
   }, []);
@@ -48,8 +48,8 @@ export function VmConsole({
       setIsFullscreen(Boolean(document.fullscreenElement));
       queueMicrotask(() => notifyIframeLayout());
     };
-    document.addEventListener('fullscreenchange', onChange);
-    return () => document.removeEventListener('fullscreenchange', onChange);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
   }, [notifyIframeLayout]);
 
   const toggleFullscreen = useCallback(async () => {
@@ -63,20 +63,20 @@ export function VmConsole({
       }
       notifyIframeLayout();
     } catch (e) {
-      console.warn('[VmConsole] fullscreen request failed', e);
+      console.warn("[VmConsole] fullscreen request failed", e);
     }
   }, [notifyIframeLayout]);
 
-  if (consoleType === 'SPICE') {
+  if (consoleType === "SPICE") {
     return (
       <div className="rounded-lg bg-gray-900 text-gray-200 p-6 text-sm">
-        SPICE console is not yet supported in the browser. Use a SPICE client against the provider, or switch the VM
-        to VNC.
+        SPICE console is not yet supported in the browser. Use a SPICE client against the provider,
+        or switch the VM to VNC.
       </div>
     );
   }
 
-  if (consoleType === 'SERIAL') {
+  if (consoleType === "SERIAL") {
     return (
       <div className="rounded-lg bg-gray-900 text-gray-200 p-6 text-sm">
         Serial console is not available in this view.
@@ -84,14 +84,14 @@ export function VmConsole({
     );
   }
 
-  const src = `/vm-console.html?ws=${encodeURIComponent(wsUrl)}&pwd=${encodeURIComponent(remotePassword ?? '')}`;
+  const src = `/vm-console.html?ws=${encodeURIComponent(wsUrl)}&pwd=${encodeURIComponent(remotePassword ?? "")}`;
 
   return (
     <div className={`flex flex-col gap-2 min-h-0 ${className}`.trim()}>
       <div
         ref={fullscreenRef}
         className="flex flex-col gap-2 min-h-0 flex-1 rounded-lg bg-app p-2 -m-2 data-[fullscreen=true]:bg-black data-[fullscreen=true]:p-2"
-        data-fullscreen={isFullscreen ? 'true' : 'false'}
+        data-fullscreen={isFullscreen ? "true" : "false"}
       >
         <div className="flex justify-end gap-2 shrink-0">
           <Button
@@ -99,9 +99,15 @@ export function VmConsole({
             variant="secondary"
             size="sm"
             onClick={() => void toggleFullscreen()}
-            leftIcon={isFullscreen ? <Minimize2 className="h-4 w-4" aria-hidden /> : <Maximize2 className="h-4 w-4" aria-hidden />}
+            leftIcon={
+              isFullscreen ? (
+                <Minimize2 className="h-4 w-4" aria-hidden />
+              ) : (
+                <Maximize2 className="h-4 w-4" aria-hidden />
+              )
+            }
           >
-            {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </Button>
           {onDisconnect && (
             <Button type="button" variant="secondary" size="sm" onClick={() => onDisconnect()}>
@@ -122,7 +128,8 @@ export function VmConsole({
       </div>
       {!isFullscreen && (
         <p className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-          Console loads noVNC in an isolated page. Ensure this origin is allowed by the console-proxy service.
+          Console loads noVNC in an isolated page. Ensure this origin is allowed by the
+          console-proxy service.
         </p>
       )}
     </div>

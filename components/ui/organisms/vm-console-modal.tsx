@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { Modal } from '@/components/ui/molecules/modal';
-import { VmConsole, type VmConsoleProtocol } from '@/components/ui/organisms/vm-console';
-import { apiGet } from '@/lib/api';
-import { ExternalLink, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from "react";
+import { Modal } from "@/components/ui/molecules/modal";
+import { VmConsole, type VmConsoleProtocol } from "@/components/ui/organisms/vm-console";
+import { apiGet } from "@/lib/api";
+import { ExternalLink, Loader2 } from "lucide-react";
 
 export interface VmConsoleModalProps {
   isOpen: boolean;
@@ -32,23 +32,23 @@ export function VmConsoleModal({ isOpen, tenantId, vmId, vmName, onClose }: VmCo
     setErr(null);
     setSession(null);
     const path = `/api/v1/tenants/${tenantId}/vms/${vmId}/console`;
-    console.info('[VmConsoleModal] requesting console session', { tenantId, vmId, path });
+    console.info("[VmConsoleModal] requesting console session", { tenantId, vmId, path });
     try {
       const data = await apiGet<ConsoleSessionResponse>(path, {
         // Orchestrator resolve + DB can exceed default infra timeouts; keep below typical LB limits.
         timeoutMs: 120_000,
       });
-      console.info('[VmConsoleModal] console session response', {
+      console.info("[VmConsoleModal] console session response", {
         hasUrl: Boolean(data?.url),
         hasToken: Boolean(data?.token),
         console_type: data?.console_type,
         expires_at: data?.expires_at,
-        hasRemotePassword: data?.remote_password != null && data.remote_password !== '',
+        hasRemotePassword: data?.remote_password != null && data.remote_password !== "",
       });
       setSession(data);
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Failed to open console session';
-      console.error('[VmConsoleModal] console session failed', { tenantId, vmId, message, err: e });
+      const message = e instanceof Error ? e.message : "Failed to open console session";
+      console.error("[VmConsoleModal] console session failed", { tenantId, vmId, message, err: e });
       setErr(message);
     } finally {
       setLoading(false);
@@ -65,17 +65,17 @@ export function VmConsoleModal({ isOpen, tenantId, vmId, vmName, onClose }: VmCo
     }
   }, [isOpen, tenantId, vmId, loadSession]);
 
-  const wsUrl = session?.url ? String(session.url) : '';
-  const protocol = (session?.console_type?.toUpperCase() ?? 'VNC') as VmConsoleProtocol;
+  const wsUrl = session?.url ? String(session.url) : "";
+  const protocol = (session?.console_type?.toUpperCase() ?? "VNC") as VmConsoleProtocol;
 
   const openConsoleInNewTab = () => {
-    const q = vmName ? `?name=${encodeURIComponent(vmName)}` : '';
+    const q = vmName ? `?name=${encodeURIComponent(vmName)}` : "";
     // Close this modal first so the in-modal WebSocket disconnects. The proxy marks the session
     // CLOSED on disconnect; opening a new tab while still connected reuses the same token and
     // opens a second VNC connection, which breaks the session.
     onClose();
     window.setTimeout(() => {
-      window.open(`/tenant/vms/${vmId}/console${q}`, '_blank', 'noopener,noreferrer');
+      window.open(`/tenant/vms/${vmId}/console${q}`, "_blank", "noopener,noreferrer");
     }, 300);
   };
 
@@ -83,7 +83,7 @@ export function VmConsoleModal({ isOpen, tenantId, vmId, vmName, onClose }: VmCo
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={vmName ? `Console — ${vmName}` : 'VM console'}
+      title={vmName ? `Console — ${vmName}` : "VM console"}
       titleActions={
         <button
           type="button"
@@ -108,21 +108,23 @@ export function VmConsoleModal({ isOpen, tenantId, vmId, vmName, onClose }: VmCo
         {err && <p className="text-sm text-red-600 dark:text-red-400">{err}</p>}
         {!loading && session && !wsUrl && (
           <p className="text-sm text-amber-700 dark:text-amber-400">
-            API returned a session without a <code className="text-xs">url</code> field. Check the browser
-            console for <code className="text-xs">[VmConsoleModal]</code> logs and core-services VM console
-            logs.
+            API returned a session without a <code className="text-xs">url</code> field. Check the
+            browser console for <code className="text-xs">[VmConsoleModal]</code> logs and
+            core-services VM console logs.
           </p>
         )}
         {!loading && session && wsUrl && (
           <VmConsole
             wsUrl={wsUrl}
             remotePassword={session.remote_password}
-            consoleType={protocol === 'SPICE' || protocol === 'SERIAL' ? protocol : 'VNC'}
+            consoleType={protocol === "SPICE" || protocol === "SERIAL" ? protocol : "VNC"}
             onDisconnect={onClose}
           />
         )}
         {session?.expires_at && (
-          <p className="text-xs text-gray-500">Session expires: {new Date(session.expires_at).toLocaleString()}</p>
+          <p className="text-xs text-gray-500">
+            Session expires: {new Date(session.expires_at).toLocaleString()}
+          </p>
         )}
       </div>
     </Modal>

@@ -51,8 +51,11 @@ export default function StorageResolvePanel() {
   return (
     <div className="space-y-4 max-w-3xl">
       <p className="text-sm text-gray-600">
-        Dry-run scheduler resolution (optional <code className="text-xs text-gray-500 bg-gray-100 px-1 py-0.5 rounded">POST …/resolve</code> — may
-        404 until enabled).
+        Dry-run scheduler resolution (optional{" "}
+        <code className="text-xs text-gray-500 bg-gray-100 px-1 py-0.5 rounded">
+          POST …/resolve
+        </code>{" "}
+        — may 404 until enabled).
       </p>
 
       {error && (

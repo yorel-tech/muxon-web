@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -31,13 +31,13 @@
     <div id="err"></div>
     <div id="screen"></div>
     <script type="module">
-      const errEl = document.getElementById('err');
+      const errEl = document.getElementById("err");
       const params = new URLSearchParams(window.location.search);
-      const ws = params.get('ws');
-      const pwd = params.get('pwd') || '';
+      const ws = params.get("ws");
+      const pwd = params.get("pwd") || "";
       if (!ws) {
-        errEl.textContent = 'Missing ws query parameter';
-        throw new Error('missing ws');
+        errEl.textContent = "Missing ws query parameter";
+        throw new Error("missing ws");
       }
 
       let rfb = null;
@@ -45,32 +45,28 @@
       function bumpNovncLayout() {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            if (rfb && typeof rfb._handleResize === 'function') {
+            if (rfb && typeof rfb._handleResize === "function") {
               rfb._handleResize();
             }
           });
         });
       }
 
-      window.addEventListener('message', (ev) => {
-        if (ev.data?.type === 'infron-console-layout') {
+      window.addEventListener("message", (ev) => {
+        if (ev.data?.type === "muxon-console-layout") {
           bumpNovncLayout();
         }
       });
 
       try {
-        const novncMod = await import(
-          'https://cdn.jsdelivr.net/npm/@novnc/novnc@1.6.0/+esm'
-        );
+        const novncMod = await import("https://cdn.jsdelivr.net/npm/@novnc/novnc@1.6.0/+esm");
         const RFB =
-          typeof novncMod.default === 'function'
-            ? novncMod.default
-            : novncMod.default?.default;
-        if (typeof RFB !== 'function') {
-          throw new Error('noVNC RFB export not found');
+          typeof novncMod.default === "function" ? novncMod.default : novncMod.default?.default;
+        if (typeof RFB !== "function") {
+          throw new Error("noVNC RFB export not found");
         }
-        const target = document.getElementById('screen');
-        errEl.textContent = '';
+        const target = document.getElementById("screen");
+        errEl.textContent = "";
         rfb = new RFB(target, ws, {
           credentials: { password: pwd },
           shared: false,
@@ -79,17 +75,17 @@
         rfb.scaleViewport = false;
         rfb.resizeSession = true;
         rfb.qualityLevel = 9;
-        rfb.addEventListener('connect', () => bumpNovncLayout());
-        rfb.addEventListener('disconnect', (e) => {
+        rfb.addEventListener("connect", () => bumpNovncLayout());
+        rfb.addEventListener("disconnect", (e) => {
           if (!e.detail.clean) {
-            errEl.textContent = 'Disconnected from VM console.';
+            errEl.textContent = "Disconnected from VM console.";
           }
         });
-        rfb.addEventListener('securityfailure', () => {
-          errEl.textContent = 'VNC security handshake failed.';
+        rfb.addEventListener("securityfailure", () => {
+          errEl.textContent = "VNC security handshake failed.";
         });
       } catch (e) {
-        errEl.textContent = 'Failed to load console: ' + (e && e.message ? e.message : String(e));
+        errEl.textContent = "Failed to load console: " + (e && e.message ? e.message : String(e));
       }
     </script>
   </body>

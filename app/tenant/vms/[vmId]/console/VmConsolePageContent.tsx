@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useParams, useSearchParams } from 'next/navigation';
-import { Loader2, ArrowLeft } from 'lucide-react';
-import { VmConsole, type VmConsoleProtocol } from '@/components/ui/organisms/vm-console';
-import { apiGet } from '@/lib/api';
-import { useTenantId } from '@/lib/use-tenant-id';
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { VmConsole, type VmConsoleProtocol } from "@/components/ui/organisms/vm-console";
+import { apiGet } from "@/lib/api";
+import { useTenantId } from "@/lib/use-tenant-id";
 
 interface ConsoleSessionResponse {
   url?: string;
@@ -19,8 +19,8 @@ interface ConsoleSessionResponse {
 export function VmConsolePageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const vmId = typeof params.vmId === 'string' ? params.vmId : '';
-  const vmNameFromQuery = searchParams.get('name') ?? undefined;
+  const vmId = typeof params.vmId === "string" ? params.vmId : "";
+  const vmNameFromQuery = searchParams.get("name") ?? undefined;
   const { tenantId } = useTenantId();
 
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,7 @@ export function VmConsolePageContent() {
       const data = await apiGet<ConsoleSessionResponse>(path, { timeoutMs: 120_000 });
       setSession(data);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Failed to open console session');
+      setErr(e instanceof Error ? e.message : "Failed to open console session");
     } finally {
       setLoading(false);
     }
@@ -49,9 +49,9 @@ export function VmConsolePageContent() {
     }
   }, [tenantId, vmId, loadSession]);
 
-  const wsUrl = session?.url ? String(session.url) : '';
-  const protocol = (session?.console_type?.toUpperCase() ?? 'VNC') as VmConsoleProtocol;
-  const title = vmNameFromQuery ? `Console — ${vmNameFromQuery}` : 'VM console';
+  const wsUrl = session?.url ? String(session.url) : "";
+  const protocol = (session?.console_type?.toUpperCase() ?? "VNC") as VmConsoleProtocol;
+  const title = vmNameFromQuery ? `Console — ${vmNameFromQuery}` : "VM console";
 
   useEffect(() => {
     document.title = title;
@@ -103,13 +103,15 @@ export function VmConsolePageContent() {
           <VmConsole
             wsUrl={wsUrl}
             remotePassword={session.remote_password}
-            consoleType={protocol === 'SPICE' || protocol === 'SERIAL' ? protocol : 'VNC'}
+            consoleType={protocol === "SPICE" || protocol === "SERIAL" ? protocol : "VNC"}
             className="flex-1 flex flex-col min-h-0"
             iframeClassName="flex-1 min-h-[min(70vh,640px)] w-full rounded-lg border border-gray-700 bg-black"
           />
         )}
         {session?.expires_at && (
-          <p className="text-xs text-gray-500 shrink-0">Session expires: {new Date(session.expires_at).toLocaleString()}</p>
+          <p className="text-xs text-gray-500 shrink-0">
+            Session expires: {new Date(session.expires_at).toLocaleString()}
+          </p>
         )}
       </main>
     </div>

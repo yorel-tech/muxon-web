@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Modal } from '@/components/ui/molecules/modal';
-import { Button } from '@/components/ui/atoms/button';
+import { useEffect, useState } from "react";
+import { Modal } from "@/components/ui/molecules/modal";
+import { Button } from "@/components/ui/atoms/button";
 import {
   fetchDatacenterOptions,
   fetchTenantDatacenterGrants,
   grantDatacenterId,
   type TenantDatacenterGrantBrief,
-} from '@/lib/content-library-placement';
+} from "@/lib/content-library-placement";
 import {
   fetchStorageClassesForContentPublish,
   publishPlatformContentLibrary,
   publishTenantContentLibrary,
-} from '@/lib/api/content-library';
+} from "@/lib/api/content-library";
 
 export interface PublishToDatacenterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  scope: 'platform' | 'tenant';
+  scope: "platform" | "tenant";
   tenantId: string | null | undefined;
   libraryId: string;
   onPublished: () => void;
@@ -32,8 +32,8 @@ export function PublishToDatacenterModal({
   libraryId,
   onPublished,
 }: PublishToDatacenterModalProps) {
-  const [datacenterId, setDatacenterId] = useState('');
-  const [storageClassName, setStorageClassName] = useState('');
+  const [datacenterId, setDatacenterId] = useState("");
+  const [storageClassName, setStorageClassName] = useState("");
   const [options, setOptions] = useState<{ id: string; name: string }[]>([]);
   const [storageClasses, setStorageClasses] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,15 +43,15 @@ export function PublishToDatacenterModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    setDatacenterId('');
-    setStorageClassName('');
+    setDatacenterId("");
+    setStorageClassName("");
     setStorageClasses([]);
     setError(null);
     setSubmitting(false);
     setLoading(true);
     void (async () => {
       try {
-        if (scope === 'platform') {
+        if (scope === "platform") {
           setOptions(await fetchDatacenterOptions());
         } else if (tenantId) {
           const grants = await fetchTenantDatacenterGrants(tenantId);
@@ -66,7 +66,7 @@ export function PublishToDatacenterModal({
         }
       } catch {
         setOptions([]);
-        setError('Could not load datacenters.');
+        setError("Could not load datacenters.");
       } finally {
         setLoading(false);
       }
@@ -76,7 +76,7 @@ export function PublishToDatacenterModal({
   useEffect(() => {
     if (!isOpen || !datacenterId) {
       setStorageClasses([]);
-      setStorageClassName('');
+      setStorageClassName("");
       return;
     }
     setClassesLoading(true);
@@ -86,14 +86,14 @@ export function PublishToDatacenterModal({
         const names = await fetchStorageClassesForContentPublish(
           scope,
           datacenterId,
-          tenantId ?? undefined,
+          tenantId ?? undefined
         );
         setStorageClasses(names);
-        setStorageClassName((prev) => (prev && names.includes(prev) ? prev : names[0] ?? ''));
+        setStorageClassName((prev) => (prev && names.includes(prev) ? prev : (names[0] ?? "")));
       } catch {
         setStorageClasses([]);
-        setStorageClassName('');
-        setError('Could not load storage classes for this datacenter.');
+        setStorageClassName("");
+        setError("Could not load storage classes for this datacenter.");
       } finally {
         setClassesLoading(false);
       }
@@ -107,40 +107,40 @@ export function PublishToDatacenterModal({
 
   const handleSubmit = async () => {
     if (!datacenterId) {
-      setError('Select a datacenter.');
+      setError("Select a datacenter.");
       return;
     }
     if (!storageClassName) {
-      setError('Select a storage class.');
+      setError("Select a storage class.");
       return;
     }
     setSubmitting(true);
     setError(null);
     try {
-      if (scope === 'platform') {
+      if (scope === "platform") {
         await publishPlatformContentLibrary(libraryId, { datacenterId, storageClassName });
       } else {
-        if (!tenantId) throw new Error('Missing tenant');
+        if (!tenantId) throw new Error("Missing tenant");
         await publishTenantContentLibrary(tenantId, libraryId, { datacenterId, storageClassName });
       }
       onPublished();
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Publish failed');
+      setError(e instanceof Error ? e.message : "Publish failed");
     } finally {
       setSubmitting(false);
     }
   };
 
   const selectClass =
-    'w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100';
+    "w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100";
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Publish to datacenter" size="sm">
       <div className="space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Choose the datacenter and which of its storage classes should receive replicated artifacts (same paths as
-          content storage under each matching provider pool).
+          Choose the datacenter and which of its storage classes should receive replicated artifacts
+          (same paths as content storage under each matching provider pool).
         </p>
         {error && (
           <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
@@ -148,7 +148,10 @@ export function PublishToDatacenterModal({
           </div>
         )}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="pub-dc">
+          <label
+            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="pub-dc"
+          >
             Datacenter
           </label>
           <select
@@ -158,7 +161,7 @@ export function PublishToDatacenterModal({
             onChange={(e) => setDatacenterId(e.target.value)}
             disabled={loading}
           >
-            <option value="">{loading ? 'Loading…' : 'Select datacenter'}</option>
+            <option value="">{loading ? "Loading…" : "Select datacenter"}</option>
             {options.map((dc) => (
               <option key={dc.id} value={dc.id}>
                 {dc.name}
@@ -167,7 +170,10 @@ export function PublishToDatacenterModal({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="pub-sc">
+          <label
+            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="pub-sc"
+          >
             Storage class
           </label>
           <select
@@ -178,7 +184,11 @@ export function PublishToDatacenterModal({
             disabled={!datacenterId || classesLoading}
           >
             <option value="">
-              {!datacenterId ? 'Select datacenter first' : classesLoading ? 'Loading…' : 'Select storage class'}
+              {!datacenterId
+                ? "Select datacenter first"
+                : classesLoading
+                  ? "Loading…"
+                  : "Select storage class"}
             </option>
             {storageClasses.map((name) => (
               <option key={name} value={name}>
@@ -195,7 +205,7 @@ export function PublishToDatacenterModal({
             onClick={() => void handleSubmit()}
             disabled={submitting || !datacenterId || !storageClassName}
           >
-            {submitting ? 'Publishing…' : 'Publish'}
+            {submitting ? "Publishing…" : "Publish"}
           </Button>
         </div>
       </div>

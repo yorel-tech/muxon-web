@@ -104,7 +104,8 @@ export default function StorageClassForm({ storageClass, onClose }: StorageClass
       showClose
     >
       <p className="text-sm text-gray-600 mb-4">
-        Capability profile and optional constraints (OpenAPI StorageClassCreate / StorageClassUpdate).
+        Capability profile and optional constraints (OpenAPI StorageClassCreate /
+        StorageClassUpdate).
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">

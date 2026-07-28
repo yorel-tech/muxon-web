@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
-import { Modal } from '@/components/ui/molecules/modal';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { Textarea } from '@/components/ui/atoms/textarea';
-import { fetchTenantContentLibraries } from '@/lib/api/content-library';
-import { publishVmAsTemplate } from '@/lib/api/vm';
-import type { ContentLibraryRow } from '@/types/content-library';
+import { useEffect, useState, useCallback, useMemo } from "react";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
+import { Modal } from "@/components/ui/molecules/modal";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { Textarea } from "@/components/ui/atoms/textarea";
+import { fetchTenantContentLibraries } from "@/lib/api/content-library";
+import { publishVmAsTemplate } from "@/lib/api/vm";
+import type { ContentLibraryRow } from "@/types/content-library";
 
 export interface PublishTemplateModalProps {
   isOpen: boolean;
@@ -30,17 +30,17 @@ export function PublishTemplateModal({
 }: PublishTemplateModalProps) {
   const [libraries, setLibraries] = useState<ContentLibraryRow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [libraryId, setLibraryId] = useState('');
-  const [templateName, setTemplateName] = useState('');
-  const [description, setDescription] = useState('');
-  const [versionLabel, setVersionLabel] = useState('');
+  const [libraryId, setLibraryId] = useState("");
+  const [templateName, setTemplateName] = useState("");
+  const [description, setDescription] = useState("");
+  const [versionLabel, setVersionLabel] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ contentItemId?: string; libraryId: string } | null>(null);
 
   const ownedLibraries = useMemo(
     () => libraries.filter((l) => l.tenantId === tenantId),
-    [libraries, tenantId],
+    [libraries, tenantId]
   );
 
   const load = useCallback(async () => {
@@ -57,10 +57,10 @@ export function PublishTemplateModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    setTemplateName(vmName ? `${vmName}-template` : '');
-    setDescription('');
-    setVersionLabel('');
-    setLibraryId('');
+    setTemplateName(vmName ? `${vmName}-template` : "");
+    setDescription("");
+    setVersionLabel("");
+    setLibraryId("");
     setError(null);
     setResult(null);
     void load();
@@ -73,7 +73,7 @@ export function PublishTemplateModal({
 
   const handleSubmit = async () => {
     if (!libraryId || !templateName.trim()) {
-      setError('Library and template name are required.');
+      setError("Library and template name are required.");
       return;
     }
     setSubmitting(true);
@@ -91,19 +91,25 @@ export function PublishTemplateModal({
       });
       onSuccess();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Publish failed');
+      setError(e instanceof Error ? e.message : "Publish failed");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={`Publish as template — ${vmName}`} size="md">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={`Publish as template — ${vmName}`}
+      size="md"
+    >
       <div className="space-y-4">
         {result ? (
           <div className="space-y-3">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Template publishing was accepted. {result.contentItemId && `Content item: ${result.contentItemId}`}
+              Template publishing was accepted.{" "}
+              {result.contentItemId && `Content item: ${result.contentItemId}`}
             </p>
             <Link
               href={`/tenant/content-libraries/${result.libraryId}`}
@@ -173,8 +179,11 @@ export function PublishTemplateModal({
               <Button variant="secondary" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button onClick={() => void handleSubmit()} disabled={submitting || !libraryId || !templateName.trim()}>
-                {submitting ? 'Publishing…' : 'Publish'}
+              <Button
+                onClick={() => void handleSubmit()}
+                disabled={submitting || !libraryId || !templateName.trim()}
+              >
+                {submitting ? "Publishing…" : "Publish"}
               </Button>
             </div>
           </>

@@ -1,7 +1,7 @@
 // No 'use client' here is fine; we guard access to window.
 // If you prefer, you can add 'use client' at the top to force client-only.
 
-import { UserManager, WebStorageStateStore, Log } from 'oidc-client-ts';
+import { UserManager, WebStorageStateStore, Log } from "oidc-client-ts";
 
 let _manager: UserManager | null = null;
 
@@ -18,15 +18,15 @@ let _runtimeEnv: OidcEnv | null = null;
 
 /** Shown when required NEXT_PUBLIC_OIDC_* vars are missing or empty (restart dev server after editing .env.local). */
 export const OIDC_NOT_CONFIGURED_MESSAGE =
-  'OIDC is not configured. Copy web/.env.example to .env.local and set NEXT_PUBLIC_OIDC_AUTHORITY, NEXT_PUBLIC_OIDC_CLIENT_ID, NEXT_PUBLIC_OIDC_REDIRECT_URI, and NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI, then restart the dev server. If you already set these in .env.local, restart the dev server—Next.js only picks up changes to NEXT_PUBLIC_* when the dev server starts.';
+  "OIDC is not configured. Copy web/.env.example to .env.local and set NEXT_PUBLIC_OIDC_AUTHORITY, NEXT_PUBLIC_OIDC_CLIENT_ID, NEXT_PUBLIC_OIDC_REDIRECT_URI, and NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI, then restart the dev server. If you already set these in .env.local, restart the dev server—Next.js only picks up changes to NEXT_PUBLIC_* when the dev server starts.";
 
 function readOidcEnvFromProcess(): OidcEnv {
   return {
-    authority: (process.env.NEXT_PUBLIC_OIDC_AUTHORITY || '').trim(),
-    client_id: (process.env.NEXT_PUBLIC_OIDC_CLIENT_ID || '').trim(),
-    redirect_uri: (process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI || '').trim(),
-    post_logout_redirect_uri: (process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI || '').trim(),
-    scope: (process.env.NEXT_PUBLIC_OIDC_SCOPE || 'openid profile email').trim(),
+    authority: (process.env.NEXT_PUBLIC_OIDC_AUTHORITY || "").trim(),
+    client_id: (process.env.NEXT_PUBLIC_OIDC_CLIENT_ID || "").trim(),
+    redirect_uri: (process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI || "").trim(),
+    post_logout_redirect_uri: (process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI || "").trim(),
+    scope: (process.env.NEXT_PUBLIC_OIDC_SCOPE || "openid profile email").trim(),
   };
 }
 
@@ -40,7 +40,7 @@ function readOidcEnv(): OidcEnv {
  * NEXT_PUBLIC_* is missing in the browser bundle.
  */
 export async function fetchOidcConfigIfNeeded(): Promise<boolean> {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === "undefined") return false;
   if (_runtimeEnv) return isOidcConfigured();
   const fromProcess = readOidcEnvFromProcess();
   if (
@@ -52,7 +52,7 @@ export async function fetchOidcConfigIfNeeded(): Promise<boolean> {
     return true;
   }
   try {
-    const res = await fetch('/api/oidc-config', { cache: 'no-store' });
+    const res = await fetch("/api/oidc-config", { cache: "no-store" });
     if (!res.ok) return false;
     const j = (await res.json()) as {
       authority?: string;
@@ -62,11 +62,11 @@ export async function fetchOidcConfigIfNeeded(): Promise<boolean> {
       scope?: string;
     };
     _runtimeEnv = {
-      authority: (j.authority || '').trim(),
-      client_id: (j.clientId || '').trim(),
-      redirect_uri: (j.redirectUri || '').trim(),
-      post_logout_redirect_uri: (j.postLogoutRedirectUri || '').trim(),
-      scope: (j.scope || 'openid profile email').trim(),
+      authority: (j.authority || "").trim(),
+      client_id: (j.clientId || "").trim(),
+      redirect_uri: (j.redirectUri || "").trim(),
+      post_logout_redirect_uri: (j.postLogoutRedirectUri || "").trim(),
+      scope: (j.scope || "openid profile email").trim(),
     };
     _manager = null;
     return isOidcConfigured();
@@ -83,7 +83,7 @@ export function isOidcConfigured(): boolean {
 
 export function getUserManager(): UserManager | null {
   // Only construct in the browser
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
 
   if (!isOidcConfigured()) return null;
 
@@ -99,7 +99,7 @@ export function getUserManager(): UserManager | null {
     client_id,
     redirect_uri,
     post_logout_redirect_uri,
-    response_type: 'code',
+    response_type: "code",
     scope,
     // localStorage (not sessionStorage) so OIDC user/session is shared across tabs on the same origin.
     userStore: new WebStorageStateStore({ store: window.localStorage }),
@@ -118,7 +118,7 @@ export async function clearUserSession(): Promise<void> {
     try {
       await manager.removeUser();
     } catch (error) {
-      console.error('Error clearing user session:', error);
+      console.error("Error clearing user session:", error);
     }
   }
 }

@@ -1,5 +1,5 @@
-import { fetchOidcConfigIfNeeded, getUserManager } from '@/lib/oidc';
-import { apiGet, apiPost } from '@/lib/api';
+import { fetchOidcConfigIfNeeded, getUserManager } from "@/lib/oidc";
+import { apiGet, apiPost } from "@/lib/api";
 
 export const DEFAULT_CHUNK_SIZE = 64 * 1024 * 1024; // 64 MiB
 
@@ -16,7 +16,7 @@ export interface UploadSessionDto {
 }
 
 async function getBearerToken(): Promise<string | null> {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     await fetchOidcConfigIfNeeded();
   }
   const um = getUserManager();
@@ -30,15 +30,15 @@ async function getBearerToken(): Promise<string | null> {
 }
 
 function uploadBasePath(
-  scope: 'platform' | 'tenant',
+  scope: "platform" | "tenant",
   libraryId: string,
   itemId: string,
-  tenantId?: string,
+  tenantId?: string
 ): string {
-  if (scope === 'platform') {
+  if (scope === "platform") {
     return `/api/v1/platform/content-libraries/${libraryId}/items/${itemId}/uploads`;
   }
-  if (!tenantId) throw new Error('tenantId required for tenant-scoped upload');
+  if (!tenantId) throw new Error("tenantId required for tenant-scoped upload");
   return `/api/v1/tenants/${tenantId}/content-libraries/${libraryId}/items/${itemId}/uploads`;
 }
 
@@ -46,7 +46,7 @@ function uploadBasePath(
  * Initiate upload session (JSON). Backend may return 404 if upload API is not deployed.
  */
 export async function initiateUploadSession(
-  scope: 'platform' | 'tenant',
+  scope: "platform" | "tenant",
   libraryId: string,
   itemId: string,
   body: {
@@ -55,29 +55,29 @@ export async function initiateUploadSession(
     expectedChecksum: string;
     chunkSizeHint?: number;
   },
-  tenantId?: string,
+  tenantId?: string
 ): Promise<UploadSessionDto> {
   const base = uploadBasePath(scope, libraryId, itemId, tenantId);
   return apiPost<UploadSessionDto>(base, body);
 }
 
 export async function getUploadSession(
-  scope: 'platform' | 'tenant',
+  scope: "platform" | "tenant",
   libraryId: string,
   itemId: string,
   uploadId: string,
-  tenantId?: string,
+  tenantId?: string
 ): Promise<UploadSessionDto> {
   const base = uploadBasePath(scope, libraryId, itemId, tenantId);
   return apiGet<UploadSessionDto>(`${base}/${uploadId}`);
 }
 
 export async function completeUploadSession(
-  scope: 'platform' | 'tenant',
+  scope: "platform" | "tenant",
   libraryId: string,
   itemId: string,
   uploadId: string,
-  tenantId?: string,
+  tenantId?: string
 ): Promise<unknown> {
   const base = uploadBasePath(scope, libraryId, itemId, tenantId);
   return apiPost(`${base}/${uploadId}/complete`, {});
@@ -86,12 +86,12 @@ export async function completeUploadSession(
 export interface UploadProgress {
   uploadedBytes: number;
   totalSize: number;
-  phase: 'hashing' | 'uploading' | 'completing' | 'done' | 'error';
+  phase: "hashing" | "uploading" | "completing" | "done" | "error";
   message?: string;
 }
 
 export interface UploadFileInChunksOptions {
-  scope: 'platform' | 'tenant';
+  scope: "platform" | "tenant";
   libraryId: string;
   itemId: string;
   uploadId: string;
@@ -121,13 +121,13 @@ export async function uploadFileInChunks(options: UploadFileInChunksOptions): Pr
   } = options;
 
   const token = await getBearerToken();
-  if (!token) throw new Error('Authentication required for upload');
+  if (!token) throw new Error("Authentication required for upload");
 
   const base = uploadBasePath(scope, libraryId, itemId, tenantId);
   let uploaded = 0;
 
   while (uploaded < totalSize) {
-    if (signal?.aborted) throw new Error('Upload cancelled');
+    if (signal?.aborted) throw new Error("Upload cancelled");
     const end = Math.min(uploaded + chunkSize, totalSize) - 1;
     const blob = file.slice(uploaded, end + 1);
     const range = `bytes ${uploaded}-${end}/${totalSize}`;
@@ -135,16 +135,16 @@ export async function uploadFileInChunks(options: UploadFileInChunksOptions): Pr
     onProgress?.({
       uploadedBytes: uploaded,
       totalSize,
-      phase: 'uploading',
+      phase: "uploading",
       message: `Uploading ${uploaded}–${end + 1} of ${totalSize}`,
     });
 
     const res = await fetch(`${base}/${uploadId}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/octet-stream',
-        'Content-Range': range,
+        "Content-Type": "application/octet-stream",
+        "Content-Range": range,
       },
       body: blob,
       signal,
@@ -158,7 +158,7 @@ export async function uploadFileInChunks(options: UploadFileInChunksOptions): Pr
     }
 
     if (!res.ok) {
-      let detail = '';
+      let detail = "";
       try {
         detail = await res.text();
       } catch {
@@ -168,10 +168,10 @@ export async function uploadFileInChunks(options: UploadFileInChunksOptions): Pr
     }
 
     uploaded = end + 1;
-    onProgress?.({ uploadedBytes: uploaded, totalSize, phase: 'uploading' });
+    onProgress?.({ uploadedBytes: uploaded, totalSize, phase: "uploading" });
   }
 
-  onProgress?.({ uploadedBytes: totalSize, totalSize, phase: 'completing' });
+  onProgress?.({ uploadedBytes: totalSize, totalSize, phase: "completing" });
   await completeUploadSession(scope, libraryId, itemId, uploadId, tenantId);
-  onProgress?.({ uploadedBytes: totalSize, totalSize, phase: 'done' });
+  onProgress?.({ uploadedBytes: totalSize, totalSize, phase: "done" });
 }

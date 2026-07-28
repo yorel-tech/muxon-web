@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { motion } from 'framer-motion';
-import { Shield, Loader2 } from 'lucide-react';
-import { apiGet } from '@/lib/api';
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { motion } from "framer-motion";
+import { Shield, Loader2 } from "lucide-react";
+import { apiGet } from "@/lib/api";
 
 interface RoleRow {
   id: string;
@@ -22,12 +22,12 @@ export default function TenantRolesPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await apiGet<{ items?: RoleRow[] }>('/api/v1/roles');
-        const list = Array.isArray(data) ? data : data?.items ?? [];
+        const data = await apiGet<{ items?: RoleRow[] }>("/api/v1/roles");
+        const list = Array.isArray(data) ? data : (data?.items ?? []);
         setRoles(
           (list as RoleRow[]).map((r) => ({
-            id: String(r.id ?? r.name ?? ''),
-            name: String(r.name ?? r.id ?? ''),
+            id: String(r.id ?? r.name ?? ""),
+            name: String(r.name ?? r.id ?? ""),
             description: r.description,
             permissions: r.permissions ?? [],
           }))
@@ -43,22 +43,22 @@ export default function TenantRolesPage() {
 
   const columns: Column<RoleRow>[] = [
     {
-      key: 'name',
-      header: 'Role',
+      key: "name",
+      header: "Role",
+      cell: (row) => <div className="font-medium text-gray-900 dark:text-gray-100">{row.name}</div>,
+      sortable: true,
+    },
+    {
+      key: "description",
+      header: "Description",
       cell: (row) => (
-        <div className="font-medium text-gray-900 dark:text-gray-100">{row.name}</div>
+        <span className="text-gray-600 dark:text-gray-400 text-sm">{row.description ?? "—"}</span>
       ),
       sortable: true,
     },
     {
-      key: 'description',
-      header: 'Description',
-      cell: (row) => <span className="text-gray-600 dark:text-gray-400 text-sm">{row.description ?? '—'}</span>,
-      sortable: true,
-    },
-    {
-      key: 'permissions',
-      header: 'Permissions',
+      key: "permissions",
+      header: "Permissions",
       cell: (row) => (
         <div className="flex flex-wrap gap-1">
           {(row.permissions ?? []).length === 0 ? (

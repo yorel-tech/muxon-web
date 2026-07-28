@@ -30,17 +30,17 @@ export function openWebSocketWithRetry(
     const tryConnect = () => {
       attempt += 1;
       const ws = new WebSocket(url);
-      ws.binaryType = 'arraybuffer';
+      ws.binaryType = "arraybuffer";
 
       const onOpen = () => {
-        ws.removeEventListener('open', onOpen);
-        ws.removeEventListener('error', onError);
+        ws.removeEventListener("open", onOpen);
+        ws.removeEventListener("error", onError);
         resolve(ws);
       };
 
       const onError = () => {
-        ws.removeEventListener('open', onOpen);
-        ws.removeEventListener('error', onError);
+        ws.removeEventListener("open", onOpen);
+        ws.removeEventListener("error", onError);
         ws.close();
         if (attempt >= maxAttempts) {
           reject(new Error(`WebSocket failed after ${maxAttempts} attempts`));
@@ -52,8 +52,8 @@ export function openWebSocketWithRetry(
         });
       };
 
-      ws.addEventListener('open', onOpen);
-      ws.addEventListener('error', onError);
+      ws.addEventListener("open", onOpen);
+      ws.addEventListener("error", onError);
     };
 
     tryConnect();

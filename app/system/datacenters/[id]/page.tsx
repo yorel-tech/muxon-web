@@ -1,26 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect, use } from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowLeft,
-  Loader2,
-  Pencil,
-  Settings,
-  FileText,
-  Server,
-  X,
-} from 'lucide-react';
-import { apiGet, apiPut, executeLinkAction } from '@/lib/api';
-import { findLink, normalizeEntityLinks } from '@/lib/hateoas';
-import { DetailRow, formatDetailDate } from '@/components/entity-detail/DetailRow';
-import { Tabs } from '@/components/ui/molecules/tabs';
-import type { Link as HateoasLink } from '@/types/provider';
+import { useState, useEffect, use } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Loader2, Pencil, Settings, FileText, Server, X } from "lucide-react";
+import { apiGet, apiPut, executeLinkAction } from "@/lib/api";
+import { findLink, normalizeEntityLinks } from "@/lib/hateoas";
+import { DetailRow, formatDetailDate } from "@/components/entity-detail/DetailRow";
+import { Tabs } from "@/components/ui/molecules/tabs";
+import type { Link as HateoasLink } from "@/types/provider";
 
 interface DatacenterDetail {
   id: string;
@@ -51,33 +43,29 @@ interface DatacenterDetail {
   _links?: HateoasLink[];
 }
 
-export default function DatacenterDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function DatacenterDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const searchParams = useSearchParams();
-  const fromTenant = searchParams.get('from') === 'tenant';
-  const tenantId = searchParams.get('tenantId');
+  const fromTenant = searchParams.get("from") === "tenant";
+  const tenantId = searchParams.get("tenantId");
   const backToTenant = fromTenant && tenantId;
   const [datacenter, setDatacenter] = useState<DatacenterDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [editModal, setEditModal] = useState<'general' | 'settings' | 'metadata' | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [editVmClasses, setEditVmClasses] = useState('');
-  const [editStorageClasses, setEditStorageClasses] = useState('');
-  const [editNetworkDomains, setEditNetworkDomains] = useState('');
-  const [editProviderSpecificSettings, setEditProviderSpecificSettings] = useState('');
+  const [editModal, setEditModal] = useState<"general" | "settings" | "metadata" | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editVmClasses, setEditVmClasses] = useState("");
+  const [editStorageClasses, setEditStorageClasses] = useState("");
+  const [editNetworkDomains, setEditNetworkDomains] = useState("");
+  const [editProviderSpecificSettings, setEditProviderSpecificSettings] = useState("");
   const [editMetadata, setEditMetadata] = useState<{ key: string; value: string }[]>([]);
 
   const links = normalizeEntityLinks(datacenter ?? {});
-  const editLink = findLink(links, 'edit');
-  const replaceSettingsLink = findLink(links, 'replaceSettings');
-  const updateMetadataLink = findLink(links, 'updateMetadata');
+  const editLink = findLink(links, "edit");
+  const replaceSettingsLink = findLink(links, "replaceSettings");
+  const updateMetadataLink = findLink(links, "updateMetadata");
   // If backend doesn't return replaceSettings/updateMetadata, allow Edit when general edit is allowed (same permission)
   const canEditSettings = replaceSettingsLink?.enabled ?? editLink?.enabled ?? false;
   const canEditMetadata = updateMetadataLink?.enabled ?? editLink?.enabled ?? false;
@@ -92,7 +80,7 @@ export default function DatacenterDetailPage({
         if (!cancelled) setDatacenter(data as DatacenterDetail);
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load datacenter');
+          setError(e instanceof Error ? e.message : "Failed to load datacenter");
           setDatacenter(null);
         }
       } finally {
@@ -116,7 +104,7 @@ export default function DatacenterDetailPage({
 
   const handleEditGeneral = async () => {
     if (!editLink || !datacenter) return;
-    setActionLoading('edit');
+    setActionLoading("edit");
     try {
       await executeLinkAction(editLink, {
         name: editName,
@@ -127,7 +115,7 @@ export default function DatacenterDetailPage({
       setEditModal(null);
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Update failed');
+      alert(e instanceof Error ? e.message : "Update failed");
     } finally {
       setActionLoading(null);
     }
@@ -135,32 +123,37 @@ export default function DatacenterDetailPage({
 
   const handleReplaceSettings = async () => {
     if (!canEditSettings) return;
-    setActionLoading('settings');
+    setActionLoading("settings");
     try {
       const vmClasses = editVmClasses
-        .split(',')
+        .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
       const storageClasses = editStorageClasses
-        .split(',')
+        .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
       const networkDomains = editNetworkDomains
-        .split(',')
+        .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
       let providerSpecificSettings: Record<string, unknown> = {};
       if (editProviderSpecificSettings.trim()) {
         try {
-          providerSpecificSettings = JSON.parse(editProviderSpecificSettings) as Record<string, unknown>;
+          providerSpecificSettings = JSON.parse(editProviderSpecificSettings) as Record<
+            string,
+            unknown
+          >;
         } catch {
-          alert('Provider-specific settings must be valid JSON');
+          alert("Provider-specific settings must be valid JSON");
           setActionLoading(null);
           return;
         }
       }
       const payload = {
-        ...(datacenter?.settings?.providerType != null && { providerType: datacenter.settings.providerType }),
+        ...(datacenter?.settings?.providerType != null && {
+          providerType: datacenter.settings.providerType,
+        }),
         vmClasses,
         storageClasses,
         networkDomains,
@@ -174,7 +167,7 @@ export default function DatacenterDetailPage({
       setEditModal(null);
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Update failed');
+      alert(e instanceof Error ? e.message : "Update failed");
     } finally {
       setActionLoading(null);
     }
@@ -182,7 +175,7 @@ export default function DatacenterDetailPage({
 
   const handleUpdateMetadata = async () => {
     if (!canEditMetadata) return;
-    setActionLoading('metadata');
+    setActionLoading("metadata");
     try {
       const payload: Record<string, string> = {};
       editMetadata.forEach(({ key, value }) => {
@@ -196,29 +189,29 @@ export default function DatacenterDetailPage({
       setEditModal(null);
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Update failed');
+      alert(e instanceof Error ? e.message : "Update failed");
     } finally {
       setActionLoading(null);
     }
   };
 
   const openEditGeneral = () => {
-    setEditName(datacenter?.name ?? '');
-    setEditDescription(datacenter?.description ?? '');
-    setEditModal('general');
+    setEditName(datacenter?.name ?? "");
+    setEditDescription(datacenter?.description ?? "");
+    setEditModal("general");
   };
 
   const openEditSettings = () => {
     const s = datacenter?.settings ?? {};
-    setEditVmClasses(Array.isArray(s.vmClasses) ? s.vmClasses.join(', ') : '');
-    setEditStorageClasses(Array.isArray(s.storageClasses) ? s.storageClasses.join(', ') : '');
-    setEditNetworkDomains(Array.isArray(s.networkDomains) ? s.networkDomains.join(', ') : '');
+    setEditVmClasses(Array.isArray(s.vmClasses) ? s.vmClasses.join(", ") : "");
+    setEditStorageClasses(Array.isArray(s.storageClasses) ? s.storageClasses.join(", ") : "");
+    setEditNetworkDomains(Array.isArray(s.networkDomains) ? s.networkDomains.join(", ") : "");
     setEditProviderSpecificSettings(
       s.providerSpecificSettings && Object.keys(s.providerSpecificSettings).length > 0
         ? JSON.stringify(s.providerSpecificSettings, null, 2)
-        : '{}'
+        : "{}"
     );
-    setEditModal('settings');
+    setEditModal("settings");
   };
 
   const openEditMetadata = () => {
@@ -226,9 +219,9 @@ export default function DatacenterDetailPage({
     setEditMetadata(
       Object.keys(meta).length
         ? Object.entries(meta).map(([key, value]) => ({ key, value }))
-        : [{ key: '', value: '' }]
+        : [{ key: "", value: "" }]
     );
-    setEditModal('metadata');
+    setEditModal("metadata");
   };
 
   if (loading) {
@@ -243,16 +236,20 @@ export default function DatacenterDetailPage({
     return (
       <div className="min-h-screen bg-app px-3 py-8">
         <Link
-          href={backToTenant ? `/system/tenants/${tenantId}?tab=datacenters` : '/system/datacenters'}
+          href={
+            backToTenant ? `/system/tenants/${tenantId}?tab=datacenters` : "/system/datacenters"
+          }
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
         >
           <ArrowLeft size={20} />
-          {backToTenant ? 'Back to Tenant' : 'Back to Datacenters'}
+          {backToTenant ? "Back to Tenant" : "Back to Datacenters"}
         </Link>
         <Card>
           <CardContent className="p-8 text-center">
-            <p className="text-red-600">{error ?? 'Datacenter not found'}</p>
-            <p className="text-sm text-gray-500 mt-2">The requested datacenter may not exist or you may not have access.</p>
+            <p className="text-red-600">{error ?? "Datacenter not found"}</p>
+            <p className="text-sm text-gray-500 mt-2">
+              The requested datacenter may not exist or you may not have access.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -272,11 +269,15 @@ export default function DatacenterDetailPage({
           className="mb-6"
         >
           <Link
-            href={backToTenant ? `/system/tenants/${tenantId}?tab=datacenters` : '/system/datacenters'}
+            href={
+              backToTenant ? `/system/tenants/${tenantId}?tab=datacenters` : "/system/datacenters"
+            }
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft size={20} />
-            <span className="font-medium">{backToTenant ? 'Back to Tenant' : 'Back to Datacenters'}</span>
+            <span className="font-medium">
+              {backToTenant ? "Back to Tenant" : "Back to Datacenters"}
+            </span>
           </Link>
         </motion.div>
 
@@ -287,9 +288,7 @@ export default function DatacenterDetailPage({
           className="mb-6"
         >
           <h1 className="text-2xl font-bold text-gray-900">{datacenter.name}</h1>
-          {datacenter.description && (
-            <p className="text-gray-600 mt-1">{datacenter.description}</p>
-          )}
+          {datacenter.description && <p className="text-gray-600 mt-1">{datacenter.description}</p>}
         </motion.div>
 
         <Tabs
@@ -297,8 +296,8 @@ export default function DatacenterDetailPage({
           defaultTab="general"
           tabs={[
             {
-              id: 'general',
-              label: 'General',
+              id: "general",
+              label: "General",
               icon: <Server className="h-4 w-4" />,
               content: (
                 <Card bordered>
@@ -323,19 +322,34 @@ export default function DatacenterDetailPage({
                       <DetailRow label="Created" value={formatDetailDate(datacenter.createdAt)} />
                       <DetailRow label="Updated" value={formatDetailDate(datacenter.updatedAt)} />
                       {datacenter.nodeCluster && (
-                        <DetailRow label="Node cluster" value={datacenter.nodeCluster.name ?? datacenter.nodeCluster.id} />
+                        <DetailRow
+                          label="Node cluster"
+                          value={datacenter.nodeCluster.name ?? datacenter.nodeCluster.id}
+                        />
                       )}
                       <DetailRow
                         label="Capacity (CPUs)"
-                        value={cap.totalCpus != null ? `${cap.usedCpus ?? 0} / ${cap.totalCpus} (avail. ${cap.availableCpus ?? '—'})` : '—'}
+                        value={
+                          cap.totalCpus != null
+                            ? `${cap.usedCpus ?? 0} / ${cap.totalCpus} (avail. ${cap.availableCpus ?? "—"})`
+                            : "—"
+                        }
                       />
                       <DetailRow
                         label="Memory (GB)"
-                        value={cap.totalMemoryGb != null ? `${cap.usedMemoryGb ?? 0} / ${cap.totalMemoryGb} (avail. ${cap.availableMemoryGb ?? '—'})` : '—'}
+                        value={
+                          cap.totalMemoryGb != null
+                            ? `${cap.usedMemoryGb ?? 0} / ${cap.totalMemoryGb} (avail. ${cap.availableMemoryGb ?? "—"})`
+                            : "—"
+                        }
                       />
                       <DetailRow
                         label="Storage (GB)"
-                        value={cap.totalStorageGb != null ? `${cap.usedStorageGb ?? 0} / ${cap.totalStorageGb} (avail. ${cap.availableStorageGb ?? '—'})` : '—'}
+                        value={
+                          cap.totalStorageGb != null
+                            ? `${cap.usedStorageGb ?? 0} / ${cap.totalStorageGb} (avail. ${cap.availableStorageGb ?? "—"})`
+                            : "—"
+                        }
                       />
                     </div>
                   </CardContent>
@@ -343,8 +357,8 @@ export default function DatacenterDetailPage({
               ),
             },
             {
-              id: 'settings',
-              label: 'Settings',
+              id: "settings",
+              label: "Settings",
               icon: <Settings className="h-4 w-4" />,
               content: (
                 <Card bordered>
@@ -354,7 +368,11 @@ export default function DatacenterDetailPage({
                       variant="secondary"
                       size="sm"
                       disabled={!canEditSettings}
-                      title={!canEditSettings ? (replaceSettingsLink?.reason ?? editLink?.reason) : undefined}
+                      title={
+                        !canEditSettings
+                          ? (replaceSettingsLink?.reason ?? editLink?.reason)
+                          : undefined
+                      }
                       onClick={openEditSettings}
                     >
                       <Pencil className="h-4 w-4 mr-1" />
@@ -364,23 +382,41 @@ export default function DatacenterDetailPage({
                   <CardContent className="pt-2">
                     <div className="space-y-0">
                       <DetailRow label="Provider type" value={settings.providerType} />
-                      <DetailRow label="VM classes" value={settings.vmClasses?.length ? settings.vmClasses.join(', ') : '—'} />
-                      <DetailRow label="Storage classes" value={settings.storageClasses?.length ? settings.storageClasses.join(', ') : '—'} />
-                      <DetailRow label="Network domains" value={settings.networkDomains?.length ? settings.networkDomains.join(', ') : '—'} />
-                      {settings.providerSpecificSettings && Object.keys(settings.providerSpecificSettings).length > 0 && (
-                        <DetailRow
-                          label="Provider-specific"
-                          value={<pre className="text-xs bg-gray-50 p-2 rounded overflow-auto max-h-32">{JSON.stringify(settings.providerSpecificSettings, null, 2)}</pre>}
-                        />
-                      )}
+                      <DetailRow
+                        label="VM classes"
+                        value={settings.vmClasses?.length ? settings.vmClasses.join(", ") : "—"}
+                      />
+                      <DetailRow
+                        label="Storage classes"
+                        value={
+                          settings.storageClasses?.length ? settings.storageClasses.join(", ") : "—"
+                        }
+                      />
+                      <DetailRow
+                        label="Network domains"
+                        value={
+                          settings.networkDomains?.length ? settings.networkDomains.join(", ") : "—"
+                        }
+                      />
+                      {settings.providerSpecificSettings &&
+                        Object.keys(settings.providerSpecificSettings).length > 0 && (
+                          <DetailRow
+                            label="Provider-specific"
+                            value={
+                              <pre className="text-xs bg-gray-50 p-2 rounded overflow-auto max-h-32">
+                                {JSON.stringify(settings.providerSpecificSettings, null, 2)}
+                              </pre>
+                            }
+                          />
+                        )}
                     </div>
                   </CardContent>
                 </Card>
               ),
             },
             {
-              id: 'metadata',
-              label: 'Metadata',
+              id: "metadata",
+              label: "Metadata",
               icon: <FileText className="h-4 w-4" />,
               content: (
                 <Card bordered>
@@ -390,7 +426,11 @@ export default function DatacenterDetailPage({
                       variant="secondary"
                       size="sm"
                       disabled={!canEditMetadata}
-                      title={!canEditMetadata ? (updateMetadataLink?.reason ?? editLink?.reason) : undefined}
+                      title={
+                        !canEditMetadata
+                          ? (updateMetadataLink?.reason ?? editLink?.reason)
+                          : undefined
+                      }
                       onClick={openEditMetadata}
                     >
                       <Pencil className="h-4 w-4 mr-1" />
@@ -417,7 +457,7 @@ export default function DatacenterDetailPage({
 
       {/* Edit modals */}
       <AnimatePresence>
-        {editModal === 'general' && (
+        {editModal === "general" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -434,7 +474,10 @@ export default function DatacenterDetailPage({
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit datacenter</h3>
-                <button onClick={() => setEditModal(null)} className="p-1 rounded hover:bg-gray-100">
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -448,7 +491,9 @@ export default function DatacenterDetailPage({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
                   <Input
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
@@ -462,20 +507,16 @@ export default function DatacenterDetailPage({
                 </Button>
                 <Button
                   onClick={handleEditGeneral}
-                  disabled={actionLoading === 'edit' || !editName.trim()}
+                  disabled={actionLoading === "edit" || !editName.trim()}
                 >
-                  {actionLoading === 'edit' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Save'
-                  )}
+                  {actionLoading === "edit" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
                 </Button>
               </div>
             </motion.div>
           </motion.div>
         )}
 
-        {editModal === 'settings' && (
+        {editModal === "settings" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -492,13 +533,18 @@ export default function DatacenterDetailPage({
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit datacenter settings</h3>
-                <button onClick={() => setEditModal(null)} className="p-1 rounded hover:bg-gray-100">
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
                   <X className="h-5 w-5" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">VM classes (comma-separated)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    VM classes (comma-separated)
+                  </label>
                   <Input
                     value={editVmClasses}
                     onChange={(e) => setEditVmClasses(e.target.value)}
@@ -506,7 +552,9 @@ export default function DatacenterDetailPage({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Storage classes (comma-separated)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Storage classes (comma-separated)
+                  </label>
                   <Input
                     value={editStorageClasses}
                     onChange={(e) => setEditStorageClasses(e.target.value)}
@@ -514,7 +562,9 @@ export default function DatacenterDetailPage({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Network domains (comma-separated)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Network domains (comma-separated)
+                  </label>
                   <Input
                     value={editNetworkDomains}
                     onChange={(e) => setEditNetworkDomains(e.target.value)}
@@ -522,7 +572,9 @@ export default function DatacenterDetailPage({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Provider-specific settings (JSON)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Provider-specific settings (JSON)
+                  </label>
                   <textarea
                     className="w-full min-h-[120px] px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-mono"
                     value={editProviderSpecificSettings}
@@ -536,11 +588,11 @@ export default function DatacenterDetailPage({
                 <Button variant="secondary" onClick={() => setEditModal(null)}>
                   Cancel
                 </Button>
-                <Button onClick={handleReplaceSettings} disabled={actionLoading === 'settings'}>
-                  {actionLoading === 'settings' ? (
+                <Button onClick={handleReplaceSettings} disabled={actionLoading === "settings"}>
+                  {actionLoading === "settings" ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    'Save'
+                    "Save"
                   )}
                 </Button>
               </div>
@@ -548,7 +600,7 @@ export default function DatacenterDetailPage({
           </motion.div>
         )}
 
-        {editModal === 'metadata' && (
+        {editModal === "metadata" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -565,7 +617,10 @@ export default function DatacenterDetailPage({
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Update metadata</h3>
-                <button onClick={() => setEditModal(null)} className="p-1 rounded hover:bg-gray-100">
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -595,9 +650,7 @@ export default function DatacenterDetailPage({
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={() =>
-                        setEditMetadata((prev) => prev.filter((_, j) => j !== i))
-                      }
+                      onClick={() => setEditMetadata((prev) => prev.filter((_, j) => j !== i))}
                       disabled={editMetadata.length <= 1}
                     >
                       Remove
@@ -607,7 +660,7 @@ export default function DatacenterDetailPage({
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => setEditMetadata((prev) => [...prev, { key: '', value: '' }])}
+                  onClick={() => setEditMetadata((prev) => [...prev, { key: "", value: "" }])}
                 >
                   Add row
                 </Button>
@@ -616,11 +669,11 @@ export default function DatacenterDetailPage({
                 <Button variant="secondary" onClick={() => setEditModal(null)}>
                   Cancel
                 </Button>
-                <Button onClick={handleUpdateMetadata} disabled={actionLoading === 'metadata'}>
-                  {actionLoading === 'metadata' ? (
+                <Button onClick={handleUpdateMetadata} disabled={actionLoading === "metadata"}>
+                  {actionLoading === "metadata" ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    'Update metadata'
+                    "Update metadata"
                   )}
                 </Button>
               </div>

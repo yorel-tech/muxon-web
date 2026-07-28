@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * VM console open (GET) blocks on core-services while it polls queue_entry for orchestrator
@@ -6,9 +6,9 @@ import { NextRequest, NextResponse } from 'next/server';
  * Next.js fallback rewrites use a short-lived proxy that can ECONNRESET ("socket hang up") on this path.
  * This route handler proxies explicitly with a long upstream timeout.
  */
-const BACKEND_API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8080';
+const BACKEND_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080";
 
-/** Must exceed core-services infron.console.resolve-timeout-seconds (default 90) plus slack. */
+/** Must exceed core-services muxon.console.resolve-timeout-seconds (default 90) plus slack. */
 const UPSTREAM_TIMEOUT_MS = 120_000;
 
 export async function GET(
@@ -18,34 +18,34 @@ export async function GET(
   const { tenantId, vmId } = await params;
   const backendUrl = `${BACKEND_API_BASE}/api/v1/tenants/${tenantId}/vms/${vmId}/console`;
 
-  const authHeader = request.headers.get('authorization');
-  const cookieHeader = request.headers.get('cookie');
+  const authHeader = request.headers.get("authorization");
+  const cookieHeader = request.headers.get("cookie");
   const headers: HeadersInit = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+    Accept: "application/json",
+    "Content-Type": "application/json",
   };
   if (authHeader) {
-    headers['Authorization'] = authHeader;
+    headers["Authorization"] = authHeader;
   }
   if (cookieHeader) {
-    headers['Cookie'] = cookieHeader;
+    headers["Cookie"] = cookieHeader;
   }
 
   try {
     const response = await fetch(backendUrl, {
-      method: 'GET',
+      method: "GET",
       headers,
-      cache: 'no-store',
+      cache: "no-store",
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
 
-    const contentType = response.headers.get('content-type') || 'application/json';
+    const contentType = response.headers.get("content-type") || "application/json";
     const body = await response.arrayBuffer();
 
     return new NextResponse(body, {
       status: response.status,
       headers: {
-        'Content-Type': contentType,
+        "Content-Type": contentType,
       },
     });
   } catch (error) {
@@ -56,7 +56,7 @@ export async function GET(
     );
     return NextResponse.json(
       {
-        code: 'CONSOLE_PROXY_ERROR',
+        code: "CONSOLE_PROXY_ERROR",
         message: `Failed to reach API for VM console: ${message}`,
       },
       { status: 502 }

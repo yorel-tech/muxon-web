@@ -1,14 +1,12 @@
 const apiBase =
-  process.env.NEXT_PUBLIC_API_BASE ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  'http://localhost:8080';
+  process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default {
   reactStrictMode: true,
   experimental: {
     // Proxied PUT uploads use up to 64 MiB per chunk (see lib/chunked-upload.ts).
     // Next defaults to 10MB and truncates the body, which breaks the backend stream.
-    middlewareClientMaxBodySize: '128mb',
+    middlewareClientMaxBodySize: "128mb",
   },
   async rewrites() {
     // Use fallback so explicit app/api Route Handlers win; anything else under
@@ -18,23 +16,23 @@ export default {
     return {
       fallback: [
         {
-          source: '/api/v1/:path*',
+          source: "/api/v1/:path*",
           destination: `${apiBase}/api/v1/:path*`,
         },
         {
-          source: '/swagger-ui',
+          source: "/swagger-ui",
           destination: `${apiBase}/swagger-ui.html`,
         },
         {
-          source: '/swagger-ui/:path*',
+          source: "/swagger-ui/:path*",
           destination: `${apiBase}/swagger-ui/:path*`,
         },
         {
-          source: '/v3/api-docs',
+          source: "/v3/api-docs",
           destination: `${apiBase}/v3/api-docs`,
         },
         {
-          source: '/v3/api-docs/:path*',
+          source: "/v3/api-docs/:path*",
           destination: `${apiBase}/v3/api-docs/:path*`,
         },
       ],
@@ -43,19 +41,19 @@ export default {
   async headers() {
     return [
       {
-        source: '/api/(.*)',
+        source: "/api/(.*)",
         headers: [
           {
-            key: 'Access-Control-Allow-Origin',
-            value: 'http://localhost:8080',
+            key: "Access-Control-Allow-Origin",
+            value: "http://localhost:8080",
           },
           {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, PATCH, OPTIONS",
           },
           {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
           },
         ],
       },

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { forwardRef, useRef, useState } from 'react';
-import { Bell, ChevronDown, LogOut, Settings, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/auth-context';
-import { BrandMark } from '@/components/BrandMark';
-import { useOnClickOutside } from '@/lib/use-on-click-outside';
+import { AnimatePresence, motion } from "framer-motion";
+import { forwardRef, useRef, useState } from "react";
+import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { BrandMark } from "@/components/BrandMark";
+import { useOnClickOutside } from "@/lib/use-on-click-outside";
 
 export interface HeaderProps {
   /** Optional slot rendered between the logo and the right-side actions (e.g. a tenant switcher). */
@@ -18,12 +18,15 @@ export interface HeaderProps {
 }
 
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(
-  ({ tenantSwitcher, notifications = 0, onSettingsClick, onLogout, className = '' }: HeaderProps, ref) => {
+  (
+    { tenantSwitcher, notifications = 0, onSettingsClick, onLogout, className = "" }: HeaderProps,
+    ref
+  ) => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const { isAuthenticated, user } = useAuth();
     const userMenuRef = useRef<HTMLDivElement>(null);
     const canShowUserMenu = isAuthenticated || Boolean(onSettingsClick) || Boolean(onLogout);
-    const userDisplayName = user?.name ?? 'User';
+    const userDisplayName = user?.name ?? "User";
 
     useOnClickOutside(userMenuRef, () => setIsUserMenuOpen(false));
 
@@ -31,8 +34,8 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
       <header
         ref={ref}
         className={cn(
-          'h-16 flex items-center bg-primary-300 border-b border-primary-400',
-          className,
+          "h-16 flex items-center bg-primary-300 border-b border-primary-400",
+          className
         )}
       >
         <div className="flex items-center justify-between w-full px-4">
@@ -40,13 +43,11 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
           <div className="flex items-center gap-5">
             <div className="flex h-10 items-center gap-3 shrink-0">
               <BrandMark size={32} className="h-8 w-8 rounded-md" />
-              <span className="text-xl font-bold text-[color:var(--text-primary)] whitespace-nowrap">infron</span>
+              <span className="text-xl font-bold text-[color:var(--text-primary)] whitespace-nowrap">
+                muxon
+              </span>
             </div>
-            {tenantSwitcher && (
-              <div className="ml-4 flex h-10 items-center">
-                {tenantSwitcher}
-              </div>
-            )}
+            {tenantSwitcher && <div className="ml-4 flex h-10 items-center">{tenantSwitcher}</div>}
           </div>
 
           {/* Right: Notifications + User menu */}
@@ -59,7 +60,7 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
               <Bell size={20} strokeWidth={2.5} />
               {notifications > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-red-500 rounded-full text-xs font-medium text-white flex items-center justify-center">
-                  {notifications > 99 ? '99+' : notifications}
+                  {notifications > 99 ? "99+" : notifications}
                 </span>
               )}
             </button>
@@ -100,20 +101,29 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
                     >
                       {user?.email && (
                         <div className="px-4 py-2 border-b border-panel">
-                          <p className="text-xs font-medium text-[color:var(--text-primary)] truncate">{userDisplayName}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                          <p className="text-xs font-medium text-[color:var(--text-primary)] truncate">
+                            {userDisplayName}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {user?.email}
+                          </p>
                         </div>
                       )}
                       <button
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-[color:var(--text-primary)] hover:bg-sidebar-hover transition-colors"
-                        onClick={() => { setIsUserMenuOpen(false); }}
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                        }}
                       >
                         <User size={15} />
                         Profile
                       </button>
                       <button
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-[color:var(--text-primary)] hover:bg-sidebar-hover transition-colors"
-                        onClick={() => { setIsUserMenuOpen(false); onSettingsClick?.(); }}
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          onSettingsClick?.();
+                        }}
                       >
                         <Settings size={15} />
                         Settings
@@ -121,7 +131,10 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
                       <div className="border-t border-panel my-1" />
                       <button
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        onClick={() => { setIsUserMenuOpen(false); onLogout?.(); }}
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          onLogout?.();
+                        }}
                       >
                         <LogOut size={15} />
                         Logout
@@ -138,4 +151,4 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
   }
 );
 
-Header.displayName = 'Header';
+Header.displayName = "Header";

@@ -34,8 +34,7 @@ export default function StorageClassList({ onEdit, filterQuery = "" }: StorageCl
   const filtered = q
     ? storageClasses.filter(
         (sc) =>
-          sc.name.toLowerCase().includes(q) ||
-          (sc.description ?? "").toLowerCase().includes(q),
+          sc.name.toLowerCase().includes(q) || (sc.description ?? "").toLowerCase().includes(q)
       )
     : storageClasses;
 
@@ -90,7 +89,13 @@ export default function StorageClassList({ onEdit, filterQuery = "" }: StorageCl
                 </CardDescription>
               </div>
               <div className="flex gap-1 shrink-0">
-                <Button variant="ghost" size="sm" className="!p-2" onClick={() => onEdit(sc)} aria-label="Edit">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="!p-2"
+                  onClick={() => onEdit(sc)}
+                  aria-label="Edit"
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button

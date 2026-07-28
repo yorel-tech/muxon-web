@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Loader2, Plus } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Button } from '@/components/ui/atoms/button';
-import { CreateTenantContentLibraryModal } from '@/components/content-library/CreateTenantContentLibraryModal';
-import { fetchTenantContentLibraries } from '@/lib/api/content-library';
-import type { ContentLibraryRow } from '@/types/content-library';
-import { isPlatformContentLibrary } from '@/types/content-library';
-import { formatDetailDate } from '@/components/entity-detail/DetailRow';
-import { useTenantId } from '@/lib/use-tenant-id';
+import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Loader2, Plus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Button } from "@/components/ui/atoms/button";
+import { CreateTenantContentLibraryModal } from "@/components/content-library/CreateTenantContentLibraryModal";
+import { fetchTenantContentLibraries } from "@/lib/api/content-library";
+import type { ContentLibraryRow } from "@/types/content-library";
+import { isPlatformContentLibrary } from "@/types/content-library";
+import { formatDetailDate } from "@/components/entity-detail/DetailRow";
+import { useTenantId } from "@/lib/use-tenant-id";
 
 export default function TenantContentLibrariesPage() {
   const { tenantId } = useTenantId();
@@ -44,8 +44,8 @@ export default function TenantContentLibrariesPage() {
 
   const columns: Column<ContentLibraryRow>[] = [
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row) => (
         <Link
           href={`/tenant/content-libraries/${row.id}`}
@@ -57,56 +57,68 @@ export default function TenantContentLibrariesPage() {
       sortable: true,
     },
     {
-      key: 'source',
-      header: 'Source',
+      key: "source",
+      header: "Source",
       cell: (row) => {
         const owned = !!(tenantId && row.tenantId === tenantId);
         const platform = isPlatformContentLibrary(row);
         return (
-          <Badge variant={owned ? 'success' : 'secondary'}>
-            {platform ? 'Platform (read-only)' : owned ? 'Your library' : '—'}
+          <Badge variant={owned ? "success" : "secondary"}>
+            {platform ? "Platform (read-only)" : owned ? "Your library" : "—"}
           </Badge>
         );
       },
       sortable: false,
     },
     {
-      key: 'description',
-      header: 'Description',
+      key: "description",
+      header: "Description",
       cell: (row) => (
-        <span className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{row.description ?? '—'}</span>
+        <span className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+          {row.description ?? "—"}
+        </span>
       ),
       sortable: false,
     },
     {
-      key: 'type',
-      header: 'Type',
-      cell: (row) => <Badge variant="secondary">{row.type ?? '—'}</Badge>,
+      key: "type",
+      header: "Type",
+      cell: (row) => <Badge variant="secondary">{row.type ?? "—"}</Badge>,
       sortable: true,
     },
     {
-      key: 'accessMode',
-      header: 'Access',
+      key: "accessMode",
+      header: "Access",
       cell: (row) => (
-        <span className="text-sm text-gray-600 dark:text-gray-400">{row.accessMode ?? '—'}</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">{row.accessMode ?? "—"}</span>
       ),
       sortable: true,
     },
     {
-      key: 'syncStatus',
-      header: 'Sync',
+      key: "syncStatus",
+      header: "Sync",
       cell: (row) => (
-        <Badge variant={row.syncStatus === 'synced' ? 'success' : row.syncStatus === 'failed' ? 'error' : 'default'}>
-          {row.syncStatus ?? '—'}
+        <Badge
+          variant={
+            row.syncStatus === "synced"
+              ? "success"
+              : row.syncStatus === "failed"
+                ? "error"
+                : "default"
+          }
+        >
+          {row.syncStatus ?? "—"}
         </Badge>
       ),
       sortable: true,
     },
     {
-      key: 'lastSyncedAt',
-      header: 'Last synced',
+      key: "lastSyncedAt",
+      header: "Last synced",
       cell: (row) => (
-        <span className="text-sm text-gray-500 dark:text-gray-400">{formatDetailDate(row.lastSyncedAt)}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          {formatDetailDate(row.lastSyncedAt)}
+        </span>
       ),
       sortable: true,
     },
@@ -123,7 +135,9 @@ export default function TenantContentLibrariesPage() {
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Content Libraries</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Content Libraries
+              </h1>
               <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
                 Libraries shared by your provider and your tenant-owned libraries.
               </p>
@@ -141,11 +155,17 @@ export default function TenantContentLibrariesPage() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           <Card>
             <CardContent className="p-0">
               {!tenantId ? (
-                <p className="p-6 text-sm text-gray-500">Select a tenant to view content libraries.</p>
+                <p className="p-6 text-sm text-gray-500">
+                  Select a tenant to view content libraries.
+                </p>
               ) : loading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-gray-400" />

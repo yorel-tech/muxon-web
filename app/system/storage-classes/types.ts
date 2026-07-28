@@ -14,4 +14,4 @@ export type {
   StorageClassOverrides,
   StorageSyncResponse,
   StorageOverrideRow,
-} from '@/lib/types/storage';
+} from "@/lib/types/storage";

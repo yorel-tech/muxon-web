@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import type { VmTemplateComputeSpec } from '@/types/vm-template-spec';
-import { mbToGb, gbToMb } from '@/lib/vm-template-defaults';
+import type { VmTemplateComputeSpec } from "@/types/vm-template-spec";
+import { mbToGb, gbToMb } from "@/lib/vm-template-defaults";
 
 interface VmTemplateComputeStepProps {
-  firmware: 'bios' | 'uefi';
-  onFirmwareChange: (firmware: 'bios' | 'uefi') => void;
+  firmware: "bios" | "uefi";
+  onFirmwareChange: (firmware: "bios" | "uefi") => void;
   compute: VmTemplateComputeSpec;
   onChange: (compute: VmTemplateComputeSpec) => void;
 }
@@ -39,8 +39,8 @@ export function VmTemplateComputeStep({
             <input
               type="radio"
               value="bios"
-              checked={firmware === 'bios'}
-              onChange={(e) => onFirmwareChange(e.target.value as 'bios' | 'uefi')}
+              checked={firmware === "bios"}
+              onChange={(e) => onFirmwareChange(e.target.value as "bios" | "uefi")}
               className="mr-2"
             />
             <span className="text-sm text-gray-700 dark:text-gray-300">BIOS (Legacy)</span>
@@ -49,8 +49,8 @@ export function VmTemplateComputeStep({
             <input
               type="radio"
               value="uefi"
-              checked={firmware === 'uefi'}
-              onChange={(e) => onFirmwareChange(e.target.value as 'bios' | 'uefi')}
+              checked={firmware === "uefi"}
+              onChange={(e) => onFirmwareChange(e.target.value as "bios" | "uefi")}
               className="mr-2"
             />
             <span className="text-sm text-gray-700 dark:text-gray-300">UEFI</span>
@@ -75,9 +75,7 @@ export function VmTemplateComputeStep({
             className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100"
             required
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Minimum: 1 core
-          </p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Minimum: 1 core</p>
         </div>
 
         <div>
@@ -91,9 +89,7 @@ export function VmTemplateComputeStep({
             onChange={(e) => onChange({ ...compute, cpuSockets: parseInt(e.target.value) || 1 })}
             className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100"
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Default: 1 socket
-          </p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Default: 1 socket</p>
         </div>
       </div>
 

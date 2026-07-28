@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import type { FileWithMetadata } from '@/types/vm-template-spec';
-import { formatBytes } from '@/lib/vm-template-defaults';
-import { Button } from '@/components/ui/atoms/button';
+import type { FileWithMetadata } from "@/types/vm-template-spec";
+import { formatBytes } from "@/lib/vm-template-defaults";
+import { Button } from "@/components/ui/atoms/button";
 
 interface MultiFileUploadProgressProps {
   files: FileWithMetadata[];
@@ -19,24 +19,22 @@ export function MultiFileUploadProgress({
   const totalSize = files.reduce((sum, f) => sum + f.file.size, 0);
   const uploadedTotal = files.reduce((sum, f) => sum + (f.uploadedBytes || 0), 0);
   const overallProgress = totalSize > 0 ? (uploadedTotal / totalSize) * 100 : 0;
-  
-  const completedCount = files.filter(f => f.status === 'complete').length;
-  const errorCount = files.filter(f => f.status === 'error').length;
-  const activeFile = files.find(f => f.status === 'hashing' || f.status === 'uploading');
+
+  const completedCount = files.filter((f) => f.status === "complete").length;
+  const errorCount = files.filter((f) => f.status === "error").length;
+  const activeFile = files.find((f) => f.status === "hashing" || f.status === "uploading");
 
   return (
     <div className="space-y-4">
       {/* Overall progress */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-gray-700 dark:text-gray-300">
-            Overall Progress
-          </span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">Overall Progress</span>
           <span className="text-gray-600 dark:text-gray-400">
             {completedCount} of {files.length} files complete
             {errorCount > 0 && (
               <span className="ml-2 text-red-600 dark:text-red-400">
-                ({errorCount} {errorCount === 1 ? 'error' : 'errors'})
+                ({errorCount} {errorCount === 1 ? "error" : "errors"})
               </span>
             )}
           </span>
@@ -55,9 +53,8 @@ export function MultiFileUploadProgress({
       {/* Individual file progress */}
       <div className="space-y-3 max-h-[400px] overflow-y-auto">
         {files.map((fileData) => {
-          const fileProgress = fileData.file.size > 0 
-            ? ((fileData.uploadedBytes || 0) / fileData.file.size) * 100 
-            : 0;
+          const fileProgress =
+            fileData.file.size > 0 ? ((fileData.uploadedBytes || 0) / fileData.file.size) * 100 : 0;
           const isActive = fileData.id === activeFile?.id;
 
           return (
@@ -65,9 +62,10 @@ export function MultiFileUploadProgress({
               key={fileData.id}
               className={`
                 rounded-lg border p-3 transition-all
-                ${isActive 
-                  ? 'border-primary bg-primary/5 dark:bg-primary/10' 
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
+                ${
+                  isActive
+                    ? "border-primary bg-primary/5 dark:bg-primary/10"
+                    : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
                 }
               `}
             >
@@ -81,30 +79,30 @@ export function MultiFileUploadProgress({
                     {fileData.diskIndex !== undefined && ` • Disk ${fileData.diskIndex}`}
                   </p>
                 </div>
-                
+
                 {/* Status indicator */}
                 <div className="ml-3 flex-shrink-0">
-                  {fileData.status === 'pending' && (
+                  {fileData.status === "pending" && (
                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
                       Pending
                     </span>
                   )}
-                  {fileData.status === 'hashing' && (
+                  {fileData.status === "hashing" && (
                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
                       Hashing
                     </span>
                   )}
-                  {fileData.status === 'uploading' && (
+                  {fileData.status === "uploading" && (
                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-primary/20 text-primary">
                       Uploading
                     </span>
                   )}
-                  {fileData.status === 'complete' && (
+                  {fileData.status === "complete" && (
                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400">
                       Complete
                     </span>
                   )}
-                  {fileData.status === 'error' && (
+                  {fileData.status === "error" && (
                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400">
                       Error
                     </span>
@@ -113,7 +111,7 @@ export function MultiFileUploadProgress({
               </div>
 
               {/* Progress bar */}
-              {(fileData.status === 'hashing' || fileData.status === 'uploading') && (
+              {(fileData.status === "hashing" || fileData.status === "uploading") && (
                 <div className="space-y-1">
                   <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
@@ -129,10 +127,8 @@ export function MultiFileUploadProgress({
               )}
 
               {/* Error message */}
-              {fileData.status === 'error' && fileData.error && (
-                <p className="text-xs text-red-600 dark:text-red-400 mt-2">
-                  {fileData.error}
-                </p>
+              {fileData.status === "error" && fileData.error && (
+                <p className="text-xs text-red-600 dark:text-red-400 mt-2">{fileData.error}</p>
               )}
             </div>
           );
@@ -142,11 +138,7 @@ export function MultiFileUploadProgress({
       {/* Cancel button */}
       {onCancel && (
         <div className="flex justify-end pt-2">
-          <Button
-            variant="secondary"
-            onClick={onCancel}
-            disabled={cancelDisabled}
-          >
+          <Button variant="secondary" onClick={onCancel} disabled={cancelDisabled}>
             Cancel Upload
           </Button>
         </div>

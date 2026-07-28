@@ -23,7 +23,9 @@ export default function StorageClassesPage() {
   const [showStorageClassForm, setShowStorageClassForm] = useState(false);
   const [editingStorageClass, setEditingStorageClass] = useState<StorageClass | null>(null);
   const [showContentStorageForm, setShowContentStorageForm] = useState(false);
-  const [editingContentStorage, setEditingContentStorage] = useState<ContentStorageRow | null>(null);
+  const [editingContentStorage, setEditingContentStorage] = useState<ContentStorageRow | null>(
+    null
+  );
   const [filterQuery, setFilterQuery] = useState("");
   const { refetch } = useStorageClasses();
   const queryClient = useQueryClient();
@@ -81,7 +83,9 @@ export default function StorageClassesPage() {
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Storage Management</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Storage Management
+              </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
                 Storage classes, content storage, provider inventory, and overrides
               </p>
@@ -146,14 +150,18 @@ export default function StorageClassesPage() {
 
                 <TabsContent value="content-storage" className="space-y-4">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Backends for content library file uploads (local path, NFS mount, or S3-compatible storage).
+                    Backends for content library file uploads (local path, NFS mount, or
+                    S3-compatible storage).
                   </p>
                   <ContentStorageList onEdit={handleEditContentStorage} />
                 </TabsContent>
 
                 <TabsContent value="provider-storage" className="space-y-4">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Normalized inventory from providers. Use <strong className="font-medium text-gray-900 dark:text-gray-100">Sync storage</strong>{" "}
+                    Normalized inventory from providers. Use{" "}
+                    <strong className="font-medium text-gray-900 dark:text-gray-100">
+                      Sync storage
+                    </strong>{" "}
                     to refresh discovery.
                   </p>
                   <ProviderStorageList />
@@ -176,10 +184,16 @@ export default function StorageClassesPage() {
       </div>
 
       {showStorageClassForm && (
-        <StorageClassForm storageClass={editingStorageClass} onClose={handleCloseStorageClassForm} />
+        <StorageClassForm
+          storageClass={editingStorageClass}
+          onClose={handleCloseStorageClassForm}
+        />
       )}
       {showContentStorageForm && (
-        <ContentStorageForm storage={editingContentStorage} onClose={handleCloseContentStorageForm} />
+        <ContentStorageForm
+          storage={editingContentStorage}
+          onClose={handleCloseContentStorageForm}
+        />
       )}
     </div>
   );

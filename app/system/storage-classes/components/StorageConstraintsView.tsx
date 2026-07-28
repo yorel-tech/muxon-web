@@ -2,7 +2,11 @@
 
 import type { StorageConstraints } from "../types";
 
-export function StorageConstraintsView({ constraints }: { constraints: StorageConstraints | undefined }) {
+export function StorageConstraintsView({
+  constraints,
+}: {
+  constraints: StorageConstraints | undefined;
+}) {
   if (!constraints || Object.keys(constraints).length === 0) {
     return <p className="text-sm text-gray-500">No constraints</p>;
   }

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from '@/types/provider';
-import { executeLinkAction } from '@/lib/api';
+import React from "react";
+import { Link } from "@/types/provider";
+import { executeLinkAction } from "@/lib/api";
 import {
   Eye,
   Pencil,
@@ -16,23 +16,26 @@ import {
   FileText,
   Database,
   Activity,
-  Layers
-} from 'lucide-react';
-import type { DropdownOption } from '@/components/ui/molecules/dropdown';
+  Layers,
+} from "lucide-react";
+import type { DropdownOption } from "@/components/ui/molecules/dropdown";
 
 /** Action definitions per entity type, aligned with backend ResourceAction / link registration. */
-export const ENTITY_ACTION_SPECS: Record<string, { rel: string; defaultTitle: string; variant?: 'default' | 'danger' | 'warning' }[]> = {
+export const ENTITY_ACTION_SPECS: Record<
+  string,
+  { rel: string; defaultTitle: string; variant?: "default" | "danger" | "warning" }[]
+> = {
   tenant: [
-    { rel: 'self', defaultTitle: 'View Details' },
-    { rel: 'update', defaultTitle: 'Edit' },
-    { rel: 'delete', defaultTitle: 'Delete', variant: 'danger' },
+    { rel: "self", defaultTitle: "View Details" },
+    { rel: "update", defaultTitle: "Edit" },
+    { rel: "delete", defaultTitle: "Delete", variant: "danger" },
   ],
   datacenter: [
-    { rel: 'self', defaultTitle: 'View details' },
-    { rel: 'edit', defaultTitle: 'Edit' },
-    { rel: 'delete', defaultTitle: 'Delete datacenter', variant: 'danger' },
-    { rel: 'settings', defaultTitle: 'Get datacenter settings' },
-    { rel: 'metadata', defaultTitle: 'Get datacenter metadata' },
+    { rel: "self", defaultTitle: "View details" },
+    { rel: "edit", defaultTitle: "Edit" },
+    { rel: "delete", defaultTitle: "Delete datacenter", variant: "danger" },
+    { rel: "settings", defaultTitle: "Get datacenter settings" },
+    { rel: "metadata", defaultTitle: "Get datacenter metadata" },
   ],
 };
 
@@ -40,7 +43,7 @@ export const ENTITY_ACTION_SPECS: Record<string, { rel: string; defaultTitle: st
  * Find a specific link by its rel attribute
  */
 export const findLink = (links: Link[], rel: string): Link | undefined => {
-  return links.find(link => link.rel === rel);
+  return links.find((link) => link.rel === rel);
 };
 
 /**
@@ -70,7 +73,7 @@ export const getActionIcon = (rel: string) => {
     logs: FileText,
     vms: Database,
     overview: Activity,
-    capabilities: Layers
+    capabilities: Layers,
   };
   return iconMap[rel] || MoreHorizontal;
 };
@@ -80,10 +83,10 @@ export const getActionIcon = (rel: string) => {
  * When both edit (PUT) and update (PATCH) exist, only show edit.
  */
 export const getEnabledActions = (links: Link[]): Link[] => {
-  const filtered = links.filter(link => link.enabled && link.rel !== 'self');
-  const hasEdit = filtered.some(link => link.rel === 'edit');
+  const filtered = links.filter((link) => link.enabled && link.rel !== "self");
+  const hasEdit = filtered.some((link) => link.rel === "edit");
   if (hasEdit) {
-    return filtered.filter(link => link.rel !== 'update');
+    return filtered.filter((link) => link.rel !== "update");
   }
   return filtered;
 };
@@ -109,13 +112,17 @@ export const getActionReason = (links: Link[], rel: string): string | undefined 
  */
 export const groupActionsByCategory = (links: Link[]): Record<string, Link[]> => {
   const actions = getEnabledActions(links);
-  
+
   return {
-    primary: actions.filter(link => ['self', 'viewDetails', 'edit'].includes(link.rel)),
-    management: actions.filter(link => ['sync', 'testConnection', 'capabilities', 'enable', 'disable'].includes(link.rel)),
-    creation: actions.filter(link => ['addCluster', 'addNode', 'create'].includes(link.rel)),
-    destructive: actions.filter(link => ['delete'].includes(link.rel)),
-    navigation: actions.filter(link => ['settings', 'logs', 'overview', 'vms'].includes(link.rel))
+    primary: actions.filter((link) => ["self", "viewDetails", "edit"].includes(link.rel)),
+    management: actions.filter((link) =>
+      ["sync", "testConnection", "capabilities", "enable", "disable"].includes(link.rel)
+    ),
+    creation: actions.filter((link) => ["addCluster", "addNode", "create"].includes(link.rel)),
+    destructive: actions.filter((link) => ["delete"].includes(link.rel)),
+    navigation: actions.filter((link) =>
+      ["settings", "logs", "overview", "vms"].includes(link.rel)
+    ),
   };
 };
 
@@ -124,19 +131,30 @@ export const groupActionsByCategory = (links: Link[]): Record<string, Link[]> =>
  */
 export const sortActionsByPriority = (links: Link[]): Link[] => {
   const priorityOrder = [
-    'viewDetails', 'edit', 'sync', 'testConnection', 'capabilities',
-    'addCluster', 'addNode', 'enable', 'disable',
-    'settings', 'logs', 'overview', 'vms', 'delete'
+    "viewDetails",
+    "edit",
+    "sync",
+    "testConnection",
+    "capabilities",
+    "addCluster",
+    "addNode",
+    "enable",
+    "disable",
+    "settings",
+    "logs",
+    "overview",
+    "vms",
+    "delete",
   ];
-  
+
   return links.sort((a, b) => {
     const aIndex = priorityOrder.indexOf(a.rel);
     const bIndex = priorityOrder.indexOf(b.rel);
-    
+
     if (aIndex === -1 && bIndex === -1) return 0;
     if (aIndex === -1) return 1;
     if (bIndex === -1) return -1;
-    
+
     return aIndex - bIndex;
   });
 };
@@ -146,8 +164,8 @@ export const sortActionsByPriority = (links: Link[]): Link[] => {
  */
 export const getNavigationPath = (link: Link): string => {
   // Convert API href to frontend route
-  if (link.href.startsWith('/api/')) {
-    return link.href.replace('/api/v1', '/system');
+  if (link.href.startsWith("/api/")) {
+    return link.href.replace("/api/v1", "/system");
   }
   return link.href;
 };
@@ -167,7 +185,7 @@ export const normalizeEntityLinks = (entity: any): Link[] => {
  */
 export function buildRowActionOptions<T>(
   entity: T,
-  entityType: 'tenant' | 'datacenter',
+  entityType: "tenant" | "datacenter",
   links: Link[],
   onAction: (rel: string, entity: T, link?: Link) => void
 ): DropdownOption[] {
@@ -178,13 +196,13 @@ export function buildRowActionOptions<T>(
     const link = findLink(links, spec.rel);
     const title = link?.title ?? spec.defaultTitle;
     const enabled = link ? link.enabled : false;
-    const reason = link?.reason ?? (link ? undefined : 'Not available');
+    const reason = link?.reason ?? (link ? undefined : "Not available");
     const Icon = getActionIcon(spec.rel);
 
     return {
       label: title,
       icon: React.createElement(Icon, { size: 14 }),
-      variant: spec.variant ?? 'default',
+      variant: spec.variant ?? "default",
       disabled: !enabled,
       description: reason,
       onClick: () => onAction(spec.rel, entity, link),

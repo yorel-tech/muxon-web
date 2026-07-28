@@ -39,7 +39,8 @@ export function ProviderStorageTabContent({
     return (
       <Alert variant="destructive">
         <AlertDescription>
-          Failed to load provider storage: {error instanceof Error ? error.message : "Unknown error"}
+          Failed to load provider storage:{" "}
+          {error instanceof Error ? error.message : "Unknown error"}
         </AlertDescription>
       </Alert>
     );
@@ -74,7 +75,12 @@ export function ProviderStorageTabContent({
           <CardContent className="py-12 text-center">
             <HardDrive className="h-10 w-10 mx-auto text-gray-400 mb-2" />
             <p className="text-sm text-gray-600">No storage discovered yet.</p>
-            <Button variant="secondary" className="mt-4" onClick={handleSync} disabled={providerOffline}>
+            <Button
+              variant="secondary"
+              className="mt-4"
+              onClick={handleSync}
+              disabled={providerOffline}
+            >
               Run discovery sync
             </Button>
           </CardContent>

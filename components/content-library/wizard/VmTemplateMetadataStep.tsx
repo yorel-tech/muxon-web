@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import type { VmTemplateSpecMetadata } from '@/types/vm-template-spec';
+import type { VmTemplateSpecMetadata } from "@/types/vm-template-spec";
 
 interface VmTemplateMetadataStepProps {
   metadata: VmTemplateSpecMetadata;
@@ -8,15 +8,12 @@ interface VmTemplateMetadataStepProps {
 }
 
 const OS_FAMILIES = [
-  { value: 'linux', label: 'Linux' },
-  { value: 'windows', label: 'Windows' },
-  { value: 'other', label: 'Other' },
+  { value: "linux", label: "Linux" },
+  { value: "windows", label: "Windows" },
+  { value: "other", label: "Other" },
 ];
 
-export function VmTemplateMetadataStep({
-  metadata,
-  onChange,
-}: VmTemplateMetadataStepProps) {
+export function VmTemplateMetadataStep({ metadata, onChange }: VmTemplateMetadataStepProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -47,7 +44,7 @@ export function VmTemplateMetadataStep({
           Description
         </label>
         <textarea
-          value={metadata.description || ''}
+          value={metadata.description || ""}
           onChange={(e) => onChange({ ...metadata, description: e.target.value })}
           placeholder="e.g., Ubuntu 22.04 LTS Server with standard configuration"
           rows={3}
@@ -61,8 +58,10 @@ export function VmTemplateMetadataStep({
             OS Family
           </label>
           <select
-            value={metadata.osFamily || 'linux'}
-            onChange={(e) => onChange({ ...metadata, osFamily: e.target.value as 'linux' | 'windows' | 'other' })}
+            value={metadata.osFamily || "linux"}
+            onChange={(e) =>
+              onChange({ ...metadata, osFamily: e.target.value as "linux" | "windows" | "other" })
+            }
             className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100"
           >
             {OS_FAMILIES.map((os) => (
@@ -79,7 +78,7 @@ export function VmTemplateMetadataStep({
           </label>
           <input
             type="text"
-            value={metadata.osDistribution || ''}
+            value={metadata.osDistribution || ""}
             onChange={(e) => onChange({ ...metadata, osDistribution: e.target.value })}
             placeholder="e.g., ubuntu, centos"
             className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100"
@@ -92,7 +91,7 @@ export function VmTemplateMetadataStep({
           </label>
           <input
             type="text"
-            value={metadata.osVersion || ''}
+            value={metadata.osVersion || ""}
             onChange={(e) => onChange({ ...metadata, osVersion: e.target.value })}
             placeholder="e.g., 22.04"
             className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100"

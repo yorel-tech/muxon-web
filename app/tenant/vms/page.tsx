@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import { Suspense, useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { Modal } from '@/components/ui/molecules/modal';
-import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
-import { RowActionsTrigger } from '@/components/DynamicContextMenu';
-import { motion } from 'framer-motion';
-import { Plus, Loader2, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
-import { VmConsoleModal } from '@/components/ui/organisms/vm-console-modal';
-import { apiGet, apiPost } from '@/lib/api';
-import { useTenantId } from '@/lib/use-tenant-id';
+import { Suspense, useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { Modal } from "@/components/ui/molecules/modal";
+import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
+import { RowActionsTrigger } from "@/components/DynamicContextMenu";
+import { motion } from "framer-motion";
+import { Plus, Loader2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { VmConsoleModal } from "@/components/ui/organisms/vm-console-modal";
+import { apiGet, apiPost } from "@/lib/api";
+import { useTenantId } from "@/lib/use-tenant-id";
 import {
   fetchTenantContentLibraries,
   fetchAllContentItems,
   getTenantContentItem,
-} from '@/lib/api/content-library';
-import type { ContentLibraryRow, ContentItemRow } from '@/types/content-library';
-import type { VmTemplateSpec } from '@/types/vm-template-spec';
-import { AttachIsoModal } from '@/components/vm/AttachIsoModal';
-import { PublishTemplateModal } from '@/components/vm/PublishTemplateModal';
+} from "@/lib/api/content-library";
+import type { ContentLibraryRow, ContentItemRow } from "@/types/content-library";
+import type { VmTemplateSpec } from "@/types/vm-template-spec";
+import { AttachIsoModal } from "@/components/vm/AttachIsoModal";
+import { PublishTemplateModal } from "@/components/vm/PublishTemplateModal";
 
 interface VmRow {
   id: string;
@@ -57,7 +57,7 @@ interface DiskSpec {
 interface NicSpec {
   isPrimary: boolean;
   network?: string;
-  ip_allocation: 'dhcp' | 'static' | 'pool';
+  ip_allocation: "dhcp" | "static" | "pool";
   ip_address?: string | null;
 }
 interface ComputeSpec {
@@ -72,7 +72,7 @@ interface NetworkSpec {
   nics: NicSpec[];
 }
 interface OsSpec {
-  type: 'linux' | 'windows' | 'bsd';
+  type: "linux" | "windows" | "bsd";
   distribution?: string;
   version?: string;
 }
@@ -91,7 +91,15 @@ interface VmCreateForm {
   iso_content_item_ids?: string[];
 }
 
-const WIZARD_STEPS = ['Basics', 'Template & ISOs', 'Compute', 'Storage', 'Network', 'OS', 'Review'] as const;
+const WIZARD_STEPS = [
+  "Basics",
+  "Template & ISOs",
+  "Compute",
+  "Storage",
+  "Network",
+  "OS",
+  "Review",
+] as const;
 const NAME_PATTERN = /^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?$/;
 
 function defaultVmSpec(): VmSpec {
@@ -102,16 +110,16 @@ function defaultVmSpec(): VmSpec {
       vmStorageClass: undefined,
     },
     network: {
-      nics: [{ isPrimary: true, network: 'default', ip_allocation: 'dhcp' }],
+      nics: [{ isPrimary: true, network: "default", ip_allocation: "dhcp" }],
     },
-    os: { type: 'linux', distribution: 'ubuntu', version: '22.04' },
+    os: { type: "linux", distribution: "ubuntu", version: "22.04" },
   };
 }
 
 function defaultCreateForm(initialGrantId: string): VmCreateForm {
   return {
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     tenant_datacenter_grant_id: initialGrantId,
     spec: defaultVmSpec(),
     content_item_id: undefined,
@@ -146,14 +154,14 @@ function TenantVmsPageInner() {
   const [storageClassesLoading, setStorageClassesLoading] = useState(false);
   const [storageClassesError, setStorageClassesError] = useState<string | null>(null);
   const [wizardStep, setWizardStep] = useState(0);
-  const [createForm, setCreateForm] = useState<VmCreateForm>(() => defaultCreateForm(''));
+  const [createForm, setCreateForm] = useState<VmCreateForm>(() => defaultCreateForm(""));
   const [createSubmitting, setCreateSubmitting] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [useFromTemplate, setUseFromTemplate] = useState(false);
-  const [templateLibraryId, setTemplateLibraryId] = useState('');
+  const [templateLibraryId, setTemplateLibraryId] = useState("");
   const [templateItems, setTemplateItems] = useState<ContentItemRow[]>([]);
   const [templateItemsLoading, setTemplateItemsLoading] = useState(false);
-  const [isoLibraryId, setIsoLibraryId] = useState('');
+  const [isoLibraryId, setIsoLibraryId] = useState("");
   const [isoCandidates, setIsoCandidates] = useState<ContentItemRow[]>([]);
   const [isoCandidatesLoading, setIsoCandidatesLoading] = useState(false);
   const [contentLibraries, setContentLibraries] = useState<ContentLibraryRow[]>([]);
@@ -172,12 +180,12 @@ function TenantVmsPageInner() {
       const data = await apiGet<{ items?: unknown[]; total?: number }>(
         `/api/v1/tenants/${tenantId}/vms`
       );
-      const list = Array.isArray(data) ? data : data?.items ?? [];
+      const list = Array.isArray(data) ? data : (data?.items ?? []);
       setVms(
         (list as Record<string, unknown>[]).map((vm) => ({
-          id: String(vm.id ?? ''),
-          name: String(vm.name ?? vm.id ?? ''),
-          status: (vm.status as string) ?? 'unknown',
+          id: String(vm.id ?? ""),
+          name: String(vm.name ?? vm.id ?? ""),
+          status: (vm.status as string) ?? "unknown",
           flavor: (vm.flavor as string) ?? (vm.vmClass as string),
           image: (vm.image as string) ?? (vm.imageId as string),
           datacenter: (vm.datacenterId as string) ?? (vm.datacenter as string),
@@ -206,11 +214,13 @@ function TenantVmsPageInner() {
       const data = await apiGet<{ items?: TenantDatacenterGrant[] }>(
         `/api/v1/tenants/${tenantId}/datacenters?perPage=100`
       );
-      const list = Array.isArray(data) ? data : data?.items ?? [];
+      const list = Array.isArray(data) ? data : (data?.items ?? []);
       const withId = list.filter((g) => g.access !== false && g.id);
       setGrants(withId);
       if (withId.length > 0) {
-        setCreateForm((f) => (f.tenant_datacenter_grant_id ? f : { ...f, tenant_datacenter_grant_id: withId[0].id }));
+        setCreateForm((f) =>
+          f.tenant_datacenter_grant_id ? f : { ...f, tenant_datacenter_grant_id: withId[0].id }
+        );
       }
     } catch {
       setGrants([]);
@@ -248,12 +258,16 @@ function TenantVmsPageInner() {
         const allowed = new Set(overrideStorageClasses);
         setCreateForm((f) => {
           const vmStorageClass = f.spec.storage.vmStorageClass;
-          const nextVmStorageClass = vmStorageClass && allowed.has(vmStorageClass) ? vmStorageClass : undefined;
+          const nextVmStorageClass =
+            vmStorageClass && allowed.has(vmStorageClass) ? vmStorageClass : undefined;
           const nextDisks = f.spec.storage.disks.map((disk) => ({
             ...disk,
-            storageClass: disk.storageClass && allowed.has(disk.storageClass) ? disk.storageClass : undefined,
+            storageClass:
+              disk.storageClass && allowed.has(disk.storageClass) ? disk.storageClass : undefined,
           }));
-          const diskChanged = nextDisks.some((d, i) => d.storageClass !== f.spec.storage.disks[i]?.storageClass);
+          const diskChanged = nextDisks.some(
+            (d, i) => d.storageClass !== f.spec.storage.disks[i]?.storageClass
+          );
           if (!diskChanged && nextVmStorageClass === vmStorageClass) return f;
           return {
             ...f,
@@ -272,7 +286,7 @@ function TenantVmsPageInner() {
       const datacenterId = selectedGrant?.datacenterId || selectedGrant?.datacenter?.id;
       if (!datacenterId) {
         setStorageClasses([]);
-        setStorageClassesError('Selected datacenter grant is missing a datacenter ID.');
+        setStorageClassesError("Selected datacenter grant is missing a datacenter ID.");
         return;
       }
       setStorageClassesLoading(true);
@@ -281,18 +295,22 @@ function TenantVmsPageInner() {
         const data = await apiGet<string[] | { items?: string[] }>(
           `/api/v1/tenants/${tenantId}/datacenters/${datacenterId}/storage-classes`
         );
-        const raw = Array.isArray(data) ? data : data?.items ?? [];
+        const raw = Array.isArray(data) ? data : (data?.items ?? []);
         const options = Array.from(new Set(raw.filter(Boolean)));
         setStorageClasses(options);
         const allowed = new Set(options);
         setCreateForm((f) => {
           const vmStorageClass = f.spec.storage.vmStorageClass;
-          const nextVmStorageClass = vmStorageClass && allowed.has(vmStorageClass) ? vmStorageClass : undefined;
+          const nextVmStorageClass =
+            vmStorageClass && allowed.has(vmStorageClass) ? vmStorageClass : undefined;
           const nextDisks = f.spec.storage.disks.map((disk) => ({
             ...disk,
-            storageClass: disk.storageClass && allowed.has(disk.storageClass) ? disk.storageClass : undefined,
+            storageClass:
+              disk.storageClass && allowed.has(disk.storageClass) ? disk.storageClass : undefined,
           }));
-          const diskChanged = nextDisks.some((d, i) => d.storageClass !== f.spec.storage.disks[i]?.storageClass);
+          const diskChanged = nextDisks.some(
+            (d, i) => d.storageClass !== f.spec.storage.disks[i]?.storageClass
+          );
           if (!diskChanged && nextVmStorageClass === vmStorageClass) return f;
           return {
             ...f,
@@ -308,7 +326,7 @@ function TenantVmsPageInner() {
         });
       } catch (e) {
         setStorageClasses([]);
-        setStorageClassesError(e instanceof Error ? e.message : 'Failed to load storage classes.');
+        setStorageClassesError(e instanceof Error ? e.message : "Failed to load storage classes.");
       } finally {
         setStorageClassesLoading(false);
       }
@@ -344,8 +362,8 @@ function TenantVmsPageInner() {
     setTemplateItemsLoading(true);
     (async () => {
       try {
-        const all = await fetchAllContentItems('tenant', templateLibraryId, tenantId);
-        setTemplateItems(all.filter((i) => (i.contentType ?? '').toLowerCase() === 'vm_template'));
+        const all = await fetchAllContentItems("tenant", templateLibraryId, tenantId);
+        setTemplateItems(all.filter((i) => (i.contentType ?? "").toLowerCase() === "vm_template"));
       } catch {
         setTemplateItems([]);
       } finally {
@@ -362,8 +380,8 @@ function TenantVmsPageInner() {
     setIsoCandidatesLoading(true);
     (async () => {
       try {
-        const all = await fetchAllContentItems('tenant', isoLibraryId, tenantId);
-        setIsoCandidates(all.filter((i) => (i.contentType ?? '').toLowerCase() === 'iso'));
+        const all = await fetchAllContentItems("tenant", isoLibraryId, tenantId);
+        setIsoCandidates(all.filter((i) => (i.contentType ?? "").toLowerCase() === "iso"));
       } catch {
         setIsoCandidates([]);
       } finally {
@@ -374,7 +392,13 @@ function TenantVmsPageInner() {
 
   // When creating from a library template, preload compute + disks from templateSpec (GET item).
   useEffect(() => {
-    if (!createModalOpen || !useFromTemplate || !tenantId || !templateLibraryId || !createForm.content_item_id) {
+    if (
+      !createModalOpen ||
+      !useFromTemplate ||
+      !tenantId ||
+      !templateLibraryId ||
+      !createForm.content_item_id
+    ) {
       return;
     }
     const itemId = createForm.content_item_id;
@@ -415,14 +439,14 @@ function TenantVmsPageInner() {
     setCreateModalOpen(true);
     setWizardStep(0);
     setCreateError(null);
-    const base = defaultCreateForm(grants[0]?.id ?? '');
+    const base = defaultCreateForm(grants[0]?.id ?? "");
     setUseFromTemplate(false);
-    setTemplateLibraryId('');
-    setIsoLibraryId('');
+    setTemplateLibraryId("");
+    setIsoLibraryId("");
     setTemplateItems([]);
     setIsoCandidates([]);
-    const ci = searchParams.get('contentItemId');
-    const lib = searchParams.get('libraryId');
+    const ci = searchParams.get("contentItemId");
+    const lib = searchParams.get("libraryId");
     if (tenantId && ci && lib) {
       setUseFromTemplate(true);
       setTemplateLibraryId(lib);
@@ -430,11 +454,11 @@ function TenantVmsPageInner() {
       void (async () => {
         try {
           const item = await getTenantContentItem(tenantId, lib, ci);
-          if ((item.contentType ?? '').toLowerCase() !== 'vm_template') {
-            setCreateError('Linked content item is not a VM template.');
+          if ((item.contentType ?? "").toLowerCase() !== "vm_template") {
+            setCreateError("Linked content item is not a VM template.");
           }
         } catch {
-          setCreateError('Could not load template from content library link.');
+          setCreateError("Could not load template from content library link.");
         }
       })();
     } else {
@@ -448,8 +472,8 @@ function TenantVmsPageInner() {
       setWizardStep(0);
       setCreateError(null);
       setUseFromTemplate(false);
-      setTemplateLibraryId('');
-      setIsoLibraryId('');
+      setTemplateLibraryId("");
+      setIsoLibraryId("");
       setTemplateItems([]);
       setIsoCandidates([]);
     }
@@ -457,23 +481,25 @@ function TenantVmsPageInner() {
 
   function validateBasics(): string | null {
     const name = createForm.name.trim();
-    if (!name) return 'Name is required.';
-    if (name.length > 63) return 'Name must be at most 63 characters.';
-    if (!NAME_PATTERN.test(name)) return 'Name must use only letters, numbers, and hyphens (e.g. my-vm).';
-    if (!createForm.tenant_datacenter_grant_id) return 'Please select a datacenter.';
+    if (!name) return "Name is required.";
+    if (name.length > 63) return "Name must be at most 63 characters.";
+    if (!NAME_PATTERN.test(name))
+      return "Name must use only letters, numbers, and hyphens (e.g. my-vm).";
+    if (!createForm.tenant_datacenter_grant_id) return "Please select a datacenter.";
     return null;
   }
 
   function validateCompute(): string | null {
     const { cpus, memorySizeMb } = createForm.spec.compute;
-    if (cpus < 1 || cpus > 128) return 'CPUs must be between 1 and 128.';
-    if (memorySizeMb < 512 || memorySizeMb > 1048576) return 'Memory must be between 512 MB and 1048576 MB.';
+    if (cpus < 1 || cpus > 128) return "CPUs must be between 1 and 128.";
+    if (memorySizeMb < 512 || memorySizeMb > 1048576)
+      return "Memory must be between 512 MB and 1048576 MB.";
     return null;
   }
 
   function validateStorage(): string | null {
     const { disks } = createForm.spec.storage;
-    if (!disks.length) return 'Add at least one disk.';
+    if (!disks.length) return "Add at least one disk.";
     for (let i = 0; i < disks.length; i++) {
       if (disks[i].sizeMb < 1) return `Disk ${i + 1}: size must be at least 1 MB.`;
     }
@@ -482,8 +508,8 @@ function TenantVmsPageInner() {
 
   function validateTemplateStep(): string | null {
     if (!useFromTemplate) return null;
-    if (!templateLibraryId) return 'Select a content library for the template.';
-    if (!createForm.content_item_id) return 'Select a VM template.';
+    if (!templateLibraryId) return "Select a content library for the template.";
+    if (!createForm.content_item_id) return "Select a VM template.";
     return null;
   }
 
@@ -519,17 +545,14 @@ function TenantVmsPageInner() {
 
   const handleCreateVm = async () => {
     const err =
-      validateBasics() ??
-      validateTemplateStep() ??
-      validateCompute() ??
-      validateStorage();
+      validateBasics() ?? validateTemplateStep() ?? validateCompute() ?? validateStorage();
     if (err) {
       setCreateError(err);
       return;
     }
     setCreateError(null);
     if (!tenantId) {
-      setCreateError('Tenant is not resolved yet.');
+      setCreateError("Tenant is not resolved yet.");
       return;
     }
     setCreateSubmitting(true);
@@ -545,46 +568,48 @@ function TenantVmsPageInner() {
         spec: {
           compute: createForm.spec.compute,
           storage: createForm.spec.storage,
-          network: createForm.spec.network?.nics?.length ? { nics: createForm.spec.network.nics } : undefined,
+          network: createForm.spec.network?.nics?.length
+            ? { nics: createForm.spec.network.nics }
+            : undefined,
           os: createForm.spec.os,
         },
       };
       await apiPost(`/api/v1/tenants/${tenantId}/vms`, payload);
       handleCloseWizard();
-      setCreateForm(defaultCreateForm(grants[0]?.id ?? ''));
+      setCreateForm(defaultCreateForm(grants[0]?.id ?? ""));
       await loadVms();
     } catch (e) {
-      setCreateError(e instanceof Error ? e.message : 'Failed to create VM.');
+      setCreateError(e instanceof Error ? e.message : "Failed to create VM.");
     } finally {
       setCreateSubmitting(false);
     }
   };
 
-  const getStatusVariant = (status: string): 'success' | 'warning' | 'error' | 'default' => {
-    if (status === 'running' || status === 'active') return 'success';
-    if (status === 'stopped' || status === 'paused') return 'default';
-    if (status === 'error' || status === 'failed') return 'error';
-    return 'warning';
+  const getStatusVariant = (status: string): "success" | "warning" | "error" | "default" => {
+    if (status === "running" || status === "active") return "success";
+    if (status === "stopped" || status === "paused") return "default";
+    if (status === "error" || status === "failed") return "error";
+    return "warning";
   };
 
   const vmActionOptions = (row: VmRow): DropdownOption[] => {
     const opts: DropdownOption[] = [];
-    if ((row.status ?? '').toUpperCase() === 'ACTIVE') {
+    if ((row.status ?? "").toUpperCase() === "ACTIVE") {
       opts.push(
         {
-          label: 'View console',
+          label: "View console",
           onClick: () => setConsoleVm(row),
         },
         {
-          label: 'Open console in new tab',
+          label: "Open console in new tab",
           onClick: () => {
-            const q = row.name ? `?name=${encodeURIComponent(row.name)}` : '';
+            const q = row.name ? `?name=${encodeURIComponent(row.name)}` : "";
             const hadModalForThisVm = consoleVm?.id === row.id;
             if (hadModalForThisVm) {
               setConsoleVm(null);
             }
             const open = () =>
-              window.open(`/tenant/vms/${row.id}/console${q}`, '_blank', 'noopener,noreferrer');
+              window.open(`/tenant/vms/${row.id}/console${q}`, "_blank", "noopener,noreferrer");
             if (hadModalForThisVm) {
               window.setTimeout(open, 300);
             } else {
@@ -596,11 +621,11 @@ function TenantVmsPageInner() {
     }
     opts.push(
       {
-        label: 'Attach ISO',
+        label: "Attach ISO",
         onClick: () => setAttachIsoVm(row),
       },
       {
-        label: 'Publish as template',
+        label: "Publish as template",
         onClick: () => setPublishVm(row),
       }
     );
@@ -609,8 +634,8 @@ function TenantVmsPageInner() {
 
   const columns: Column<VmRow>[] = [
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       cell: (row) => (
         <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           <Dropdown
@@ -624,41 +649,51 @@ function TenantVmsPageInner() {
       sortable: false,
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row) => <div className="font-medium text-gray-900 dark:text-gray-100">{row.name}</div>,
       sortable: true,
     },
     {
-      key: 'status',
-      header: 'Status',
-      cell: (row) => <Badge variant={getStatusVariant(row.status ?? '')}>{row.status ?? '—'}</Badge>,
+      key: "status",
+      header: "Status",
+      cell: (row) => (
+        <Badge variant={getStatusVariant(row.status ?? "")}>{row.status ?? "—"}</Badge>
+      ),
       sortable: true,
     },
     {
-      key: 'flavor',
-      header: 'Flavor',
-      cell: (row) => <span className="text-gray-600 dark:text-gray-400 text-sm">{row.flavor ?? '—'}</span>,
+      key: "flavor",
+      header: "Flavor",
+      cell: (row) => (
+        <span className="text-gray-600 dark:text-gray-400 text-sm">{row.flavor ?? "—"}</span>
+      ),
       sortable: true,
     },
     {
-      key: 'image',
-      header: 'Image',
-      cell: (row) => <span className="text-gray-600 dark:text-gray-400 text-sm truncate max-w-[120px] block">{row.image ?? '—'}</span>,
+      key: "image",
+      header: "Image",
+      cell: (row) => (
+        <span className="text-gray-600 dark:text-gray-400 text-sm truncate max-w-[120px] block">
+          {row.image ?? "—"}
+        </span>
+      ),
       sortable: true,
     },
     {
-      key: 'datacenter',
-      header: 'Datacenter',
-      cell: (row) => <span className="text-gray-600 dark:text-gray-400 text-sm">{row.datacenter ?? '—'}</span>,
+      key: "datacenter",
+      header: "Datacenter",
+      cell: (row) => (
+        <span className="text-gray-600 dark:text-gray-400 text-sm">{row.datacenter ?? "—"}</span>
+      ),
       sortable: true,
     },
     {
-      key: 'createdAt',
-      header: 'Created',
+      key: "createdAt",
+      header: "Created",
       cell: (row) => (
         <span className="text-gray-500 dark:text-gray-400 text-sm">
-          {row.createdAt ? new Date(row.createdAt).toLocaleDateString() : '—'}
+          {row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "—"}
         </span>
       ),
       sortable: true,
@@ -675,30 +710,24 @@ function TenantVmsPageInner() {
           className="mb-8 flex items-center justify-between"
         >
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Virtual Machines</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Virtual Machines
+            </h1>
           </div>
-          <Button
-            onClick={handleOpenWizard}
-            className="flex items-center gap-2"
-          >
+          <Button onClick={handleOpenWizard} className="flex items-center gap-2">
             <Plus size={18} />
             Create VM
           </Button>
         </motion.div>
 
-        <Modal
-          isOpen={createModalOpen}
-          onClose={handleCloseWizard}
-          title="Create VM"
-          size="xl"
-        >
+        <Modal isOpen={createModalOpen} onClose={handleCloseWizard} title="Create VM" size="xl">
           <div className="flex flex-col max-h-[80vh]">
             {/* Step indicator */}
             <div className="flex flex-wrap gap-x-4 gap-y-1 border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
               {WIZARD_STEPS.map((label, i) => (
                 <span
                   key={label}
-                  className={`text-sm ${i === wizardStep ? 'font-medium text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`}
+                  className={`text-sm ${i === wizardStep ? "font-medium text-primary-600 dark:text-primary-400" : "text-gray-500 dark:text-gray-400"}`}
                 >
                   {i + 1}. {label}
                 </span>
@@ -726,7 +755,7 @@ function TenantVmsPageInner() {
                   <Input
                     label="Description (optional)"
                     placeholder="Short description"
-                    value={createForm.description ?? ''}
+                    value={createForm.description ?? ""}
                     onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))}
                     fullWidth
                     disabled={createSubmitting}
@@ -774,7 +803,7 @@ function TenantVmsPageInner() {
                         const on = e.target.checked;
                         setUseFromTemplate(on);
                         if (!on) {
-                          setTemplateLibraryId('');
+                          setTemplateLibraryId("");
                           setCreateForm((f) => ({
                             ...f,
                             content_item_id: undefined,
@@ -795,7 +824,9 @@ function TenantVmsPageInner() {
                       ) : (
                         <>
                           <div>
-                            <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">Content library</label>
+                            <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">
+                              Content library
+                            </label>
                             <select
                               className="w-full rounded-md border border-panel bg-surface px-3 py-2 text-sm dark:text-gray-100"
                               value={templateLibraryId}
@@ -815,13 +846,15 @@ function TenantVmsPageInner() {
                             </select>
                           </div>
                           <div>
-                            <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">VM template</label>
+                            <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">
+                              VM template
+                            </label>
                             {templateItemsLoading ? (
                               <p className="text-sm text-gray-500">Loading templates…</p>
                             ) : (
                               <select
                                 className="w-full rounded-md border border-panel bg-surface px-3 py-2 text-sm dark:text-gray-100"
-                                value={createForm.content_item_id ?? ''}
+                                value={createForm.content_item_id ?? ""}
                                 onChange={(e) =>
                                   setCreateForm((f) => ({
                                     ...f,
@@ -833,7 +866,7 @@ function TenantVmsPageInner() {
                                 <option value="">Select template</option>
                                 {templateItems.map((t) => (
                                   <option key={t.id} value={t.id}>
-                                    {t.name} {t.version ? `(${t.version})` : ''}
+                                    {t.name} {t.version ? `(${t.version})` : ""}
                                   </option>
                                 ))}
                               </select>
@@ -848,7 +881,9 @@ function TenantVmsPageInner() {
                       Attach ISOs at creation (optional)
                     </p>
                     <div>
-                      <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">ISO library</label>
+                      <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">
+                        ISO library
+                      </label>
                       <select
                         className="w-full rounded-md border border-panel bg-surface px-3 py-2 text-sm dark:text-gray-100"
                         value={isoLibraryId}
@@ -873,7 +908,8 @@ function TenantVmsPageInner() {
                         ) : (
                           <ul className="max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md divide-y dark:divide-gray-800">
                             {isoCandidates.map((iso) => {
-                              const selected = createForm.iso_content_item_ids?.includes(iso.id) ?? false;
+                              const selected =
+                                createForm.iso_content_item_ids?.includes(iso.id) ?? false;
                               return (
                                 <li key={iso.id}>
                                   <label className="flex items-center gap-2 px-2 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -919,7 +955,10 @@ function TenantVmsPageInner() {
                         ...f,
                         spec: {
                           ...f.spec,
-                          compute: { ...f.spec.compute, cpus: Math.max(1, Math.min(128, parseInt(e.target.value, 10) || 1)) },
+                          compute: {
+                            ...f.spec.compute,
+                            cpus: Math.max(1, Math.min(128, parseInt(e.target.value, 10) || 1)),
+                          },
                         },
                       }))
                     }
@@ -935,7 +974,13 @@ function TenantVmsPageInner() {
                         ...f,
                         spec: {
                           ...f.spec,
-                          compute: { ...f.spec.compute, memorySizeMb: Math.max(512, Math.min(1048576, parseInt(e.target.value, 10) || 512)) },
+                          compute: {
+                            ...f.spec.compute,
+                            memorySizeMb: Math.max(
+                              512,
+                              Math.min(1048576, parseInt(e.target.value, 10) || 512)
+                            ),
+                          },
                         },
                       }))
                     }
@@ -957,20 +1002,27 @@ function TenantVmsPageInner() {
                     </label>
                     <select
                       className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-panel dark:bg-surface dark:text-gray-100"
-                      value={createForm.spec.storage.vmStorageClass ?? ''}
+                      value={createForm.spec.storage.vmStorageClass ?? ""}
                       onChange={(e) =>
                         setCreateForm((f) => ({
                           ...f,
                           spec: {
                             ...f.spec,
-                            storage: { ...f.spec.storage, vmStorageClass: e.target.value || undefined },
+                            storage: {
+                              ...f.spec.storage,
+                              vmStorageClass: e.target.value || undefined,
+                            },
                           },
                         }))
                       }
-                      disabled={createSubmitting || storageClassesLoading || storageClasses.length === 0}
+                      disabled={
+                        createSubmitting || storageClassesLoading || storageClasses.length === 0
+                      }
                     >
                       <option value="">
-                        {storageClassesLoading ? 'Loading storage classes…' : 'Select storage class'}
+                        {storageClassesLoading
+                          ? "Loading storage classes…"
+                          : "Select storage class"}
                       </option>
                       {storageClasses.map((name) => (
                         <option key={name} value={name}>
@@ -979,12 +1031,16 @@ function TenantVmsPageInner() {
                       ))}
                     </select>
                     {storageClassesError && (
-                      <p className="mt-1 text-xs text-red-600 dark:text-red-300">{storageClassesError}</p>
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-300">
+                        {storageClassesError}
+                      </p>
                     )}
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Disks</label>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Disks
+                      </label>
                       <Button
                         type="button"
                         variant="secondary"
@@ -1008,7 +1064,10 @@ function TenantVmsPageInner() {
                     </div>
                     <div className="space-y-2">
                       {createForm.spec.storage.disks.map((disk, idx) => (
-                        <div key={idx} className="flex gap-2 items-center rounded border border-gray-200 dark:border-gray-700 p-2">
+                        <div
+                          key={idx}
+                          className="flex gap-2 items-center rounded border border-gray-200 dark:border-gray-700 p-2"
+                        >
                           <Input
                             type="number"
                             placeholder="Size (MB)"
@@ -1016,8 +1075,14 @@ function TenantVmsPageInner() {
                             onChange={(e) =>
                               setCreateForm((f) => {
                                 const disks = [...f.spec.storage.disks];
-                                disks[idx] = { ...disks[idx], sizeMb: Math.max(1, parseInt(e.target.value, 10) || 1) };
-                                return { ...f, spec: { ...f.spec, storage: { ...f.spec.storage, disks } } };
+                                disks[idx] = {
+                                  ...disks[idx],
+                                  sizeMb: Math.max(1, parseInt(e.target.value, 10) || 1),
+                                };
+                                return {
+                                  ...f,
+                                  spec: { ...f.spec, storage: { ...f.spec.storage, disks } },
+                                };
                               })
                             }
                             className="w-32"
@@ -1025,18 +1090,30 @@ function TenantVmsPageInner() {
                           />
                           <select
                             className="flex-1 rounded-md border border-panel bg-surface px-3 py-2 text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-panel dark:bg-surface dark:text-gray-100"
-                            value={disk.storageClass ?? ''}
+                            value={disk.storageClass ?? ""}
                             onChange={(e) =>
                               setCreateForm((f) => {
                                 const disks = [...f.spec.storage.disks];
-                                disks[idx] = { ...disks[idx], storageClass: e.target.value || undefined };
-                                return { ...f, spec: { ...f.spec, storage: { ...f.spec.storage, disks } } };
+                                disks[idx] = {
+                                  ...disks[idx],
+                                  storageClass: e.target.value || undefined,
+                                };
+                                return {
+                                  ...f,
+                                  spec: { ...f.spec, storage: { ...f.spec.storage, disks } },
+                                };
                               })
                             }
-                            disabled={createSubmitting || storageClassesLoading || storageClasses.length === 0}
+                            disabled={
+                              createSubmitting ||
+                              storageClassesLoading ||
+                              storageClasses.length === 0
+                            }
                           >
                             <option value="">
-                              {storageClassesLoading ? 'Loading storage classes…' : 'Select storage class'}
+                              {storageClassesLoading
+                                ? "Loading storage classes…"
+                                : "Select storage class"}
                             </option>
                             {storageClasses.map((name) => (
                               <option key={name} value={name}>
@@ -1067,7 +1144,9 @@ function TenantVmsPageInner() {
                         </div>
                       ))}
                     </div>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">At least one disk required. Size in MB.</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      At least one disk required. Size in MB.
+                    </p>
                     {!storageClassesLoading && storageClasses.length === 0 && (
                       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                         No storage classes available for the selected datacenter grant.
@@ -1081,7 +1160,9 @@ function TenantVmsPageInner() {
               {wizardStep === 4 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Network interfaces</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Network interfaces
+                    </label>
                     <Button
                       type="button"
                       variant="secondary"
@@ -1092,7 +1173,10 @@ function TenantVmsPageInner() {
                           spec: {
                             ...f.spec,
                             network: {
-                              nics: [...(f.spec.network?.nics ?? []), { isPrimary: false, network: '', ip_allocation: 'dhcp' }],
+                              nics: [
+                                ...(f.spec.network?.nics ?? []),
+                                { isPrimary: false, network: "", ip_allocation: "dhcp" },
+                              ],
                             },
                           },
                         }))
@@ -1103,11 +1187,16 @@ function TenantVmsPageInner() {
                     </Button>
                   </div>
                   {(createForm.spec.network?.nics?.length ?? 0) === 0 ? (
-                    <p className="text-sm text-gray-500">No NICs. Add one or leave empty to use defaults.</p>
+                    <p className="text-sm text-gray-500">
+                      No NICs. Add one or leave empty to use defaults.
+                    </p>
                   ) : (
                     <div className="space-y-2">
                       {(createForm.spec.network?.nics ?? []).map((nic, idx) => (
-                        <div key={idx} className="rounded border border-gray-200 dark:border-gray-700 p-3 space-y-2">
+                        <div
+                          key={idx}
+                          className="rounded border border-gray-200 dark:border-gray-700 p-3 space-y-2"
+                        >
                           <div className="flex items-center gap-2">
                             <label className="flex items-center gap-1.5 text-sm">
                               <input
@@ -1131,11 +1220,18 @@ function TenantVmsPageInner() {
                                   ...f,
                                   spec: {
                                     ...f.spec,
-                                    network: { nics: (f.spec.network?.nics ?? []).filter((_, i) => i !== idx) },
+                                    network: {
+                                      nics: (f.spec.network?.nics ?? []).filter(
+                                        (_, i) => i !== idx
+                                      ),
+                                    },
                                   },
                                 }))
                               }
-                              disabled={createSubmitting || (createForm.spec.network?.nics?.length ?? 0) <= 1}
+                              disabled={
+                                createSubmitting ||
+                                (createForm.spec.network?.nics?.length ?? 0) <= 1
+                              }
                               className="p-1 text-gray-500 hover:text-red-600 rounded"
                               aria-label="Remove NIC"
                             >
@@ -1145,7 +1241,7 @@ function TenantVmsPageInner() {
                           <Input
                             label="Network name or ID"
                             placeholder="default"
-                            value={nic.network ?? ''}
+                            value={nic.network ?? ""}
                             onChange={(e) =>
                               setCreateForm((f) => {
                                 const nics = [...(f.spec.network?.nics ?? [])];
@@ -1158,14 +1254,19 @@ function TenantVmsPageInner() {
                           />
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="mb-1 block text-xs text-gray-500">IP allocation</label>
+                              <label className="mb-1 block text-xs text-gray-500">
+                                IP allocation
+                              </label>
                               <select
                                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                                 value={nic.ip_allocation}
                                 onChange={(e) =>
                                   setCreateForm((f) => {
                                     const nics = [...(f.spec.network?.nics ?? [])];
-                                    nics[idx] = { ...nics[idx], ip_allocation: e.target.value as 'dhcp' | 'static' | 'pool' };
+                                    nics[idx] = {
+                                      ...nics[idx],
+                                      ip_allocation: e.target.value as "dhcp" | "static" | "pool",
+                                    };
                                     return { ...f, spec: { ...f.spec, network: { nics } } };
                                   })
                                 }
@@ -1176,15 +1277,18 @@ function TenantVmsPageInner() {
                                 <option value="pool">Pool</option>
                               </select>
                             </div>
-                            {nic.ip_allocation === 'static' && (
+                            {nic.ip_allocation === "static" && (
                               <Input
                                 label="IP address"
                                 placeholder="192.168.1.10"
-                                value={nic.ip_address ?? ''}
+                                value={nic.ip_address ?? ""}
                                 onChange={(e) =>
                                   setCreateForm((f) => {
                                     const nics = [...(f.spec.network?.nics ?? [])];
-                                    nics[idx] = { ...nics[idx], ip_address: e.target.value || null };
+                                    nics[idx] = {
+                                      ...nics[idx],
+                                      ip_address: e.target.value || null,
+                                    };
                                     return { ...f, spec: { ...f.spec, network: { nics } } };
                                   })
                                 }
@@ -1204,16 +1308,21 @@ function TenantVmsPageInner() {
               {wizardStep === 5 && (
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">OS type</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      OS type
+                    </label>
                     <select
                       className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-                      value={createForm.spec.os?.type ?? 'linux'}
+                      value={createForm.spec.os?.type ?? "linux"}
                       onChange={(e) =>
                         setCreateForm((f) => ({
                           ...f,
                           spec: {
                             ...f.spec,
-                            os: { ...f.spec.os!, type: e.target.value as 'linux' | 'windows' | 'bsd' },
+                            os: {
+                              ...f.spec.os!,
+                              type: e.target.value as "linux" | "windows" | "bsd",
+                            },
                           },
                         }))
                       }
@@ -1227,11 +1336,14 @@ function TenantVmsPageInner() {
                   <Input
                     label="Distribution (optional)"
                     placeholder="e.g. ubuntu, centos, windows-server"
-                    value={createForm.spec.os?.distribution ?? ''}
+                    value={createForm.spec.os?.distribution ?? ""}
                     onChange={(e) =>
                       setCreateForm((f) => ({
                         ...f,
-                        spec: { ...f.spec, os: { ...f.spec.os!, distribution: e.target.value || undefined } },
+                        spec: {
+                          ...f.spec,
+                          os: { ...f.spec.os!, distribution: e.target.value || undefined },
+                        },
                       }))
                     }
                     fullWidth
@@ -1240,11 +1352,14 @@ function TenantVmsPageInner() {
                   <Input
                     label="Version (optional)"
                     placeholder="e.g. 22.04"
-                    value={createForm.spec.os?.version ?? ''}
+                    value={createForm.spec.os?.version ?? ""}
                     onChange={(e) =>
                       setCreateForm((f) => ({
                         ...f,
-                        spec: { ...f.spec, os: { ...f.spec.os!, version: e.target.value || undefined } },
+                        spec: {
+                          ...f.spec,
+                          os: { ...f.spec.os!, version: e.target.value || undefined },
+                        },
                       }))
                     }
                     fullWidth
@@ -1256,22 +1371,54 @@ function TenantVmsPageInner() {
               {/* Step 6: Review */}
               {wizardStep === 6 && (
                 <div className="space-y-3 text-sm">
-                  <p><span className="font-medium text-gray-700 dark:text-gray-300">Name:</span> {createForm.name || '—'}</p>
-                  <p><span className="font-medium text-gray-700 dark:text-gray-300">Datacenter:</span> {grants.find((g) => g.id === createForm.tenant_datacenter_grant_id)?.datacenter?.name ?? createForm.tenant_datacenter_grant_id ?? '—'}</p>
                   <p>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">Template:</span>{' '}
-                    {createForm.content_item_id ? createForm.content_item_id : '—'}
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Name:</span>{" "}
+                    {createForm.name || "—"}
                   </p>
                   <p>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">ISOs at create:</span>{' '}
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      Datacenter:
+                    </span>{" "}
+                    {grants.find((g) => g.id === createForm.tenant_datacenter_grant_id)?.datacenter
+                      ?.name ??
+                      createForm.tenant_datacenter_grant_id ??
+                      "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Template:</span>{" "}
+                    {createForm.content_item_id ? createForm.content_item_id : "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      ISOs at create:
+                    </span>{" "}
                     {(createForm.iso_content_item_ids?.length ?? 0) > 0
-                      ? createForm.iso_content_item_ids!.join(', ')
-                      : '—'}
+                      ? createForm.iso_content_item_ids!.join(", ")
+                      : "—"}
                   </p>
-                  <p><span className="font-medium text-gray-700 dark:text-gray-300">Compute:</span> {createForm.spec.compute.cpus} CPUs, {createForm.spec.compute.memorySizeMb} MB RAM</p>
-                  <p><span className="font-medium text-gray-700 dark:text-gray-300">Storage:</span> {createForm.spec.storage.disks.length} disk(s) — {createForm.spec.storage.disks.map((d) => `${d.sizeMb} MB`).join(', ')}</p>
-                  <p><span className="font-medium text-gray-700 dark:text-gray-300">Network:</span> {(createForm.spec.network?.nics?.length ?? 0) > 0 ? createForm.spec.network!.nics.length + ' NIC(s)' : 'default'}</p>
-                  <p><span className="font-medium text-gray-700 dark:text-gray-300">OS:</span> {createForm.spec.os?.type ?? 'linux'} {[createForm.spec.os?.distribution, createForm.spec.os?.version].filter(Boolean).join(' ')}</p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Compute:</span>{" "}
+                    {createForm.spec.compute.cpus} CPUs, {createForm.spec.compute.memorySizeMb} MB
+                    RAM
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Storage:</span>{" "}
+                    {createForm.spec.storage.disks.length} disk(s) —{" "}
+                    {createForm.spec.storage.disks.map((d) => `${d.sizeMb} MB`).join(", ")}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Network:</span>{" "}
+                    {(createForm.spec.network?.nics?.length ?? 0) > 0
+                      ? createForm.spec.network!.nics.length + " NIC(s)"
+                      : "default"}
+                  </p>
+                  <p>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">OS:</span>{" "}
+                    {createForm.spec.os?.type ?? "linux"}{" "}
+                    {[createForm.spec.os?.distribution, createForm.spec.os?.version]
+                      .filter(Boolean)
+                      .join(" ")}
+                  </p>
                 </div>
               )}
             </div>
@@ -1288,7 +1435,7 @@ function TenantVmsPageInner() {
                     Back
                   </>
                 ) : (
-                  'Cancel'
+                  "Cancel"
                 )}
               </Button>
               {wizardStep < WIZARD_STEPS.length - 1 ? (
@@ -1302,7 +1449,7 @@ function TenantVmsPageInner() {
                   disabled={createSubmitting || grants.length === 0}
                   isLoading={createSubmitting}
                 >
-                  {createSubmitting ? 'Creating…' : 'Create VM'}
+                  {createSubmitting ? "Creating…" : "Create VM"}
                 </Button>
               )}
             </div>
@@ -1325,7 +1472,7 @@ function TenantVmsPageInner() {
                   columns={columns}
                   data={vms}
                   emptyMessage="No VMs yet. Create one to get started."
-                  overflowVisibleColumnKeys={['actions']}
+                  overflowVisibleColumnKeys={["actions"]}
                 />
               )}
             </CardContent>

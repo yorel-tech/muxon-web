@@ -1,8 +1,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copy package files from web directory
-COPY web/package.json web/package-lock.json ./
+# Copy package files
+COPY package.json package-lock.json ./
 
 # Install dependencies
 RUN npm ci
@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 
 # Copy source code
-COPY web .
+COPY . .
 
 # Build the application
 RUN npm run build
@@ -29,7 +29,7 @@ ENV NODE_ENV=production
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
-# COPY --from=build /app/public ./public
+COPY --from=build /app/public ./public
 
 EXPOSE 4000
 

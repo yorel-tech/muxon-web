@@ -11,7 +11,10 @@ interface CapabilityEditorProps {
 }
 
 export default function CapabilityEditor({ capabilities, onChange }: CapabilityEditorProps) {
-  const updateCapability = <K extends keyof StorageCapabilities>(key: K, value: StorageCapabilities[K]) => {
+  const updateCapability = <K extends keyof StorageCapabilities>(
+    key: K,
+    value: StorageCapabilities[K]
+  ) => {
     onChange({ ...capabilities, [key]: value });
   };
 

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect, use } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { Button } from '@/components/ui/atoms/button';
-import { Input } from '@/components/ui/atoms/input';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
-import { RowActionsTrigger } from '@/components/DynamicContextMenu';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, use } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { Button } from "@/components/ui/atoms/button";
+import { Input } from "@/components/ui/atoms/input";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
+import { RowActionsTrigger } from "@/components/DynamicContextMenu";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Loader2,
@@ -29,13 +29,13 @@ import {
   Settings,
   Sliders,
   ExternalLink,
-} from 'lucide-react';
-import { apiGet, apiPut, apiPost, apiPatch, apiDelete, executeLinkAction } from '@/lib/api';
-import { findLink, normalizeEntityLinks } from '@/lib/hateoas';
-import { openTenantPortalInNewTab } from '@/lib/tenant-context';
-import { DetailRow, formatDetailDate } from '@/components/entity-detail/DetailRow';
-import { Tabs } from '@/components/ui/molecules/tabs';
-import type { Link as HateoasLink } from '@/types/provider';
+} from "lucide-react";
+import { apiGet, apiPut, apiPost, apiPatch, apiDelete, executeLinkAction } from "@/lib/api";
+import { findLink, normalizeEntityLinks } from "@/lib/hateoas";
+import { openTenantPortalInNewTab } from "@/lib/tenant-context";
+import { DetailRow, formatDetailDate } from "@/components/entity-detail/DetailRow";
+import { Tabs } from "@/components/ui/molecules/tabs";
+import type { Link as HateoasLink } from "@/types/provider";
 
 interface TenantDetail {
   id: string;
@@ -168,7 +168,7 @@ function StorageClassMultiSelectDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const uniq = (values: string[]): string[] => Array.from(new Set(values.filter(Boolean)));
 
   const q = query.trim().toLowerCase();
@@ -199,8 +199,10 @@ function StorageClassMultiSelectDropdown({
           disabled={disabled}
         >
           <div className="flex items-center justify-between gap-2">
-            <span className={selected.length === 0 ? 'text-gray-500' : 'text-gray-900'}>{summary}</span>
-            <span className="text-gray-400">{open ? '▲' : '▼'}</span>
+            <span className={selected.length === 0 ? "text-gray-500" : "text-gray-900"}>
+              {summary}
+            </span>
+            <span className="text-gray-400">{open ? "▲" : "▼"}</span>
           </div>
         </button>
         {open && (
@@ -219,14 +221,21 @@ function StorageClassMultiSelectDropdown({
                   {pageItems.map((name) => {
                     const checked = selected.includes(name);
                     return (
-                      <label key={name} className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700">
+                      <label
+                        key={name}
+                        className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700"
+                      >
                         <input
                           type="checkbox"
                           className="rounded border-gray-300"
                           checked={checked}
                           onChange={(e) => {
                             const isChecked = e.target.checked;
-                            onChange(isChecked ? uniq([...selected, name]) : selected.filter((s) => s !== name));
+                            onChange(
+                              isChecked
+                                ? uniq([...selected, name])
+                                : selected.filter((s) => s !== name)
+                            );
                           }}
                         />
                         <span className="truncate">{name}</span>
@@ -282,15 +291,11 @@ function StorageClassMultiSelectDropdown({
   );
 }
 
-export default function TenantDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function TenantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tabFromUrl = searchParams.get('tab') ?? 'overview';
+  const tabFromUrl = searchParams.get("tab") ?? "overview";
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
   const [grants, setGrants] = useState<TenantDatacenterGrantList | null>(null);
   const [settings, setSettings] = useState<TenantSettings | null>(null);
@@ -299,9 +304,11 @@ export default function TenantDetailPage({
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [editModal, setEditModal] = useState(false);
-  const [editDisplayName, setEditDisplayName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [userRoleModal, setUserRoleModal] = useState<{ user: TenantUser; newRole: string } | null>(null);
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [userRoleModal, setUserRoleModal] = useState<{ user: TenantUser; newRole: string } | null>(
+    null
+  );
   const [addUserModal, setAddUserModal] = useState(false);
   const [addDatacenterModal, setAddDatacenterModal] = useState(false);
 
@@ -311,31 +318,38 @@ export default function TenantDetailPage({
   const [addDcLoadingDatacenters, setAddDcLoadingDatacenters] = useState(false);
   const [selectedDatacenterId, setSelectedDatacenterId] = useState<string | null>(null);
   const [grantAccess, setGrantAccess] = useState(true);
-  const [limitMaxCpus, setLimitMaxCpus] = useState<string>('');
-  const [limitMaxMemoryGb, setLimitMaxMemoryGb] = useState<string>('');
-  const [limitMaxStorageGb, setLimitMaxStorageGb] = useState<string>('');
-  const [limitMaxVms, setLimitMaxVms] = useState<string>('');
-  const [limitMaxVolumes, setLimitMaxVolumes] = useState<string>('');
-  const [limitMaxLoadBalancers, setLimitMaxLoadBalancers] = useState<string>('');
-  const [addDcVmClassesStr, setAddDcVmClassesStr] = useState<string>('');
-  const [addDcNetworkDomainsStr, setAddDcNetworkDomainsStr] = useState<string>('');
+  const [limitMaxCpus, setLimitMaxCpus] = useState<string>("");
+  const [limitMaxMemoryGb, setLimitMaxMemoryGb] = useState<string>("");
+  const [limitMaxStorageGb, setLimitMaxStorageGb] = useState<string>("");
+  const [limitMaxVms, setLimitMaxVms] = useState<string>("");
+  const [limitMaxVolumes, setLimitMaxVolumes] = useState<string>("");
+  const [limitMaxLoadBalancers, setLimitMaxLoadBalancers] = useState<string>("");
+  const [addDcVmClassesStr, setAddDcVmClassesStr] = useState<string>("");
+  const [addDcNetworkDomainsStr, setAddDcNetworkDomainsStr] = useState<string>("");
   const [addDcSelectedStorageClasses, setAddDcSelectedStorageClasses] = useState<string[]>([]);
   const [addDcStorageClassOptions, setAddDcStorageClassOptions] = useState<string[]>([]);
   const [addDcSettingsLoading, setAddDcSettingsLoading] = useState(false);
   const [addDcError, setAddDcError] = useState<string | null>(null);
   const [addDcSubmitting, setAddDcSubmitting] = useState(false);
-  const [editGrantLimitsModal, setEditGrantLimitsModal] = useState<TenantDatacenterGrant | null>(null);
-  const [editGrantSettingsModal, setEditGrantSettingsModal] = useState<TenantDatacenterGrant | null>(null);
+  const [editGrantLimitsModal, setEditGrantLimitsModal] = useState<TenantDatacenterGrant | null>(
+    null
+  );
+  const [editGrantSettingsModal, setEditGrantSettingsModal] =
+    useState<TenantDatacenterGrant | null>(null);
   const [editLimitsForm, setEditLimitsForm] = useState<Record<string, string>>({});
-  const [editSettingsForm, setEditSettingsForm] = useState<{ vmClassesStr: string; networkDomainsStr: string; selectedStorageClasses: string[] }>({ vmClassesStr: '', networkDomainsStr: '', selectedStorageClasses: [] });
+  const [editSettingsForm, setEditSettingsForm] = useState<{
+    vmClassesStr: string;
+    networkDomainsStr: string;
+    selectedStorageClasses: string[];
+  }>({ vmClassesStr: "", networkDomainsStr: "", selectedStorageClasses: [] });
   const [editStorageClassOptions, setEditStorageClassOptions] = useState<string[]>([]);
   const [editSettingsLoading, setEditSettingsLoading] = useState(false);
   const [editGrantSubmitting, setEditGrantSubmitting] = useState(false);
   const [editGrantError, setEditGrantError] = useState<string | null>(null);
 
   const links = normalizeEntityLinks(tenant ?? {});
-  const updateLink = findLink(links, 'update');
-  const deleteLink = findLink(links, 'delete');
+  const updateLink = findLink(links, "update");
+  const deleteLink = findLink(links, "delete");
 
   const fetchTenant = async () => {
     const data = await apiGet(`/api/v1/tenants/${id}`);
@@ -384,7 +398,7 @@ export default function TenantDetailPage({
         ]);
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load tenant');
+          setError(e instanceof Error ? e.message : "Failed to load tenant");
           setTenant(null);
         }
       } finally {
@@ -409,7 +423,7 @@ export default function TenantDetailPage({
       } catch (e) {
         if (!cancelled) {
           setAddDcStorageClassOptions([]);
-          setAddDcError(e instanceof Error ? e.message : 'Failed to load datacenter settings');
+          setAddDcError(e instanceof Error ? e.message : "Failed to load datacenter settings");
         }
       } finally {
         if (!cancelled) setAddDcSettingsLoading(false);
@@ -430,7 +444,7 @@ export default function TenantDetailPage({
 
   const handleUpdate = async () => {
     if (!updateLink || !tenant) return;
-    setActionLoading('update');
+    setActionLoading("update");
     try {
       await executeLinkAction(updateLink, {
         displayName: editDisplayName || undefined,
@@ -439,7 +453,7 @@ export default function TenantDetailPage({
       setEditModal(false);
       await refetch();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Update failed');
+      alert(e instanceof Error ? e.message : "Update failed");
     } finally {
       setActionLoading(null);
     }
@@ -447,13 +461,14 @@ export default function TenantDetailPage({
 
   const handleDelete = async () => {
     if (!deleteLink || !tenant) return;
-    if (!confirm(`Delete tenant "${tenant.displayName || tenant.name}"? This cannot be undone.`)) return;
-    setActionLoading('delete');
+    if (!confirm(`Delete tenant "${tenant.displayName || tenant.name}"? This cannot be undone.`))
+      return;
+    setActionLoading("delete");
     try {
       await executeLinkAction(deleteLink);
-      window.location.href = '/system/tenants';
+      window.location.href = "/system/tenants";
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Delete failed');
+      alert(e instanceof Error ? e.message : "Delete failed");
       setActionLoading(null);
     }
   };
@@ -463,14 +478,14 @@ export default function TenantDetailPage({
     setAddDcWizardStep(0);
     setSelectedDatacenterId(null);
     setGrantAccess(true);
-    setLimitMaxCpus('');
-    setLimitMaxMemoryGb('');
-    setLimitMaxStorageGb('');
-    setLimitMaxVms('');
-    setLimitMaxVolumes('');
-    setLimitMaxLoadBalancers('');
-    setAddDcVmClassesStr('');
-    setAddDcNetworkDomainsStr('');
+    setLimitMaxCpus("");
+    setLimitMaxMemoryGb("");
+    setLimitMaxStorageGb("");
+    setLimitMaxVms("");
+    setLimitMaxVolumes("");
+    setLimitMaxLoadBalancers("");
+    setAddDcVmClassesStr("");
+    setAddDcNetworkDomainsStr("");
     setAddDcSelectedStorageClasses([]);
     setAddDcStorageClassOptions([]);
     setAddDcSettingsLoading(false);
@@ -480,9 +495,13 @@ export default function TenantDetailPage({
     setAddDcLoadingDatacenters(true);
     (async () => {
       try {
-        const data = await apiGet<{ items?: DatacenterListItem[] }>('/api/v1/datacenters?perPage=200');
+        const data = await apiGet<{ items?: DatacenterListItem[] }>(
+          "/api/v1/datacenters?perPage=200"
+        );
         const items = data?.items ?? [];
-        const grantedIds = new Set((grants?.items ?? []).map((g) => getGrantDatacenterId(g)).filter(Boolean));
+        const grantedIds = new Set(
+          (grants?.items ?? []).map((g) => getGrantDatacenterId(g)).filter(Boolean)
+        );
         setAvailableDatacenters(items.filter((dc) => !grantedIds.has(dc.id)));
       } catch {
         setAvailableDatacenters([]);
@@ -501,19 +520,19 @@ export default function TenantDetailPage({
 
   const parseOptionalInt = (s: string): number | undefined => {
     const v = s.trim();
-    if (v === '') return undefined;
+    if (v === "") return undefined;
     const n = parseInt(v, 10);
     return Number.isNaN(n) || n < 0 ? undefined : n;
   };
 
   const parseCsv = (value: string): string[] =>
     value
-      .split(',')
+      .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
 
   const getGrantDatacenterId = (g: TenantDatacenterGrant): string =>
-    g.datacenterId || g.datacenter?.id || '';
+    g.datacenterId || g.datacenter?.id || "";
 
   const fetchTenantDatacenterGrant = async (datacenterId: string): Promise<TenantDatacenterGrant> =>
     apiGet<TenantDatacenterGrant>(`/api/v1/tenants/${id}/datacenters/${datacenterId}`);
@@ -532,7 +551,10 @@ export default function TenantDetailPage({
     overrideSettings: overrides.overrideSettings ?? g.overrideSettings,
   });
 
-  const ensurePatchableGrant = async (g: TenantDatacenterGrant, datacenterId: string): Promise<TenantDatacenterGrant> => {
+  const ensurePatchableGrant = async (
+    g: TenantDatacenterGrant,
+    datacenterId: string
+  ): Promise<TenantDatacenterGrant> => {
     if (g.id && g.tenant?.id && (g.datacenter?.id || datacenterId)) {
       return g;
     }
@@ -543,21 +565,31 @@ export default function TenantDetailPage({
 
   const normalizeItems = <T,>(payload: unknown): T[] => {
     if (Array.isArray(payload)) return payload as T[];
-    if (payload && typeof payload === 'object' && Array.isArray((payload as { items?: unknown[] }).items)) {
+    if (
+      payload &&
+      typeof payload === "object" &&
+      Array.isArray((payload as { items?: unknown[] }).items)
+    ) {
       return (payload as { items: T[] }).items;
     }
     return [];
   };
 
-  const fetchDatacenterSelectableSettings = async (datacenterId: string): Promise<DatacenterSettingsResponse> => {
-    const datacenter = await apiGet<DatacenterDetailResponse>(`/api/v1/datacenters/${datacenterId}`);
+  const fetchDatacenterSelectableSettings = async (
+    datacenterId: string
+  ): Promise<DatacenterSettingsResponse> => {
+    const datacenter = await apiGet<DatacenterDetailResponse>(
+      `/api/v1/datacenters/${datacenterId}`
+    );
     let vmClasses = datacenter.settings?.vmClasses ?? [];
     let storageClasses = datacenter.settings?.storageClasses ?? [];
     let networkDomains = datacenter.settings?.networkDomains ?? [];
 
     if (!vmClasses.length && !storageClasses.length && !networkDomains.length) {
       try {
-        const settingsData = await apiGet<DatacenterSettingsResponse>(`/api/v1/datacenters/${datacenterId}/settings`);
+        const settingsData = await apiGet<DatacenterSettingsResponse>(
+          `/api/v1/datacenters/${datacenterId}/settings`
+        );
         vmClasses = settingsData?.vmClasses ?? [];
         storageClasses = settingsData?.storageClasses ?? [];
         networkDomains = settingsData?.networkDomains ?? [];
@@ -572,14 +604,15 @@ export default function TenantDetailPage({
       try {
         const cluster = await apiGet<NodeClusterResponse>(`/api/v1/node-clusters/${nodeClusterId}`);
         if (cluster.providerId) {
-          const providerStorageData = await apiGet<ProviderStorageResponseItem[] | { items?: ProviderStorageResponseItem[] }>(
-            `/api/v1/providers/${cluster.providerId}/storage?perPage=100`
-          );
-          const providerStorageItems = normalizeItems<ProviderStorageResponseItem>(providerStorageData);
+          const providerStorageData = await apiGet<
+            ProviderStorageResponseItem[] | { items?: ProviderStorageResponseItem[] }
+          >(`/api/v1/providers/${cluster.providerId}/storage?perPage=100`);
+          const providerStorageItems =
+            normalizeItems<ProviderStorageResponseItem>(providerStorageData);
           providerStorageClasses = uniqueStrings(
             providerStorageItems.flatMap((item) =>
               (item.mappedStorageClasses ?? [])
-                .map((mapped) => mapped.storageClassName ?? '')
+                .map((mapped) => mapped.storageClassName ?? "")
                 .filter(Boolean)
             )
           );
@@ -591,7 +624,9 @@ export default function TenantDetailPage({
 
     return {
       vmClasses: uniqueStrings(vmClasses),
-      storageClasses: uniqueStrings(providerStorageClasses.length ? providerStorageClasses : storageClasses),
+      storageClasses: uniqueStrings(
+        providerStorageClasses.length ? providerStorageClasses : storageClasses
+      ),
       networkDomains: uniqueStrings(networkDomains),
     };
   };
@@ -635,7 +670,7 @@ export default function TenantDetailPage({
       await fetchGrants();
       closeAddDatacenterModal();
     } catch (e) {
-      setAddDcError(e instanceof Error ? e.message : 'Failed to add datacenter');
+      setAddDcError(e instanceof Error ? e.message : "Failed to add datacenter");
     } finally {
       setAddDcSubmitting(false);
     }
@@ -644,7 +679,7 @@ export default function TenantDetailPage({
   const openEditGrantLimits = async (g: TenantDatacenterGrant) => {
     const datacenterId = getGrantDatacenterId(g);
     if (!datacenterId) {
-      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      setEditGrantError("Datacenter ID is missing for this tenant grant");
       return;
     }
     setEditGrantSubmitting(true);
@@ -658,12 +693,12 @@ export default function TenantDetailPage({
     }
     setEditGrantLimitsModal(grant);
     setEditLimitsForm({
-      maxCpus: grant.limits?.maxCpus?.toString() ?? '',
-      maxMemoryGb: grant.limits?.maxMemoryGb?.toString() ?? '',
-      maxStorageGb: grant.limits?.maxStorageGb?.toString() ?? '',
-      maxVms: grant.limits?.maxVms?.toString() ?? '',
-      maxVolumes: grant.limits?.maxVolumes?.toString() ?? '',
-      maxLoadBalancers: grant.limits?.maxLoadBalancers?.toString() ?? '',
+      maxCpus: grant.limits?.maxCpus?.toString() ?? "",
+      maxMemoryGb: grant.limits?.maxMemoryGb?.toString() ?? "",
+      maxStorageGb: grant.limits?.maxStorageGb?.toString() ?? "",
+      maxVms: grant.limits?.maxVms?.toString() ?? "",
+      maxVolumes: grant.limits?.maxVolumes?.toString() ?? "",
+      maxLoadBalancers: grant.limits?.maxLoadBalancers?.toString() ?? "",
     });
     setEditGrantError(null);
   };
@@ -671,7 +706,7 @@ export default function TenantDetailPage({
   const openEditGrantSettings = async (g: TenantDatacenterGrant) => {
     const datacenterId = getGrantDatacenterId(g);
     if (!datacenterId) {
-      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      setEditGrantError("Datacenter ID is missing for this tenant grant");
       return;
     }
     setEditGrantError(null);
@@ -686,14 +721,19 @@ export default function TenantDetailPage({
       }
       setEditGrantSettingsModal(grant);
       setEditSettingsForm({
-        vmClassesStr: grant.overrideSettings?.vmClasses?.join(', ') ?? '',
+        vmClassesStr: grant.overrideSettings?.vmClasses?.join(", ") ?? "",
         selectedStorageClasses: grant.overrideSettings?.storageClasses ?? [],
-        networkDomainsStr: grant.overrideSettings?.networkDomains?.join(', ') ?? '',
+        networkDomainsStr: grant.overrideSettings?.networkDomains?.join(", ") ?? "",
       });
       const selectable = await fetchDatacenterSelectableSettings(datacenterId);
-      setEditStorageClassOptions(uniqueStrings([...(selectable.storageClasses ?? []), ...(grant.overrideSettings?.storageClasses ?? [])]));
+      setEditStorageClassOptions(
+        uniqueStrings([
+          ...(selectable.storageClasses ?? []),
+          ...(grant.overrideSettings?.storageClasses ?? []),
+        ])
+      );
     } catch (e) {
-      setEditGrantError(e instanceof Error ? e.message : 'Failed to load provider storage classes');
+      setEditGrantError(e instanceof Error ? e.message : "Failed to load provider storage classes");
     } finally {
       setEditSettingsLoading(false);
     }
@@ -704,7 +744,7 @@ export default function TenantDetailPage({
     if (!g || !id) return;
     const datacenterId = getGrantDatacenterId(g);
     if (!datacenterId) {
-      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      setEditGrantError("Datacenter ID is missing for this tenant grant");
       return;
     }
     setEditGrantSubmitting(true);
@@ -712,12 +752,12 @@ export default function TenantDetailPage({
     try {
       const patchableGrant = await ensurePatchableGrant(g, datacenterId);
       const limits: ResourceLimits = {};
-      const maxCpus = parseOptionalInt(editLimitsForm.maxCpus ?? '');
-      const maxMemoryGb = parseOptionalInt(editLimitsForm.maxMemoryGb ?? '');
-      const maxStorageGb = parseOptionalInt(editLimitsForm.maxStorageGb ?? '');
-      const maxVms = parseOptionalInt(editLimitsForm.maxVms ?? '');
-      const maxVolumes = parseOptionalInt(editLimitsForm.maxVolumes ?? '');
-      const maxLoadBalancers = parseOptionalInt(editLimitsForm.maxLoadBalancers ?? '');
+      const maxCpus = parseOptionalInt(editLimitsForm.maxCpus ?? "");
+      const maxMemoryGb = parseOptionalInt(editLimitsForm.maxMemoryGb ?? "");
+      const maxStorageGb = parseOptionalInt(editLimitsForm.maxStorageGb ?? "");
+      const maxVms = parseOptionalInt(editLimitsForm.maxVms ?? "");
+      const maxVolumes = parseOptionalInt(editLimitsForm.maxVolumes ?? "");
+      const maxLoadBalancers = parseOptionalInt(editLimitsForm.maxLoadBalancers ?? "");
       if (maxCpus != null) limits.maxCpus = maxCpus;
       if (maxMemoryGb != null) limits.maxMemoryGb = maxMemoryGb;
       if (maxStorageGb != null) limits.maxStorageGb = maxStorageGb;
@@ -732,7 +772,7 @@ export default function TenantDetailPage({
       setEditGrantLimitsModal(null);
       await fetchGrants();
     } catch (e) {
-      setEditGrantError(e instanceof Error ? e.message : 'Failed to update limits');
+      setEditGrantError(e instanceof Error ? e.message : "Failed to update limits");
     } finally {
       setEditGrantSubmitting(false);
     }
@@ -743,7 +783,7 @@ export default function TenantDetailPage({
     if (!g || !id) return;
     const datacenterId = getGrantDatacenterId(g);
     if (!datacenterId) {
-      setEditGrantError('Datacenter ID is missing for this tenant grant');
+      setEditGrantError("Datacenter ID is missing for this tenant grant");
       return;
     }
     setEditGrantSubmitting(true);
@@ -762,7 +802,7 @@ export default function TenantDetailPage({
       setEditGrantSettingsModal(null);
       await fetchGrants();
     } catch (e) {
-      setEditGrantError(e instanceof Error ? e.message : 'Failed to update settings');
+      setEditGrantError(e instanceof Error ? e.message : "Failed to update settings");
     } finally {
       setEditGrantSubmitting(false);
     }
@@ -778,61 +818,73 @@ export default function TenantDetailPage({
       setUserRoleModal(null);
       await fetchUsers();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Update role failed');
+      alert(e instanceof Error ? e.message : "Update role failed");
     } finally {
       setActionLoading(null);
     }
   };
 
   const handleRemoveUser = async (userId: string) => {
-    if (!confirm('Remove this user from the tenant?')) return;
+    if (!confirm("Remove this user from the tenant?")) return;
     setActionLoading(`del-${userId}`);
     try {
       await apiDelete(`/api/v1/tenants/${id}/users/${userId}`);
       await fetchUsers();
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Remove failed');
+      alert(e instanceof Error ? e.message : "Remove failed");
     } finally {
       setActionLoading(null);
     }
   };
 
   const openEdit = () => {
-    setEditDisplayName(tenant?.displayName ?? '');
-    setEditDescription(tenant?.description ?? '');
+    setEditDisplayName(tenant?.displayName ?? "");
+    setEditDescription(tenant?.description ?? "");
     setEditModal(true);
   };
 
   const getStatusVariant = (status: string | undefined) => {
     switch (status) {
-      case 'active':
-        return 'success';
-      case 'inactive':
-        return 'default';
-      case 'suspended':
-        return 'warning';
+      case "active":
+        return "success";
+      case "inactive":
+        return "default";
+      case "suspended":
+        return "warning";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const getGrantContextMenuOptions = (g: TenantDatacenterGrant): DropdownOption[] => [
-    { label: 'Edit limits', icon: <Sliders className="w-4 h-4" />, onClick: () => openEditGrantLimits(g) },
-    { label: 'Edit settings', icon: <Settings className="w-4 h-4" />, onClick: () => openEditGrantSettings(g) },
-    { label: 'View datacenter', icon: <ExternalLink className="w-4 h-4" />, onClick: () => {
-      const datacenterId = getGrantDatacenterId(g);
-      if (!datacenterId) {
-        setEditGrantError('Datacenter ID is missing for this tenant grant');
-        return;
-      }
-      router.push(`/system/datacenters/${datacenterId}?from=tenant&tenantId=${id}`);
-    } },
+    {
+      label: "Edit limits",
+      icon: <Sliders className="w-4 h-4" />,
+      onClick: () => openEditGrantLimits(g),
+    },
+    {
+      label: "Edit settings",
+      icon: <Settings className="w-4 h-4" />,
+      onClick: () => openEditGrantSettings(g),
+    },
+    {
+      label: "View datacenter",
+      icon: <ExternalLink className="w-4 h-4" />,
+      onClick: () => {
+        const datacenterId = getGrantDatacenterId(g);
+        if (!datacenterId) {
+          setEditGrantError("Datacenter ID is missing for this tenant grant");
+          return;
+        }
+        router.push(`/system/datacenters/${datacenterId}?from=tenant&tenantId=${id}`);
+      },
+    },
   ];
 
   const grantColumns: Column<TenantDatacenterGrant>[] = [
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       cell: (row: TenantDatacenterGrant) => (
         <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           <Dropdown
@@ -846,29 +898,34 @@ export default function TenantDetailPage({
       sortable: false,
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row: TenantDatacenterGrant) => (
         <div className="font-medium text-gray-900">{row.datacenter?.name ?? row.datacenterId}</div>
       ),
       sortable: true,
     },
     {
-      key: 'description',
-      header: 'Description',
+      key: "description",
+      header: "Description",
       cell: (row: TenantDatacenterGrant) => (
-        <span className="text-gray-600 text-sm">{row.datacenter?.description ?? '—'}</span>
+        <span className="text-gray-600 text-sm">{row.datacenter?.description ?? "—"}</span>
       ),
       sortable: false,
     },
     {
-      key: 'limits',
-      header: 'Limits',
+      key: "limits",
+      header: "Limits",
       cell: (row: TenantDatacenterGrant) => {
         const l = row.limits;
-        if (!l || (l.maxVms == null && l.maxCpus == null && l.maxMemoryGb == null)) return <span className="text-gray-400">—</span>;
-        const parts = [l.maxVms != null && `VMs: ${l.maxVms}`, l.maxCpus != null && `vCPUs: ${l.maxCpus}`, l.maxMemoryGb != null && `RAM: ${l.maxMemoryGb} GB`].filter(Boolean);
-        return <span className="text-gray-600 text-sm">{parts.join(', ')}</span>;
+        if (!l || (l.maxVms == null && l.maxCpus == null && l.maxMemoryGb == null))
+          return <span className="text-gray-400">—</span>;
+        const parts = [
+          l.maxVms != null && `VMs: ${l.maxVms}`,
+          l.maxCpus != null && `vCPUs: ${l.maxCpus}`,
+          l.maxMemoryGb != null && `RAM: ${l.maxMemoryGb} GB`,
+        ].filter(Boolean);
+        return <span className="text-gray-600 text-sm">{parts.join(", ")}</span>;
       },
       sortable: false,
     },
@@ -898,14 +955,19 @@ export default function TenantDetailPage({
   if (error || !tenant) {
     return (
       <div className="min-h-screen bg-app px-3 py-8">
-        <Link href="/system/tenants" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6">
+        <Link
+          href="/system/tenants"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+        >
           <ArrowLeft size={20} />
           Back to Tenants
         </Link>
         <Card>
           <CardContent className="p-8 text-center">
-            <p className="text-red-600">{error ?? 'Tenant not found'}</p>
-            <p className="text-sm text-gray-500 mt-2">The requested tenant may not exist or you may not have access.</p>
+            <p className="text-red-600">{error ?? "Tenant not found"}</p>
+            <p className="text-sm text-gray-500 mt-2">
+              The requested tenant may not exist or you may not have access.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -915,18 +977,34 @@ export default function TenantDetailPage({
   return (
     <div className="min-h-screen bg-app">
       <div className="max-w-full px-3 py-8">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-          <Link href="/system/tenants" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <Link
+            href="/system/tenants"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
             <ArrowLeft size={20} />
             <span className="font-medium">Back to Tenants</span>
           </Link>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mb-6"
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{tenant.displayName || tenant.name}</h1>
-              {tenant.status && <Badge variant={getStatusVariant(tenant.status)}>{tenant.status}</Badge>}
+              <h1 className="text-2xl font-bold text-gray-900">
+                {tenant.displayName || tenant.name}
+              </h1>
+              {tenant.status && (
+                <Badge variant={getStatusVariant(tenant.status)}>{tenant.status}</Badge>
+              )}
             </div>
             <Button
               variant="secondary"
@@ -945,36 +1023,127 @@ export default function TenantDetailPage({
           defaultTab={tabFromUrl}
           tabs={[
             {
-              id: 'overview',
-              label: 'Overview',
+              id: "overview",
+              label: "Overview",
               icon: <BarChart3 className="h-4 w-4" />,
               content: (
                 <Card bordered>
                   <CardContent className="pt-6">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50"><Users className="h-5 w-5 text-blue-600" /></div>
-                        <div><p className="text-sm text-gray-500">Users</p><p className="text-xl font-bold text-gray-900">{usersTotal}</p></div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                          <Users className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Users</p>
+                          <p className="text-xl font-bold text-gray-900">{usersTotal}</p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50"><Server className="h-5 w-5 text-purple-600" /></div>
-                        <div><p className="text-sm text-gray-500">Datacenters</p><p className="text-xl font-bold text-gray-900">{grantsTotal}</p></div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50">
+                          <Server className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Datacenters</p>
+                          <p className="text-xl font-bold text-gray-900">{grantsTotal}</p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50"><Database className="h-5 w-5 text-green-600" /></div>
-                        <div><p className="text-sm text-gray-500">VMs</p><p className="text-xl font-bold text-gray-900">{vmsUsed}</p></div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+                          <Database className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">VMs</p>
+                          <p className="text-xl font-bold text-gray-900">{vmsUsed}</p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50"><BarChart3 className="h-5 w-5 text-orange-600" /></div>
-                        <div><p className="text-sm text-gray-500">Quota usage</p><p className="text-xl font-bold text-gray-900">{vmsLimit > 0 ? `${quotaPct}%` : '—'}</p></div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
+                          <BarChart3 className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Quota usage</p>
+                          <p className="text-xl font-bold text-gray-900">
+                            {vmsLimit > 0 ? `${quotaPct}%` : "—"}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    {(vmsLimit > 0 || vcpusLimit > 0 || memoryLimitGb > 0 || storageLimitGb > 0) && (
+                    {(vmsLimit > 0 ||
+                      vcpusLimit > 0 ||
+                      memoryLimitGb > 0 ||
+                      storageLimitGb > 0) && (
                       <div className="mt-4 space-y-3 pt-4 border-t border-gray-100">
-                        {vmsLimit > 0 && (<div><div className="flex justify-between text-sm mb-1"><span className="font-medium text-gray-700">VMs</span><span className="text-gray-500">{vmsUsed} / {vmsLimit}</span></div><div className="w-full bg-gray-200 rounded-full h-2"><div className="bg-primary-600 h-2 rounded-full" style={{ width: `${quotaPct}%` }} /></div></div>)}
-                        {vcpusLimit > 0 && (<div><div className="flex justify-between text-sm mb-1"><span className="font-medium text-gray-700">vCPUs</span><span className="text-gray-500">{vcpusUsed} / {vcpusLimit}</span></div><div className="w-full bg-gray-200 rounded-full h-2"><div className="bg-purple-600 h-2 rounded-full" style={{ width: `${vcpusLimit ? Math.min(100, Math.round((vcpusUsed / vcpusLimit) * 100)) : 0}%` }} /></div></div>)}
-                        {memoryLimitGb > 0 && (<div><div className="flex justify-between text-sm mb-1"><span className="font-medium text-gray-700">Memory (GB)</span><span className="text-gray-500">{memoryUsedGb} / {memoryLimitGb}</span></div><div className="w-full bg-gray-200 rounded-full h-2"><div className="bg-green-600 h-2 rounded-full" style={{ width: `${memoryLimitGb ? Math.min(100, Math.round((memoryUsedGb / memoryLimitGb) * 100)) : 0}%` }} /></div></div>)}
-                        {storageLimitGb > 0 && (<div><div className="flex justify-between text-sm mb-1"><span className="font-medium text-gray-700">Storage (GB)</span><span className="text-gray-500">{storageUsedGb} / {storageLimitGb}</span></div><div className="w-full bg-gray-200 rounded-full h-2"><div className="bg-orange-600 h-2 rounded-full" style={{ width: `${storageLimitGb ? Math.min(100, Math.round((storageUsedGb / storageLimitGb) * 100)) : 0}%` }} /></div></div>)}
+                        {vmsLimit > 0 && (
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="font-medium text-gray-700">VMs</span>
+                              <span className="text-gray-500">
+                                {vmsUsed} / {vmsLimit}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-primary-600 h-2 rounded-full"
+                                style={{ width: `${quotaPct}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        {vcpusLimit > 0 && (
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="font-medium text-gray-700">vCPUs</span>
+                              <span className="text-gray-500">
+                                {vcpusUsed} / {vcpusLimit}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-purple-600 h-2 rounded-full"
+                                style={{
+                                  width: `${vcpusLimit ? Math.min(100, Math.round((vcpusUsed / vcpusLimit) * 100)) : 0}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        {memoryLimitGb > 0 && (
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="font-medium text-gray-700">Memory (GB)</span>
+                              <span className="text-gray-500">
+                                {memoryUsedGb} / {memoryLimitGb}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-green-600 h-2 rounded-full"
+                                style={{
+                                  width: `${memoryLimitGb ? Math.min(100, Math.round((memoryUsedGb / memoryLimitGb) * 100)) : 0}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                        {storageLimitGb > 0 && (
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="font-medium text-gray-700">Storage (GB)</span>
+                              <span className="text-gray-500">
+                                {storageUsedGb} / {storageLimitGb}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div
+                                className="bg-orange-600 h-2 rounded-full"
+                                style={{
+                                  width: `${storageLimitGb ? Math.min(100, Math.round((storageUsedGb / storageLimitGb) * 100)) : 0}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
@@ -982,16 +1151,39 @@ export default function TenantDetailPage({
               ),
             },
             {
-              id: 'general',
-              label: 'General',
+              id: "general",
+              label: "General",
               icon: <Building2 className="h-4 w-4" />,
               content: (
                 <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">General</span>
                     <div className="flex items-center gap-2">
-                      <Button variant="secondary" size="sm" disabled={!updateLink?.enabled} title={!updateLink?.enabled ? updateLink?.reason : undefined} onClick={openEdit}><Pencil className="h-4 w-4 mr-1" /> Edit</Button>
-                      <Button variant="secondary" size="sm" disabled={!deleteLink?.enabled} title={!deleteLink?.enabled ? deleteLink?.reason : undefined} onClick={handleDelete} className="text-red-600 hover:text-red-700 hover:bg-red-50">{actionLoading === 'delete' ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Trash2 className="h-4 w-4 mr-1" /> Delete</>}</Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={!updateLink?.enabled}
+                        title={!updateLink?.enabled ? updateLink?.reason : undefined}
+                        onClick={openEdit}
+                      >
+                        <Pencil className="h-4 w-4 mr-1" /> Edit
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={!deleteLink?.enabled}
+                        title={!deleteLink?.enabled ? deleteLink?.reason : undefined}
+                        onClick={handleDelete}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        {actionLoading === "delete" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4 mr-1" /> Delete
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-2">
@@ -1008,8 +1200,8 @@ export default function TenantDetailPage({
               ),
             },
             {
-              id: 'datacenters',
-              label: 'Datacenters',
+              id: "datacenters",
+              label: "Datacenters",
               icon: <Server className="h-4 w-4" />,
               badge: grantsTotal,
               content: (
@@ -1026,30 +1218,56 @@ export default function TenantDetailPage({
                       columns={grantColumns}
                       data={grants?.items ?? []}
                       emptyMessage="No datacenters assigned to this tenant."
-                      overflowVisibleColumnKeys={['actions']}
+                      overflowVisibleColumnKeys={["actions"]}
                     />
                   </CardContent>
                 </Card>
               ),
             },
             {
-              id: 'idp',
-              label: 'IDP settings',
+              id: "idp",
+              label: "IDP settings",
               icon: <Shield className="h-4 w-4" />,
               content: (
                 <Card bordered>
-                  <CardHeader className="flex flex-row items-center gap-2"><span className="font-semibold text-gray-900">IDP settings</span><span className="text-xs text-gray-500 font-normal">(read-only)</span></CardHeader>
+                  <CardHeader className="flex flex-row items-center gap-2">
+                    <span className="font-semibold text-gray-900">IDP settings</span>
+                    <span className="text-xs text-gray-500 font-normal">(read-only)</span>
+                  </CardHeader>
                   <CardContent className="pt-2">
                     {!settings?.idp ? (
-                      <p className="text-sm text-gray-500 py-2">No IDP settings or using system default.</p>
+                      <p className="text-sm text-gray-500 py-2">
+                        No IDP settings or using system default.
+                      </p>
                     ) : (
                       <div className="space-y-0">
                         <DetailRow label="Type" value={settings.idp.type} />
                         <DetailRow label="Issuer URL" value={settings.idp.issuerUrl} />
                         <DetailRow label="Metadata URL" value={settings.idp.metadataUrl} />
-                        <DetailRow label="Auto-provision users" value={settings.idp.autoProvisionUsers != null ? String(settings.idp.autoProvisionUsers) : '—'} />
-                        <DetailRow label="Just-in-time provisioning" value={settings.idp.justInTimeProvisioning != null ? String(settings.idp.justInTimeProvisioning) : '—'} />
-                        <DetailRow label="MFA enforced" value={settings.idp.mfaEnforced != null ? String(settings.idp.mfaEnforced) : '—'} />
+                        <DetailRow
+                          label="Auto-provision users"
+                          value={
+                            settings.idp.autoProvisionUsers != null
+                              ? String(settings.idp.autoProvisionUsers)
+                              : "—"
+                          }
+                        />
+                        <DetailRow
+                          label="Just-in-time provisioning"
+                          value={
+                            settings.idp.justInTimeProvisioning != null
+                              ? String(settings.idp.justInTimeProvisioning)
+                              : "—"
+                          }
+                        />
+                        <DetailRow
+                          label="MFA enforced"
+                          value={
+                            settings.idp.mfaEnforced != null
+                              ? String(settings.idp.mfaEnforced)
+                              : "—"
+                          }
+                        />
                       </div>
                     )}
                   </CardContent>
@@ -1057,15 +1275,17 @@ export default function TenantDetailPage({
               ),
             },
             {
-              id: 'users',
-              label: 'Users',
+              id: "users",
+              label: "Users",
               icon: <Users className="h-4 w-4" />,
               badge: usersTotal,
               content: (
                 <Card bordered>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <span className="font-semibold text-gray-900">Users</span>
-                    <Button variant="secondary" size="sm" onClick={() => setAddUserModal(true)}><UserPlus className="h-4 w-4 mr-1" /> Add user</Button>
+                    <Button variant="secondary" size="sm" onClick={() => setAddUserModal(true)}>
+                      <UserPlus className="h-4 w-4 mr-1" /> Add user
+                    </Button>
                   </CardHeader>
                   <CardContent className="pt-2">
                     {!userList?.items?.length ? (
@@ -1073,15 +1293,47 @@ export default function TenantDetailPage({
                     ) : (
                       <ul className="divide-y divide-gray-100">
                         {userList.items.map((u) => (
-                          <li key={u.user_id} className="py-3 flex flex-wrap items-center justify-between gap-2">
+                          <li
+                            key={u.user_id}
+                            className="py-3 flex flex-wrap items-center justify-between gap-2"
+                          >
                             <div>
-                              <span className="font-medium text-gray-900">{u.display_name || u.username || u.email || u.user_id}</span>
-                              {u.role_name && <Badge variant="secondary" className="ml-2">{u.role_name}</Badge>}
-                              {u.email && <span className="text-sm text-gray-500 block">{u.email}</span>}
+                              <span className="font-medium text-gray-900">
+                                {u.display_name || u.username || u.email || u.user_id}
+                              </span>
+                              {u.role_name && (
+                                <Badge variant="secondary" className="ml-2">
+                                  {u.role_name}
+                                </Badge>
+                              )}
+                              {u.email && (
+                                <span className="text-sm text-gray-500 block">{u.email}</span>
+                              )}
                             </div>
                             <div className="flex items-center gap-1">
-                              <Button variant="secondary" size="sm" onClick={() => setUserRoleModal({ user: u, newRole: u.role_name || '' })} disabled={actionLoading !== null}>Edit role</Button>
-                              <Button variant="secondary" size="sm" onClick={() => handleRemoveUser(u.user_id)} disabled={actionLoading === `del-${u.user_id}`} className="text-red-600 hover:text-red-700 hover:bg-red-50">{actionLoading === `del-${u.user_id}` ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Remove'}</Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() =>
+                                  setUserRoleModal({ user: u, newRole: u.role_name || "" })
+                                }
+                                disabled={actionLoading !== null}
+                              >
+                                Edit role
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handleRemoveUser(u.user_id)}
+                                disabled={actionLoading === `del-${u.user_id}`}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                {actionLoading === `del-${u.user_id}` ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  "Remove"
+                                )}
+                              </Button>
                             </div>
                           </li>
                         ))}
@@ -1092,12 +1344,14 @@ export default function TenantDetailPage({
               ),
             },
             {
-              id: 'audit',
-              label: 'Audit logs',
+              id: "audit",
+              label: "Audit logs",
               icon: <FileText className="h-4 w-4" />,
               content: (
                 <Card bordered>
-                  <CardHeader><span className="font-semibold text-gray-900">Audit logs</span></CardHeader>
+                  <CardHeader>
+                    <span className="font-semibold text-gray-900">Audit logs</span>
+                  </CardHeader>
                   <CardContent className="pt-2">
                     <div className="py-8 text-center text-gray-500">
                       <FileText className="h-10 w-10 mx-auto mb-2 text-gray-300" />
@@ -1114,29 +1368,70 @@ export default function TenantDetailPage({
       {/* Add datacenter wizard modal */}
       <AnimatePresence>
         {addDatacenterModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={closeAddDatacenterModal}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={closeAddDatacenterModal}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Add datacenter</h3>
-                <button onClick={closeAddDatacenterModal} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                <button onClick={closeAddDatacenterModal} className="p-1 rounded hover:bg-gray-100">
+                  <X className="h-5 w-5" />
+                </button>
               </div>
               <div className="flex gap-2 mb-4 text-sm">
-                <span className={addDcWizardStep === 0 ? 'font-medium text-primary-600' : 'text-gray-500'}>1. Select datacenter</span>
+                <span
+                  className={
+                    addDcWizardStep === 0 ? "font-medium text-primary-600" : "text-gray-500"
+                  }
+                >
+                  1. Select datacenter
+                </span>
                 <span className="text-gray-300">→</span>
-                <span className={addDcWizardStep === 1 ? 'font-medium text-primary-600' : 'text-gray-500'}>2. Set limits</span>
+                <span
+                  className={
+                    addDcWizardStep === 1 ? "font-medium text-primary-600" : "text-gray-500"
+                  }
+                >
+                  2. Set limits
+                </span>
                 <span className="text-gray-300">→</span>
-                <span className={addDcWizardStep === 2 ? 'font-medium text-primary-600' : 'text-gray-500'}>3. Settings</span>
+                <span
+                  className={
+                    addDcWizardStep === 2 ? "font-medium text-primary-600" : "text-gray-500"
+                  }
+                >
+                  3. Settings
+                </span>
               </div>
               {addDcError && (
-                <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">{addDcError}</p>
+                <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">
+                  {addDcError}
+                </p>
               )}
               {addDcWizardStep === 0 && (
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-500">Choose a datacenter to grant this tenant access to. Already assigned datacenters are not listed.</p>
+                  <p className="text-sm text-gray-500">
+                    Choose a datacenter to grant this tenant access to. Already assigned datacenters
+                    are not listed.
+                  </p>
                   {addDcLoadingDatacenters ? (
-                    <div className="flex items-center gap-2 py-6 text-gray-500"><Loader2 className="h-5 w-5 animate-spin" /> Loading datacenters…</div>
+                    <div className="flex items-center gap-2 py-6 text-gray-500">
+                      <Loader2 className="h-5 w-5 animate-spin" /> Loading datacenters…
+                    </div>
                   ) : availableDatacenters.length === 0 ? (
-                    <p className="text-sm text-gray-500 py-4">No datacenters available to add. All datacenters may already be assigned, or none exist.</p>
+                    <p className="text-sm text-gray-500 py-4">
+                      No datacenters available to add. All datacenters may already be assigned, or
+                      none exist.
+                    </p>
                   ) : (
                     <ul className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-56 overflow-y-auto">
                       {availableDatacenters.map((dc) => (
@@ -1145,20 +1440,29 @@ export default function TenantDetailPage({
                             type="button"
                             onClick={() => {
                               setSelectedDatacenterId(dc.id);
-                              setAddDcVmClassesStr('');
-                              setAddDcNetworkDomainsStr('');
+                              setAddDcVmClassesStr("");
+                              setAddDcNetworkDomainsStr("");
                               setAddDcSelectedStorageClasses([]);
                               setAddDcStorageClassOptions([]);
                               setAddDcError(null);
                             }}
-                            className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-gray-50 ${selectedDatacenterId === dc.id ? 'bg-primary-50 border-l-2 border-primary-600' : ''}`}
+                            className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-2 hover:bg-gray-50 ${selectedDatacenterId === dc.id ? "bg-primary-50 border-l-2 border-primary-600" : ""}`}
                           >
                             <span className="font-medium text-gray-900">{dc.name}</span>
-                            {dc.capacity && (dc.capacity.totalCpus != null || dc.capacity.totalMemoryGb != null) && (
-                              <span className="text-xs text-gray-500">
-                                {[dc.capacity.totalCpus != null && `${dc.capacity.totalCpus} CPUs`, dc.capacity.totalMemoryGb != null && `${dc.capacity.totalMemoryGb} GB RAM`].filter(Boolean).join(', ')}
-                              </span>
-                            )}
+                            {dc.capacity &&
+                              (dc.capacity.totalCpus != null ||
+                                dc.capacity.totalMemoryGb != null) && (
+                                <span className="text-xs text-gray-500">
+                                  {[
+                                    dc.capacity.totalCpus != null &&
+                                      `${dc.capacity.totalCpus} CPUs`,
+                                    dc.capacity.totalMemoryGb != null &&
+                                      `${dc.capacity.totalMemoryGb} GB RAM`,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ")}
+                                </span>
+                              )}
                           </button>
                         </li>
                       ))}
@@ -1169,36 +1473,94 @@ export default function TenantDetailPage({
               {addDcWizardStep === 1 && selectedDatacenterId && (
                 <div className="space-y-4">
                   <p className="text-sm text-gray-500">
-                    Set resource limits for this tenant in <strong>{availableDatacenters.find((dc) => dc.id === selectedDatacenterId)?.name ?? selectedDatacenterId}</strong>. Leave blank for no limit.
+                    Set resource limits for this tenant in{" "}
+                    <strong>
+                      {availableDatacenters.find((dc) => dc.id === selectedDatacenterId)?.name ??
+                        selectedDatacenterId}
+                    </strong>
+                    . Leave blank for no limit.
                   </p>
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={grantAccess} onChange={(e) => setGrantAccess(e.target.checked)} className="rounded border-gray-300" />
+                    <input
+                      type="checkbox"
+                      checked={grantAccess}
+                      onChange={(e) => setGrantAccess(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
                     <span className="text-sm font-medium text-gray-700">Grant access</span>
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max vCPUs</label>
-                      <Input type="number" min={0} value={limitMaxCpus} onChange={(e) => setLimitMaxCpus(e.target.value)} placeholder="No limit" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Max vCPUs
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={limitMaxCpus}
+                        onChange={(e) => setLimitMaxCpus(e.target.value)}
+                        placeholder="No limit"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max memory (GB)</label>
-                      <Input type="number" min={0} value={limitMaxMemoryGb} onChange={(e) => setLimitMaxMemoryGb(e.target.value)} placeholder="No limit" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Max memory (GB)
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={limitMaxMemoryGb}
+                        onChange={(e) => setLimitMaxMemoryGb(e.target.value)}
+                        placeholder="No limit"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max storage (GB)</label>
-                      <Input type="number" min={0} value={limitMaxStorageGb} onChange={(e) => setLimitMaxStorageGb(e.target.value)} placeholder="No limit" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Max storage (GB)
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={limitMaxStorageGb}
+                        onChange={(e) => setLimitMaxStorageGb(e.target.value)}
+                        placeholder="No limit"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max VMs</label>
-                      <Input type="number" min={0} value={limitMaxVms} onChange={(e) => setLimitMaxVms(e.target.value)} placeholder="No limit" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Max VMs
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={limitMaxVms}
+                        onChange={(e) => setLimitMaxVms(e.target.value)}
+                        placeholder="No limit"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max volumes</label>
-                      <Input type="number" min={0} value={limitMaxVolumes} onChange={(e) => setLimitMaxVolumes(e.target.value)} placeholder="No limit" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Max volumes
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={limitMaxVolumes}
+                        onChange={(e) => setLimitMaxVolumes(e.target.value)}
+                        placeholder="No limit"
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max load balancers</label>
-                      <Input type="number" min={0} value={limitMaxLoadBalancers} onChange={(e) => setLimitMaxLoadBalancers(e.target.value)} placeholder="No limit" />
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Max load balancers
+                      </label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={limitMaxLoadBalancers}
+                        onChange={(e) => setLimitMaxLoadBalancers(e.target.value)}
+                        placeholder="No limit"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1206,15 +1568,23 @@ export default function TenantDetailPage({
               {addDcWizardStep === 2 && selectedDatacenterId && (
                 <div className="space-y-4">
                   <p className="text-sm text-gray-500">
-                    Configure datacenter settings for this tenant in{' '}
-                    <strong>{availableDatacenters.find((dc) => dc.id === selectedDatacenterId)?.name ?? selectedDatacenterId}</strong>.
+                    Configure datacenter settings for this tenant in{" "}
+                    <strong>
+                      {availableDatacenters.find((dc) => dc.id === selectedDatacenterId)?.name ??
+                        selectedDatacenterId}
+                    </strong>
+                    .
                   </p>
                   {addDcSettingsLoading ? (
-                    <div className="flex items-center gap-2 py-6 text-gray-500"><Loader2 className="h-5 w-5 animate-spin" /> Loading settings…</div>
+                    <div className="flex items-center gap-2 py-6 text-gray-500">
+                      <Loader2 className="h-5 w-5 animate-spin" /> Loading settings…
+                    </div>
                   ) : (
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">VM classes (comma-separated)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          VM classes (comma-separated)
+                        </label>
                         <Input
                           value={addDcVmClassesStr}
                           onChange={(e) => setAddDcVmClassesStr(e.target.value)}
@@ -1223,7 +1593,9 @@ export default function TenantDetailPage({
                       </div>
                       <div>
                         {addDcStorageClassOptions.length === 0 ? (
-                          <p className="text-sm text-gray-500">No provider-mapped storage classes found for this datacenter.</p>
+                          <p className="text-sm text-gray-500">
+                            No provider-mapped storage classes found for this datacenter.
+                          </p>
                         ) : (
                           <StorageClassMultiSelectDropdown
                             label="Storage classes"
@@ -1236,7 +1608,9 @@ export default function TenantDetailPage({
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Network domains (comma-separated)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Network domains (comma-separated)
+                        </label>
                         <Input
                           value={addDcNetworkDomainsStr}
                           onChange={(e) => setAddDcNetworkDomainsStr(e.target.value)}
@@ -1250,26 +1624,51 @@ export default function TenantDetailPage({
               <div className="flex justify-end gap-2 mt-6">
                 {addDcWizardStep === 0 ? (
                   <>
-                    <Button variant="secondary" onClick={closeAddDatacenterModal}>Cancel</Button>
+                    <Button variant="secondary" onClick={closeAddDatacenterModal}>
+                      Cancel
+                    </Button>
                     <Button
                       onClick={() => setAddDcWizardStep(1)}
-                      disabled={addDcLoadingDatacenters || !selectedDatacenterId || availableDatacenters.length === 0}
+                      disabled={
+                        addDcLoadingDatacenters ||
+                        !selectedDatacenterId ||
+                        availableDatacenters.length === 0
+                      }
                     >
                       Next: Set limits
                     </Button>
                   </>
                 ) : addDcWizardStep === 1 ? (
                   <>
-                    <Button variant="secondary" onClick={() => setAddDcWizardStep(0)} disabled={addDcSubmitting}>Back</Button>
-                    <Button onClick={() => setAddDcWizardStep(2)} disabled={addDcSubmitting || !selectedDatacenterId}>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setAddDcWizardStep(0)}
+                      disabled={addDcSubmitting}
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      onClick={() => setAddDcWizardStep(2)}
+                      disabled={addDcSubmitting || !selectedDatacenterId}
+                    >
                       Next: Settings
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button variant="secondary" onClick={() => setAddDcWizardStep(1)} disabled={addDcSubmitting}>Back</Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setAddDcWizardStep(1)}
+                      disabled={addDcSubmitting}
+                    >
+                      Back
+                    </Button>
                     <Button onClick={handleCreateTenantDatacenterGrant} disabled={addDcSubmitting}>
-                      {addDcSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add datacenter'}
+                      {addDcSubmitting ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Add datacenter"
+                      )}
                     </Button>
                   </>
                 )}
@@ -1282,24 +1681,125 @@ export default function TenantDetailPage({
       {/* Edit grant limits modal */}
       <AnimatePresence>
         {editGrantLimitsModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setEditGrantLimitsModal(null)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setEditGrantLimitsModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Edit resource limits — {editGrantLimitsModal.datacenter?.name ?? editGrantLimitsModal.datacenterId}</h3>
-                <button onClick={() => setEditGrantLimitsModal(null)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                <h3 className="text-lg font-semibold">
+                  Edit resource limits —{" "}
+                  {editGrantLimitsModal.datacenter?.name ?? editGrantLimitsModal.datacenterId}
+                </h3>
+                <button
+                  onClick={() => setEditGrantLimitsModal(null)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              {editGrantError && <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">{editGrantError}</p>}
+              {editGrantError && (
+                <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">
+                  {editGrantError}
+                </p>
+              )}
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Max vCPUs</label><Input type="number" min={0} value={editLimitsForm.maxCpus ?? ''} onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxCpus: e.target.value }))} placeholder="No limit" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Max memory (GB)</label><Input type="number" min={0} value={editLimitsForm.maxMemoryGb ?? ''} onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxMemoryGb: e.target.value }))} placeholder="No limit" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Max storage (GB)</label><Input type="number" min={0} value={editLimitsForm.maxStorageGb ?? ''} onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxStorageGb: e.target.value }))} placeholder="No limit" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Max VMs</label><Input type="number" min={0} value={editLimitsForm.maxVms ?? ''} onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxVms: e.target.value }))} placeholder="No limit" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Max volumes</label><Input type="number" min={0} value={editLimitsForm.maxVolumes ?? ''} onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxVolumes: e.target.value }))} placeholder="No limit" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Max load balancers</label><Input type="number" min={0} value={editLimitsForm.maxLoadBalancers ?? ''} onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxLoadBalancers: e.target.value }))} placeholder="No limit" /></div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Max vCPUs</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editLimitsForm.maxCpus ?? ""}
+                    onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxCpus: e.target.value }))}
+                    placeholder="No limit"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Max memory (GB)
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editLimitsForm.maxMemoryGb ?? ""}
+                    onChange={(e) =>
+                      setEditLimitsForm((f) => ({ ...f, maxMemoryGb: e.target.value }))
+                    }
+                    placeholder="No limit"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Max storage (GB)
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editLimitsForm.maxStorageGb ?? ""}
+                    onChange={(e) =>
+                      setEditLimitsForm((f) => ({ ...f, maxStorageGb: e.target.value }))
+                    }
+                    placeholder="No limit"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Max VMs</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editLimitsForm.maxVms ?? ""}
+                    onChange={(e) => setEditLimitsForm((f) => ({ ...f, maxVms: e.target.value }))}
+                    placeholder="No limit"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Max volumes
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editLimitsForm.maxVolumes ?? ""}
+                    onChange={(e) =>
+                      setEditLimitsForm((f) => ({ ...f, maxVolumes: e.target.value }))
+                    }
+                    placeholder="No limit"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Max load balancers
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={editLimitsForm.maxLoadBalancers ?? ""}
+                    onChange={(e) =>
+                      setEditLimitsForm((f) => ({ ...f, maxLoadBalancers: e.target.value }))
+                    }
+                    placeholder="No limit"
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="secondary" onClick={() => setEditGrantLimitsModal(null)}>Cancel</Button>
-                <Button onClick={handleUpdateGrantLimits} disabled={editGrantSubmitting}>{editGrantSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save limits'}</Button>
+                <Button variant="secondary" onClick={() => setEditGrantLimitsModal(null)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdateGrantLimits} disabled={editGrantSubmitting}>
+                  {editGrantSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Save limits"
+                  )}
+                </Button>
               </div>
             </motion.div>
           </motion.div>
@@ -1309,37 +1809,96 @@ export default function TenantDetailPage({
       {/* Edit grant settings modal */}
       <AnimatePresence>
         {editGrantSettingsModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setEditGrantSettingsModal(null)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setEditGrantSettingsModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-surface rounded-xl border border-panel w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Edit datacenter settings — {editGrantSettingsModal.datacenter?.name ?? editGrantSettingsModal.datacenterId}</h3>
-                <button onClick={() => setEditGrantSettingsModal(null)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                <h3 className="text-lg font-semibold">
+                  Edit datacenter settings —{" "}
+                  {editGrantSettingsModal.datacenter?.name ?? editGrantSettingsModal.datacenterId}
+                </h3>
+                <button
+                  onClick={() => setEditGrantSettingsModal(null)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <p className="text-sm text-gray-500 mb-3">Override settings for this tenant in this datacenter.</p>
-              {editGrantError && <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">{editGrantError}</p>}
+              <p className="text-sm text-gray-500 mb-3">
+                Override settings for this tenant in this datacenter.
+              </p>
+              {editGrantError && (
+                <p className="text-sm text-red-600 mb-3 bg-red-50 border border-red-200 rounded px-3 py-2">
+                  {editGrantError}
+                </p>
+              )}
               <div className="space-y-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">VM classes</label><Input value={editSettingsForm.vmClassesStr} onChange={(e) => setEditSettingsForm((f) => ({ ...f, vmClassesStr: e.target.value }))} placeholder="e.g. default, large" /></div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">VM classes</label>
+                  <Input
+                    value={editSettingsForm.vmClassesStr}
+                    onChange={(e) =>
+                      setEditSettingsForm((f) => ({ ...f, vmClassesStr: e.target.value }))
+                    }
+                    placeholder="e.g. default, large"
+                  />
+                </div>
                 <div>
                   {editSettingsLoading ? (
-                    <div className="flex items-center gap-2 py-2 text-sm text-gray-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading provider storage classes…</div>
+                    <div className="flex items-center gap-2 py-2 text-sm text-gray-500">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Loading provider storage classes…
+                    </div>
                   ) : editStorageClassOptions.length === 0 ? (
-                    <p className="text-sm text-gray-500">No provider-mapped storage classes found for this datacenter.</p>
+                    <p className="text-sm text-gray-500">
+                      No provider-mapped storage classes found for this datacenter.
+                    </p>
                   ) : (
                     <StorageClassMultiSelectDropdown
                       label="Storage classes"
                       options={editStorageClassOptions}
                       selected={editSettingsForm.selectedStorageClasses}
-                      onChange={(next) => setEditSettingsForm((f) => ({ ...f, selectedStorageClasses: next }))}
+                      onChange={(next) =>
+                        setEditSettingsForm((f) => ({ ...f, selectedStorageClasses: next }))
+                      }
                       disabled={editSettingsLoading}
                       pageSize={5}
                     />
                   )}
                 </div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">Network domains</label><Input value={editSettingsForm.networkDomainsStr} onChange={(e) => setEditSettingsForm((f) => ({ ...f, networkDomainsStr: e.target.value }))} placeholder="e.g. default, dmz" /></div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Network domains
+                  </label>
+                  <Input
+                    value={editSettingsForm.networkDomainsStr}
+                    onChange={(e) =>
+                      setEditSettingsForm((f) => ({ ...f, networkDomainsStr: e.target.value }))
+                    }
+                    placeholder="e.g. default, dmz"
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="secondary" onClick={() => setEditGrantSettingsModal(null)}>Cancel</Button>
-                <Button onClick={handleUpdateGrantSettings} disabled={editGrantSubmitting}>{editGrantSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save settings'}</Button>
+                <Button variant="secondary" onClick={() => setEditGrantSettingsModal(null)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdateGrantSettings} disabled={editGrantSubmitting}>
+                  {editGrantSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Save settings"
+                  )}
+                </Button>
               </div>
             </motion.div>
           </motion.div>
@@ -1349,27 +1908,64 @@ export default function TenantDetailPage({
       {/* Edit modal */}
       <AnimatePresence>
         {editModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setEditModal(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-surface rounded-xl border border-panel w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setEditModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-surface rounded-xl border border-panel w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit tenant</h3>
-                <button onClick={() => setEditModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                <button
+                  onClick={() => setEditModal(false)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <p className="text-sm text-gray-500 mb-4">Name cannot be changed. You can update display name and description.</p>
+              <p className="text-sm text-gray-500 mb-4">
+                Name cannot be changed. You can update display name and description.
+              </p>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Display name</label>
-                  <Input value={editDisplayName} onChange={(e) => setEditDisplayName(e.target.value)} placeholder="Display name" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Display name
+                  </label>
+                  <Input
+                    value={editDisplayName}
+                    onChange={(e) => setEditDisplayName(e.target.value)}
+                    placeholder="Display name"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <Input value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Description" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <Input
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    placeholder="Description"
+                  />
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="secondary" onClick={() => setEditModal(false)}>Cancel</Button>
-                <Button onClick={handleUpdate} disabled={actionLoading === 'update'}>
-                  {actionLoading === 'update' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                <Button variant="secondary" onClick={() => setEditModal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdate} disabled={actionLoading === "update"}>
+                  {actionLoading === "update" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
               </div>
             </motion.div>
@@ -1380,21 +1976,49 @@ export default function TenantDetailPage({
       {/* Edit user role modal */}
       <AnimatePresence>
         {userRoleModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setUserRoleModal(null)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setUserRoleModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-surface rounded-xl border border-panel w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit user role</h3>
-                <button onClick={() => setUserRoleModal(null)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                <button
+                  onClick={() => setUserRoleModal(null)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <p className="text-sm text-gray-600 mb-2">{userRoleModal.user.display_name || userRoleModal.user.username} — {userRoleModal.user.role_name}</p>
+              <p className="text-sm text-gray-600 mb-2">
+                {userRoleModal.user.display_name || userRoleModal.user.username} —{" "}
+                {userRoleModal.user.role_name}
+              </p>
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">Role</label>
-                <Input value={userRoleModal.newRole} onChange={(e) => setUserRoleModal({ ...userRoleModal, newRole: e.target.value })} placeholder="e.g. tenant:admin" />
+                <Input
+                  value={userRoleModal.newRole}
+                  onChange={(e) => setUserRoleModal({ ...userRoleModal, newRole: e.target.value })}
+                  placeholder="e.g. tenant:admin"
+                />
               </div>
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="secondary" onClick={() => setUserRoleModal(null)}>Cancel</Button>
-                <Button onClick={handleUpdateUserRole} disabled={actionLoading !== null || !userRoleModal.newRole.trim()}>
-                  {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                <Button variant="secondary" onClick={() => setUserRoleModal(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUpdateUserRole}
+                  disabled={actionLoading !== null || !userRoleModal.newRole.trim()}
+                >
+                  {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
                 </Button>
               </div>
             </motion.div>
@@ -1405,15 +2029,35 @@ export default function TenantDetailPage({
       {/* Add user modal — placeholder: would need RoleBindingBulkCreate + listIdpUsers or picker */}
       <AnimatePresence>
         {addUserModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setAddUserModal(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface rounded-xl border border-panel w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setAddUserModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-surface rounded-xl border border-panel w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Add user</h3>
-                <button onClick={() => setAddUserModal(false)} className="p-1 rounded hover:bg-gray-100"><X className="h-5 w-5" /></button>
+                <button
+                  onClick={() => setAddUserModal(false)}
+                  className="p-1 rounded hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <p className="text-sm text-gray-500">Add user flow: select from IDP users and assign role. Coming soon.</p>
+              <p className="text-sm text-gray-500">
+                Add user flow: select from IDP users and assign role. Coming soon.
+              </p>
               <div className="flex justify-end gap-2 mt-6">
-                <Button variant="secondary" onClick={() => setAddUserModal(false)}>Close</Button>
+                <Button variant="secondary" onClick={() => setAddUserModal(false)}>
+                  Close
+                </Button>
               </div>
             </motion.div>
           </motion.div>

@@ -1,21 +1,37 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Save, User, Shield, Bell, Palette, Globe, Database, Key, RefreshCw, LogOut, Loader2, Plus, Edit, Trash2, Eye } from 'lucide-react';
-import { RowActionsTrigger } from '@/components/DynamicContextMenu';
-import { Button } from '@/components/ui/atoms/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { Input } from '@/components/ui/atoms/input';
-import { Label } from '@/components/ui/atoms/label';
-import { Switch } from '@/components/ui/atoms/switch';
-import { Toast } from '@/components/ui/molecules/toast';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
-import { useProductInfo } from '@/lib/product-info-context';
-import { INFRON_UI_THEME_KEY } from '@/lib/edition-theme';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  Save,
+  User,
+  Shield,
+  Bell,
+  Palette,
+  Globe,
+  Database,
+  Key,
+  RefreshCw,
+  LogOut,
+  Loader2,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+} from "lucide-react";
+import { RowActionsTrigger } from "@/components/DynamicContextMenu";
+import { Button } from "@/components/ui/atoms/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { Input } from "@/components/ui/atoms/input";
+import { Label } from "@/components/ui/atoms/label";
+import { Switch } from "@/components/ui/atoms/switch";
+import { Toast } from "@/components/ui/molecules/toast";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
+import { useProductInfo } from "@/lib/product-info-context";
+import { MUXON_UI_THEME_KEY } from "@/lib/edition-theme";
 
 interface IdpServer {
   id: string;
@@ -53,7 +69,7 @@ interface Settings {
   slackWebhook: string;
 
   // Appearance
-  theme: 'light' | 'dark';
+  theme: "light" | "dark";
   primaryColor: string;
   accentColor: string;
 }
@@ -61,10 +77,12 @@ interface Settings {
 export default function SystemSettingsPage() {
   const { isEnterprise, loading: productInfoLoading } = useProductInfo();
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastVariant, setToastVariant] = useState<'success' | 'error'>('success');
-  const [activeTab, setActiveTab] = useState<'general' | 'security' | 'notifications' | 'appearance' | 'idp'>('general');
-  
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState<"success" | "error">("success");
+  const [activeTab, setActiveTab] = useState<
+    "general" | "security" | "notifications" | "appearance" | "idp"
+  >("general");
+
   // IDP Settings State
   const [idpServers, setIdpServers] = useState<IdpServer[]>([]);
   const [isIdpLoading, setIsIdpLoading] = useState(true);
@@ -77,11 +95,11 @@ export default function SystemSettingsPage() {
   useEffect(() => {
     if (productInfoLoading) return;
     if (!isEnterprise) {
-      setSettings((s) => (s.theme !== 'light' ? { ...s, theme: 'light' } : s));
+      setSettings((s) => (s.theme !== "light" ? { ...s, theme: "light" } : s));
       return;
     }
-    const pref = localStorage.getItem(INFRON_UI_THEME_KEY);
-    if (pref === 'dark' || pref === 'light') {
+    const pref = localStorage.getItem(MUXON_UI_THEME_KEY);
+    if (pref === "dark" || pref === "light") {
       setSettings((s) => ({ ...s, theme: pref }));
     }
   }, [isEnterprise, productInfoLoading]);
@@ -89,15 +107,15 @@ export default function SystemSettingsPage() {
   const fetchIdpSettings = async () => {
     setIsIdpLoading(true);
     try {
-      const idpData = await apiGet('/api/v1/system-settings/idp');
-      const idpList = Array.isArray(idpData) ? idpData : (idpData?.items || []);
-      
+      const idpData = await apiGet("/api/v1/system-settings/idp");
+      const idpList = Array.isArray(idpData) ? idpData : idpData?.items || [];
+
       if (idpList.length === 0) {
         setIdpServers([
           {
-            id: '1',
-            name: 'Keycloak',
-            protocol: 'OIDC',
+            id: "1",
+            name: "Keycloak",
+            protocol: "OIDC",
             enabled: true,
             isSystem: true,
           },
@@ -106,12 +124,12 @@ export default function SystemSettingsPage() {
         setIdpServers(idpList);
       }
     } catch (error) {
-      console.error('Error fetching IDP settings:', error);
+      console.error("Error fetching IDP settings:", error);
       setIdpServers([
         {
-          id: '1',
-          name: 'Keycloak',
-          protocol: 'OIDC',
+          id: "1",
+          name: "Keycloak",
+          protocol: "OIDC",
           enabled: true,
           isSystem: true,
         },
@@ -123,51 +141,51 @@ export default function SystemSettingsPage() {
 
   const [settings, setSettings] = useState<Settings>({
     // General Settings
-    siteName: 'Infron Cloud Platform',
-    siteUrl: 'https://infron.example.com',
-    language: 'en',
-    timezone: 'UTC',
-    dateFormat: 'MM/DD/YYYY',
-    timeFormat: '12h',
-    
+    siteName: "Muxon Cloud Platform",
+    siteUrl: "https://muxon.example.com",
+    language: "en",
+    timezone: "UTC",
+    dateFormat: "MM/DD/YYYY",
+    timeFormat: "12h",
+
     // Security Settings
-    sessionTimeout: '30',
+    sessionTimeout: "30",
     mfaEnabled: false,
-    passwordMinLength: '12',
+    passwordMinLength: "12",
     passwordRequireUppercase: true,
     passwordRequireLowercase: true,
     passwordRequireNumbers: true,
     passwordRequireSpecialChars: true,
-    
+
     // Notification Settings
     emailEnabled: true,
-    emailSmtpHost: 'smtp.example.com',
-    emailSmtpPort: '587',
-    emailSmtpUser: 'notifications@infron.com',
-    emailSmtpFrom: 'Infron <noreply@infron.com>',
+    emailSmtpHost: "smtp.example.com",
+    emailSmtpPort: "587",
+    emailSmtpUser: "notifications@muxon.com",
+    emailSmtpFrom: "Muxon <noreply@muxon.com>",
     slackEnabled: false,
-    slackWebhook: '',
-    
+    slackWebhook: "",
+
     // Appearance Settings
-    theme: 'light',
-    primaryColor: '#0EA5E9',
-    accentColor: '#8B5CF6',
+    theme: "light",
+    primaryColor: "#0EA5E9",
+    accentColor: "#8B5CF6",
   });
 
   const handleSave = () => {
     setShowToast(true);
-    setToastMessage('Settings saved successfully');
-    setToastVariant('success');
+    setToastMessage("Settings saved successfully");
+    setToastVariant("success");
     setTimeout(() => setShowToast(false), 3000);
   };
 
   // IDP Handlers
   const handleViewIdpDetails = (idp: IdpServer) => {
-    console.log('View details for:', idp.id);
+    console.log("View details for:", idp.id);
   };
 
   const handleEditIdp = (idp: IdpServer) => {
-    console.log('Edit IDP:', idp.id);
+    console.log("Edit IDP:", idp.id);
   };
 
   const handleSyncIdp = async (idp: IdpServer) => {
@@ -175,8 +193,8 @@ export default function SystemSettingsPage() {
       await apiPost(`/api/v1/idps/${idp.id}/sync`, {});
       await fetchIdpSettings();
     } catch (error) {
-      console.error('Error syncing IDP:', error);
-      alert('Failed to sync IDP.');
+      console.error("Error syncing IDP:", error);
+      alert("Failed to sync IDP.");
     }
   };
 
@@ -185,8 +203,8 @@ export default function SystemSettingsPage() {
       await apiPut(`/api/v1/idps/${idp.id}`, { enabled: false });
       await fetchIdpSettings();
     } catch (error) {
-      console.error('Error disabling IDP:', error);
-      alert('Failed to disable IDP.');
+      console.error("Error disabling IDP:", error);
+      alert("Failed to disable IDP.");
     }
   };
 
@@ -196,46 +214,46 @@ export default function SystemSettingsPage() {
         await apiDelete(`/api/v1/idps/${idp.id}`);
         await fetchIdpSettings();
       } catch (error) {
-        console.error('Error deleting IDP:', error);
-        alert('Failed to delete IDP.');
+        console.error("Error deleting IDP:", error);
+        alert("Failed to delete IDP.");
       }
     }
   };
 
   const getIdpContextMenuOptions = (idp: IdpServer): DropdownOption[] => [
     {
-      label: 'View Details',
+      label: "View Details",
       icon: <Eye size={14} />,
       onClick: () => handleViewIdpDetails(idp),
     },
     {
-      label: 'Edit',
+      label: "Edit",
       icon: <Edit size={14} />,
       onClick: () => handleEditIdp(idp),
     },
     {
-      label: 'Sync',
+      label: "Sync",
       icon: <RefreshCw size={14} />,
       onClick: () => handleSyncIdp(idp),
     },
     {
-      label: 'Disable',
+      label: "Disable",
       icon: <Trash2 size={14} />,
-      variant: 'warning',
+      variant: "warning",
       onClick: () => handleDisableIdp(idp),
     },
     {
-      label: 'Delete',
+      label: "Delete",
       icon: <Trash2 size={14} />,
-      variant: 'danger',
+      variant: "danger",
       onClick: () => handleDeleteIdp(idp),
     },
   ];
 
   const idpColumns: Column<IdpServer>[] = [
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       cell: (row: IdpServer) => (
         <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           <Dropdown
@@ -249,8 +267,8 @@ export default function SystemSettingsPage() {
       sortable: false,
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row: IdpServer) => (
         <div className="flex items-center gap-2">
           <span className="font-medium text-gray-900 dark:text-gray-100">{row.name}</span>
@@ -259,21 +277,17 @@ export default function SystemSettingsPage() {
       sortable: true,
     },
     {
-      key: 'protocol',
-      header: 'Protocol',
-      cell: (row: IdpServer) => (
-        <Badge variant="default">{row.protocol || 'N/A'}</Badge>
-      ),
+      key: "protocol",
+      header: "Protocol",
+      cell: (row: IdpServer) => <Badge variant="default">{row.protocol || "N/A"}</Badge>,
       sortable: true,
     },
     {
-      key: 'enabled',
-      header: 'Status',
+      key: "enabled",
+      header: "Status",
       cell: (row: IdpServer) => (
-        <Badge
-          variant={row.enabled ? 'success' : 'default'}
-        >
-          {row.enabled ? 'Enabled' : 'Disabled'}
+        <Badge variant={row.enabled ? "success" : "default"}>
+          {row.enabled ? "Enabled" : "Disabled"}
         </Badge>
       ),
       sortable: true,
@@ -281,11 +295,11 @@ export default function SystemSettingsPage() {
   ];
 
   const tabs = [
-    { id: 'general', label: 'General', icon: <Globe size={18} /> },
-    { id: 'security', label: 'Security', icon: <Shield size={18} /> },
-    { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
-    { id: 'appearance', label: 'Appearance', icon: <Palette size={18} /> },
-    { id: 'idp', label: 'Identity Providers', icon: <Shield size={18} /> },
+    { id: "general", label: "General", icon: <Globe size={18} /> },
+    { id: "security", label: "Security", icon: <Shield size={18} /> },
+    { id: "notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { id: "appearance", label: "Appearance", icon: <Palette size={18} /> },
+    { id: "idp", label: "Identity Providers", icon: <Shield size={18} /> },
   ];
 
   return (
@@ -317,8 +331,8 @@ export default function SystemSettingsPage() {
               onClick={() => setActiveTab(tab.id as any)}
               className={`pb-4 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === tab.id
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -337,7 +351,7 @@ export default function SystemSettingsPage() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {activeTab === 'general' && (
+        {activeTab === "general" && (
           <Card>
             <CardHeader>General Settings</CardHeader>
             <CardContent className="space-y-6">
@@ -423,7 +437,7 @@ export default function SystemSettingsPage() {
           </Card>
         )}
 
-        {activeTab === 'security' && (
+        {activeTab === "security" && (
           <Card>
             <CardHeader>Security Settings</CardHeader>
             <CardContent className="space-y-6">
@@ -431,7 +445,9 @@ export default function SystemSettingsPage() {
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <h3 className="font-medium text-gray-900">Multi-Factor Authentication</h3>
-                    <p className="text-sm text-gray-600">Require additional verification for user logins</p>
+                    <p className="text-sm text-gray-600">
+                      Require additional verification for user logins
+                    </p>
                   </div>
                   <Switch
                     checked={settings.mfaEnabled}
@@ -460,7 +476,9 @@ export default function SystemSettingsPage() {
                     <Input
                       type="number"
                       value={settings.passwordMinLength}
-                      onChange={(e) => setSettings({ ...settings, passwordMinLength: e.target.value })}
+                      onChange={(e) =>
+                        setSettings({ ...settings, passwordMinLength: e.target.value })
+                      }
                       className="w-24"
                     />
                   </div>
@@ -468,28 +486,36 @@ export default function SystemSettingsPage() {
                     <span className="text-sm text-gray-700">Require Uppercase</span>
                     <Switch
                       checked={settings.passwordRequireUppercase}
-                      onChange={(checked) => setSettings({ ...settings, passwordRequireUppercase: checked })}
+                      onChange={(checked) =>
+                        setSettings({ ...settings, passwordRequireUppercase: checked })
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">Require Lowercase</span>
                     <Switch
                       checked={settings.passwordRequireLowercase}
-                      onChange={(checked) => setSettings({ ...settings, passwordRequireLowercase: checked })}
+                      onChange={(checked) =>
+                        setSettings({ ...settings, passwordRequireLowercase: checked })
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">Require Numbers</span>
                     <Switch
                       checked={settings.passwordRequireNumbers}
-                      onChange={(checked) => setSettings({ ...settings, passwordRequireNumbers: checked })}
+                      onChange={(checked) =>
+                        setSettings({ ...settings, passwordRequireNumbers: checked })
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">Require Special Characters</span>
                     <Switch
                       checked={settings.passwordRequireSpecialChars}
-                      onChange={(checked) => setSettings({ ...settings, passwordRequireSpecialChars: checked })}
+                      onChange={(checked) =>
+                        setSettings({ ...settings, passwordRequireSpecialChars: checked })
+                      }
                     />
                   </div>
                 </div>
@@ -498,7 +524,7 @@ export default function SystemSettingsPage() {
           </Card>
         )}
 
-        {activeTab === 'notifications' && (
+        {activeTab === "notifications" && (
           <Card>
             <CardHeader>Notification Settings</CardHeader>
             <CardContent className="space-y-6">
@@ -521,7 +547,9 @@ export default function SystemSettingsPage() {
                       <Input
                         id="emailSmtpHost"
                         value={settings.emailSmtpHost}
-                        onChange={(e) => setSettings({ ...settings, emailSmtpHost: e.target.value })}
+                        onChange={(e) =>
+                          setSettings({ ...settings, emailSmtpHost: e.target.value })
+                        }
                         placeholder="smtp.example.com"
                       />
                     </div>
@@ -530,7 +558,9 @@ export default function SystemSettingsPage() {
                       <Input
                         id="emailSmtpPort"
                         value={settings.emailSmtpPort}
-                        onChange={(e) => setSettings({ ...settings, emailSmtpPort: e.target.value })}
+                        onChange={(e) =>
+                          setSettings({ ...settings, emailSmtpPort: e.target.value })
+                        }
                         placeholder="587"
                       />
                     </div>
@@ -539,7 +569,9 @@ export default function SystemSettingsPage() {
                       <Input
                         id="emailSmtpUser"
                         value={settings.emailSmtpUser}
-                        onChange={(e) => setSettings({ ...settings, emailSmtpUser: e.target.value })}
+                        onChange={(e) =>
+                          setSettings({ ...settings, emailSmtpUser: e.target.value })
+                        }
                         placeholder="notifications@example.com"
                       />
                     </div>
@@ -548,8 +580,10 @@ export default function SystemSettingsPage() {
                       <Input
                         id="emailSmtpFrom"
                         value={settings.emailSmtpFrom}
-                        onChange={(e) => setSettings({ ...settings, emailSmtpFrom: e.target.value })}
-                        placeholder="Infron <noreply@infron.com>"
+                        onChange={(e) =>
+                          setSettings({ ...settings, emailSmtpFrom: e.target.value })
+                        }
+                        placeholder="Muxon <noreply@muxon.com>"
                       />
                     </div>
                   </div>
@@ -584,7 +618,7 @@ export default function SystemSettingsPage() {
           </Card>
         )}
 
-        {activeTab === 'appearance' && (
+        {activeTab === "appearance" && (
           <Card>
             <CardHeader>Appearance Settings</CardHeader>
             <CardContent className="space-y-6">
@@ -594,24 +628,24 @@ export default function SystemSettingsPage() {
                     <h3 className="font-medium text-[color:var(--text-primary)]">Theme</h3>
                     <p className="text-sm text-[color:var(--text-secondary)]">
                       {isEnterprise
-                        ? 'Choose light or dark (Nexus / Enterprise).'
-                        : 'Core edition uses the light theme only. Dark mode is available in Nexus.'}
+                        ? "Choose light or dark (Enterprise)."
+                        : "Core edition uses the light theme only. Dark mode is available in Enterprise."}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => {
-                        setSettings({ ...settings, theme: 'light' });
-                        if (isEnterprise && typeof document !== 'undefined') {
-                          localStorage.setItem(INFRON_UI_THEME_KEY, 'light');
-                          document.documentElement.classList.remove('dark');
+                        setSettings({ ...settings, theme: "light" });
+                        if (isEnterprise && typeof document !== "undefined") {
+                          localStorage.setItem(MUXON_UI_THEME_KEY, "light");
+                          document.documentElement.classList.remove("dark");
                         }
                       }}
                       className={`px-4 py-2 rounded-md border-2 transition-colors ${
-                        settings.theme === 'light'
-                          ? 'border-primary-500 bg-primary-500 text-white'
-                          : 'border-gray-300 hover:border-gray-400 text-[color:var(--text-primary)]'
+                        settings.theme === "light"
+                          ? "border-primary-500 bg-primary-500 text-white"
+                          : "border-gray-300 hover:border-gray-400 text-[color:var(--text-primary)]"
                       }`}
                     >
                       Light
@@ -620,18 +654,18 @@ export default function SystemSettingsPage() {
                       type="button"
                       onClick={() => {
                         if (!isEnterprise) return;
-                        setSettings({ ...settings, theme: 'dark' });
-                        if (typeof document !== 'undefined') {
-                          localStorage.setItem(INFRON_UI_THEME_KEY, 'dark');
-                          document.documentElement.classList.add('dark');
+                        setSettings({ ...settings, theme: "dark" });
+                        if (typeof document !== "undefined") {
+                          localStorage.setItem(MUXON_UI_THEME_KEY, "dark");
+                          document.documentElement.classList.add("dark");
                         }
                       }}
                       disabled={!isEnterprise}
-                      title={!isEnterprise ? 'Dark theme requires Nexus or Enterprise edition' : undefined}
+                      title={!isEnterprise ? "Dark theme requires Enterprise edition" : undefined}
                       className={`px-4 py-2 rounded-md border-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-                        settings.theme === 'dark'
-                          ? 'border-primary-500 bg-primary-500 text-white'
-                          : 'border-gray-300 hover:border-gray-400 text-[color:var(--text-primary)]'
+                        settings.theme === "dark"
+                          ? "border-primary-500 bg-primary-500 text-white"
+                          : "border-gray-300 hover:border-gray-400 text-[color:var(--text-primary)]"
                       }`}
                     >
                       Dark
@@ -683,14 +717,12 @@ export default function SystemSettingsPage() {
           </Card>
         )}
 
-        {activeTab === 'idp' && (
+        {activeTab === "idp" && (
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Identity Providers
-                  </h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Identity Providers</h2>
                   <p className="text-sm text-gray-600 mt-1">
                     Manage your identity providers for user authentication
                   </p>
@@ -712,7 +744,7 @@ export default function SystemSettingsPage() {
                   data={idpServers}
                   emptyMessage="No IDP servers configured"
                   onRowClick={(row) => handleViewIdpDetails(row)}
-                  overflowVisibleColumnKeys={['actions']}
+                  overflowVisibleColumnKeys={["actions"]}
                 />
               )}
             </CardContent>

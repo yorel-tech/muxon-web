@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 /** Matches backend InfoResponse (edition, capabilities, extras). */
 export interface ProductInfoResponse {
@@ -14,15 +14,15 @@ export interface ProductInfoResponse {
 }
 
 export interface ProductInfoState {
-  /** Product edition: "core" | "nexus" | "enterprise" */
+  /** Product edition: "core" | "enterprise" */
   edition: string;
   /** Capability identifiers (e.g. identity.rbac, compute.vm.snapshot) */
   capabilities: string[];
   /** Extra flags from backend (e.g. multipleDatacentersPerTenant) */
   extras: Record<string, unknown>;
-  /** True when edition is nexus or enterprise */
+  /** True when edition is enterprise */
   isEnterprise: boolean;
-  /** True when tenant can have multiple datacenters (nexus); false for core */
+  /** True when tenant can have multiple datacenters (enterprise); false for core */
   multipleDatacentersPerTenant: boolean;
   loading: boolean;
   error: string | null;
@@ -31,7 +31,7 @@ export interface ProductInfoState {
 }
 
 const defaultState: ProductInfoState = {
-  edition: 'core',
+  edition: "core",
   capabilities: [],
   extras: {},
   isEnterprise: false,
@@ -44,15 +44,15 @@ const defaultState: ProductInfoState = {
 const ProductInfoContext = createContext<ProductInfoState | undefined>(undefined);
 
 function deriveMultipleDatacenters(data: ProductInfoResponse): boolean {
-  const ext = data.extras?.['multipleDatacentersPerTenant'];
-  if (typeof ext === 'boolean') return ext;
-  const ed = (data.edition ?? '').toLowerCase();
-  return ed === 'nexus' || ed === 'enterprise';
+  const ext = data.extras?.["multipleDatacentersPerTenant"];
+  if (typeof ext === "boolean") return ext;
+  const ed = (data.edition ?? "").toLowerCase();
+  return ed === "enterprise";
 }
 
 function deriveIsEnterprise(data: ProductInfoResponse): boolean {
-  const ed = (data.edition ?? '').toLowerCase();
-  return ed === 'nexus' || ed === 'enterprise';
+  const ed = (data.edition ?? "").toLowerCase();
+  return ed === "enterprise";
 }
 
 export function ProductInfoProvider({ children }: { children: ReactNode }) {
@@ -63,7 +63,7 @@ export function ProductInfoProvider({ children }: { children: ReactNode }) {
 
     async function fetchInfo() {
       try {
-        const res = await fetch('/api/v1/info', { credentials: 'include' });
+        const res = await fetch("/api/v1/info", { credentials: "include" });
         if (cancelled) return;
         if (!res.ok) {
           setState((prev) => ({
@@ -76,9 +76,12 @@ export function ProductInfoProvider({ children }: { children: ReactNode }) {
         const data: ProductInfoResponse = await res.json();
         if (cancelled) return;
 
-        const edition = data.edition ?? 'core';
+        const edition = data.edition ?? "core";
         const capabilities = Array.isArray(data.capabilities) ? data.capabilities : [];
-        const extras = data.extras && typeof data.extras === 'object' ? data.extras as Record<string, unknown> : {};
+        const extras =
+          data.extras && typeof data.extras === "object"
+            ? (data.extras as Record<string, unknown>)
+            : {};
         const isEnterprise = deriveIsEnterprise(data);
         const multipleDatacentersPerTenant = deriveMultipleDatacenters(data);
 
@@ -94,11 +97,11 @@ export function ProductInfoProvider({ children }: { children: ReactNode }) {
         });
       } catch (err) {
         if (cancelled) return;
-        console.error('Product info fetch error:', err);
+        console.error("Product info fetch error:", err);
         setState((prev) => ({
           ...prev,
           loading: false,
-          error: err instanceof Error ? err.message : 'Failed to load product info',
+          error: err instanceof Error ? err.message : "Failed to load product info",
         }));
       }
     }
@@ -109,17 +112,13 @@ export function ProductInfoProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return (
-    <ProductInfoContext.Provider value={state}>
-      {children}
-    </ProductInfoContext.Provider>
-  );
+  return <ProductInfoContext.Provider value={state}>{children}</ProductInfoContext.Provider>;
 }
 
 export function useProductInfo(): ProductInfoState {
   const context = useContext(ProductInfoContext);
   if (context === undefined) {
-    throw new Error('useProductInfo must be used within ProductInfoProvider');
+    throw new Error("useProductInfo must be used within ProductInfoProvider");
   }
   return context;
 }

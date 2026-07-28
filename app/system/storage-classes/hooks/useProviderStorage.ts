@@ -36,7 +36,7 @@ export function useSyncProviderStorage() {
       queryClient.invalidateQueries({ queryKey: ["provider-storage"] });
       toast.success(
         "Sync started",
-        data?.message ?? `Storage sync for provider ${providerId} (${data?.status ?? "accepted"})`,
+        data?.message ?? `Storage sync for provider ${providerId} (${data?.status ?? "accepted"})`
       );
     },
     onError: (err: Error) => {

@@ -56,7 +56,7 @@ export default function StorageOverrideForm({
 
   const availableStorage = useMemo(
     () => allProviderStorage.filter((s) => s.providerType === providerType),
-    [allProviderStorage, providerType],
+    [allProviderStorage, providerType]
   );
 
   const addStorageOptions = useMemo(
@@ -65,7 +65,7 @@ export default function StorageOverrideForm({
         value: storage.name ?? storage.externalId ?? storage.id,
         label: `${storage.name ?? storage.externalId ?? storage.id} (${storage.storageType})`,
       })),
-    [availableStorage],
+    [availableStorage]
   );
 
   const handleAddStorage = (raw: string) => {
@@ -139,7 +139,10 @@ export default function StorageOverrideForm({
     >
       <p className="text-sm text-gray-600 mb-4">
         Maps a storage class to preferred provider storage names (
-        <code className="text-xs">PUT /api/v1/storage-classes/&#123;name&#125;/storage-overrides</code>).
+        <code className="text-xs">
+          PUT /api/v1/storage-classes/&#123;name&#125;/storage-overrides
+        </code>
+        ).
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -187,11 +190,13 @@ export default function StorageOverrideForm({
           </div>
 
           <div>
-            <span className="block text-sm font-medium text-gray-700 mb-1">Provider storage names</span>
+            <span className="block text-sm font-medium text-gray-700 mb-1">
+              Provider storage names
+            </span>
             {addStorageOptions.length === 0 ? (
               <p className="text-sm text-gray-500 border rounded-md px-3 py-2 border-gray-200">
-                No inventory for this provider type. Sync storage from provider details or the Provider
-                storage tab.
+                No inventory for this provider type. Sync storage from provider details or the
+                Provider storage tab.
               </p>
             ) : (
               <Select

@@ -1,21 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { Badge } from '@/components/ui/atoms/badge';
-import { motion } from 'framer-motion';
-import {
-  Building2,
-  Database,
-  Cpu,
-  HardDrive,
-  Activity,
-  Users,
-  Loader2,
-} from 'lucide-react';
-import { AlertsCard, Alert } from '@/components/ui/organisms/alerts-card';
-import { apiGet } from '@/lib/api';
-import { useTenantId } from '@/lib/use-tenant-id';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { Badge } from "@/components/ui/atoms/badge";
+import { motion } from "framer-motion";
+import { Building2, Database, Cpu, HardDrive, Activity, Users, Loader2 } from "lucide-react";
+import { AlertsCard, Alert } from "@/components/ui/organisms/alerts-card";
+import { apiGet } from "@/lib/api";
+import { useTenantId } from "@/lib/use-tenant-id";
 
 interface QuotaUsage {
   vms: { used: number; limit: number };
@@ -32,12 +24,12 @@ interface TenantOverviewResponse {
 
 const placeholderAlerts: Alert[] = [
   {
-    id: '1',
-    severity: 'info',
-    title: 'Welcome',
-    message: 'Your tenant dashboard shows resource usage and quotas.',
-    timestamp: 'Just now',
-    source: 'system',
+    id: "1",
+    severity: "info",
+    title: "Welcome",
+    message: "Your tenant dashboard shows resource usage and quotas.",
+    timestamp: "Just now",
+    source: "system",
     dismissible: true,
   },
 ];
@@ -63,14 +55,14 @@ export default function TenantDashboardPage() {
       try {
         const [overviewRes, tenantRes] = await Promise.all([
           apiGet<TenantOverviewResponse>(`/api/v1/tenants/${tenantId}/overview`).catch(
-            (): TenantOverviewResponse => ({}),
+            (): TenantOverviewResponse => ({})
           ),
-          apiGet<{ settings?: { quotas?: Record<string, number> } }>(`/api/v1/tenants/${tenantId}`).catch(
-            (): { settings?: { quotas?: Record<string, number> } } => ({}),
-          ),
+          apiGet<{ settings?: { quotas?: Record<string, number> } }>(
+            `/api/v1/tenants/${tenantId}`
+          ).catch((): { settings?: { quotas?: Record<string, number> } } => ({})),
         ]);
         setTenantOverview(overviewRes);
-        const vmsTotal = typeof overviewRes.vmCount === 'number' ? overviewRes.vmCount : 0;
+        const vmsTotal = typeof overviewRes.vmCount === "number" ? overviewRes.vmCount : 0;
         const quotas = tenantRes?.settings?.quotas ?? {};
         setQuota({
           vms: { used: vmsTotal, limit: quotas.vms ?? 0 },
@@ -165,7 +157,9 @@ export default function TenantDashboardPage() {
                 </div>
               </div>
               {quota.vms.limit > 0 && (
-                <Badge variant={quotaPct >= 90 ? 'warning' : quotaPct >= 100 ? 'destructive' : 'default'}>
+                <Badge
+                  variant={quotaPct >= 90 ? "warning" : quotaPct >= 100 ? "destructive" : "default"}
+                >
                   {quotaPct}%
                 </Badge>
               )}

@@ -1,4 +1,4 @@
-export type ContentStorageTypeApi = 'local' | 'nfs' | 's3';
+export type ContentStorageTypeApi = "local" | "nfs" | "s3";
 
 export interface ContentStorageConfigRow {
   path?: string;

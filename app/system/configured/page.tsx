@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { motion } from 'framer-motion';
-import { 
-  Server, 
-  Database, 
-  Users, 
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { motion } from "framer-motion";
+import {
+  Server,
+  Database,
+  Users,
   Building2,
   Activity,
   TrendingUp,
@@ -20,128 +20,128 @@ import {
   KeyRound,
   Eye,
   MoreHorizontal,
-} from 'lucide-react';
-import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
-import { RowActionsTrigger } from '@/components/DynamicContextMenu';
- 
+} from "lucide-react";
+import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
+import { RowActionsTrigger } from "@/components/DynamicContextMenu";
+
 interface Datacenter extends Record<string, any> {
   id: string;
   name: string;
   type: string;
-  status: 'online' | 'offline' | 'warning';
+  status: "online" | "offline" | "warning";
   nodes: number;
   vms: number;
   [key: string]: any;
 }
- 
+
 interface RecentActivity extends Record<string, any> {
   id: string;
   type: string;
   message: string;
   time: string;
-  status: 'success' | 'error' | 'warning';
+  status: "success" | "error" | "warning";
   [key: string]: any;
 }
- 
+
 interface SystemHealth extends Record<string, any> {
   component: string;
-  status: 'healthy' | 'degraded' | 'down';
+  status: "healthy" | "degraded" | "down";
   uptime: string;
   [key: string]: any;
 }
- 
+
 const mockDatacenters: Datacenter[] = [
   {
-    id: '1',
-    name: 'Primary Datacenter',
-    type: 'Proxmox',
-    status: 'online',
+    id: "1",
+    name: "Primary Datacenter",
+    type: "Proxmox",
+    status: "online",
     nodes: 5,
     vms: 23,
   },
   {
-    id: '2',
-    name: 'Secondary Datacenter',
-    type: 'Libvirt',
-    status: 'online',
+    id: "2",
+    name: "Secondary Datacenter",
+    type: "Libvirt",
+    status: "online",
     nodes: 3,
     vms: 12,
   },
   {
-    id: '3',
-    name: 'Cloud Provider AWS',
-    type: 'AWS',
-    status: 'warning',
+    id: "3",
+    name: "Cloud Provider AWS",
+    type: "AWS",
+    status: "warning",
     nodes: 0,
     vms: 8,
   },
 ];
- 
+
 const mockActivity: RecentActivity[] = [
   {
-    id: '1',
-    type: 'VM',
-    message: 'VM web-server-01 created successfully',
-    time: '2 minutes ago',
-    status: 'success',
+    id: "1",
+    type: "VM",
+    message: "VM web-server-01 created successfully",
+    time: "2 minutes ago",
+    status: "success",
   },
   {
-    id: '2',
-    type: 'User',
-    message: 'New user alice@example.com added',
-    time: '15 minutes ago',
-    status: 'success',
+    id: "2",
+    type: "User",
+    message: "New user alice@example.com added",
+    time: "15 minutes ago",
+    status: "success",
   },
   {
-    id: '3',
-    type: 'Datacenter',
-    message: 'Primary Datacenter connection restored',
-    time: '1 hour ago',
-    status: 'success',
+    id: "3",
+    type: "Datacenter",
+    message: "Primary Datacenter connection restored",
+    time: "1 hour ago",
+    status: "success",
   },
   {
-    id: '4',
-    type: 'System',
-    message: 'Backup job completed',
-    time: '2 hours ago',
-    status: 'success',
+    id: "4",
+    type: "System",
+    message: "Backup job completed",
+    time: "2 hours ago",
+    status: "success",
   },
   {
-    id: '5',
-    type: 'Error',
-    message: 'Failed to connect to AWS provider',
-    time: '3 hours ago',
-    status: 'error',
+    id: "5",
+    type: "Error",
+    message: "Failed to connect to AWS provider",
+    time: "3 hours ago",
+    status: "error",
   },
 ];
- 
+
 const mockSystemHealth: SystemHealth[] = [
   {
-    component: 'API Server',
-    status: 'healthy',
-    uptime: '99.9%',
+    component: "API Server",
+    status: "healthy",
+    uptime: "99.9%",
   },
   {
-    component: 'Database',
-    status: 'healthy',
-    uptime: '99.8%',
+    component: "Database",
+    status: "healthy",
+    uptime: "99.8%",
   },
   {
-    component: 'Redis Cache',
-    status: 'healthy',
-    uptime: '99.9%',
+    component: "Redis Cache",
+    status: "healthy",
+    uptime: "99.9%",
   },
   {
-    component: 'Message Queue',
-    status: 'degraded',
-    uptime: '98.5%',
+    component: "Message Queue",
+    status: "degraded",
+    uptime: "98.5%",
   },
 ];
- 
+
 export default function ConfiguredSystemDashboardPage() {
   const getDatacenterContextMenuOptions = (row: Datacenter): DropdownOption[] => [
     {
-      label: 'View details',
+      label: "View details",
       icon: <Eye size={14} />,
       onClick: () => window.location.assign(`/system/datacenters`),
     },
@@ -149,8 +149,8 @@ export default function ConfiguredSystemDashboardPage() {
 
   const datacenterColumns: Column<Datacenter>[] = [
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       cell: (row: Datacenter) => (
         <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           <Dropdown
@@ -164,27 +164,25 @@ export default function ConfiguredSystemDashboardPage() {
       sortable: false,
     },
     {
-      key: 'name',
-      header: 'Name',
-      cell: (row: Datacenter) => (
-        <div className="font-medium text-gray-900">{row.name}</div>
-      ),
+      key: "name",
+      header: "Name",
+      cell: (row: Datacenter) => <div className="font-medium text-gray-900">{row.name}</div>,
       sortable: true,
     },
     {
-      key: 'type',
-      header: 'Type',
-      cell: (row: Datacenter) => (
-        <Badge variant="info">{row.type}</Badge>
-      ),
+      key: "type",
+      header: "Type",
+      cell: (row: Datacenter) => <Badge variant="info">{row.type}</Badge>,
       sortable: true,
     },
     {
-      key: 'status',
-      header: 'Status',
+      key: "status",
+      header: "Status",
       cell: (row: Datacenter) => (
-        <Badge 
-          variant={row.status === 'online' ? 'success' : row.status === 'warning' ? 'warning' : 'error'}
+        <Badge
+          variant={
+            row.status === "online" ? "success" : row.status === "warning" ? "warning" : "error"
+          }
         >
           {row.status}
         </Badge>
@@ -192,35 +190,29 @@ export default function ConfiguredSystemDashboardPage() {
       sortable: true,
     },
     {
-      key: 'nodes',
-      header: 'Nodes',
-      cell: (row: Datacenter) => (
-        <span className="text-gray-600">{row.nodes}</span>
-      ),
+      key: "nodes",
+      header: "Nodes",
+      cell: (row: Datacenter) => <span className="text-gray-600">{row.nodes}</span>,
       sortable: true,
     },
     {
-      key: 'vms',
-      header: 'VMs',
-      cell: (row: Datacenter) => (
-        <span className="text-gray-600">{row.vms}</span>
-      ),
+      key: "vms",
+      header: "VMs",
+      cell: (row: Datacenter) => <span className="text-gray-600">{row.vms}</span>,
       sortable: true,
     },
   ];
- 
+
   const activityColumns: Column<RecentActivity>[] = [
     {
-      key: 'type',
-      header: 'Type',
-      cell: (row: RecentActivity) => (
-        <Badge variant="default">{row.type}</Badge>
-      ),
+      key: "type",
+      header: "Type",
+      cell: (row: RecentActivity) => <Badge variant="default">{row.type}</Badge>,
       sortable: true,
     },
     {
-      key: 'message',
-      header: 'Activity',
+      key: "message",
+      header: "Activity",
       cell: (row: RecentActivity) => (
         <div className="max-w-md">
           <p className="text-gray-900">{row.message}</p>
@@ -229,46 +221,38 @@ export default function ConfiguredSystemDashboardPage() {
       sortable: true,
     },
     {
-      key: 'time',
-      header: 'Time',
-      cell: (row: RecentActivity) => (
-        <span className="text-sm text-gray-500">{row.time}</span>
-      ),
+      key: "time",
+      header: "Time",
+      cell: (row: RecentActivity) => <span className="text-sm text-gray-500">{row.time}</span>,
       sortable: true,
     },
     {
-      key: 'status',
-      header: 'Status',
+      key: "status",
+      header: "Status",
       cell: (row: RecentActivity) => (
         <div className="flex items-center gap-2">
-          {row.status === 'success' && (
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-          )}
-          {row.status === 'error' && (
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-          )}
-          {row.status === 'warning' && (
-            <AlertTriangle className="h-4 w-4 text-orange-600" />
-          )}
+          {row.status === "success" && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+          {row.status === "error" && <AlertTriangle className="h-4 w-4 text-red-600" />}
+          {row.status === "warning" && <AlertTriangle className="h-4 w-4 text-orange-600" />}
         </div>
       ),
       sortable: true,
     },
   ];
- 
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'healthy':
-        return 'text-green-600 bg-green-50';
-      case 'degraded':
-        return 'text-orange-600 bg-orange-50';
-      case 'down':
-        return 'text-red-600 bg-red-50';
+      case "healthy":
+        return "text-green-600 bg-green-50";
+      case "degraded":
+        return "text-orange-600 bg-orange-50";
+      case "down":
+        return "text-red-600 bg-red-50";
       default:
-        return 'text-gray-600 bg-gray-50';
+        return "text-gray-600 bg-gray-50";
     }
   };
- 
+
   return (
     <div className="min-h-screen bg-app">
       <div className="max-w-full px-3 py-8">
@@ -281,12 +265,8 @@ export default function ConfiguredSystemDashboardPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                System Dashboard
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Overview of your cloud infrastructure
-              </p>
+              <h1 className="text-3xl font-bold text-gray-900">System Dashboard</h1>
+              <p className="text-gray-600 mt-2">Overview of your cloud infrastructure</p>
             </div>
             <div className="flex items-center gap-2">
               <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -298,7 +278,7 @@ export default function ConfiguredSystemDashboardPage() {
             </div>
           </div>
         </motion.div>
- 
+
         {/* Stats Cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -371,7 +351,7 @@ export default function ConfiguredSystemDashboardPage() {
             </CardContent>
           </Card>
         </motion.div>
- 
+
         {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Datacenters */}
@@ -384,9 +364,7 @@ export default function ConfiguredSystemDashboardPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Datacenters
-                  </h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Datacenters</h2>
                   <div className="flex items-center gap-2">
                     <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors">
                       <Filter className="h-4 w-4 text-gray-600" />
@@ -402,13 +380,13 @@ export default function ConfiguredSystemDashboardPage() {
                   columns={datacenterColumns}
                   data={mockDatacenters}
                   emptyMessage="No datacenters configured"
-                  overflowVisibleColumnKeys={['actions']}
-                  onRowClick={(row) => console.log('Clicked row:', row)}
+                  overflowVisibleColumnKeys={["actions"]}
+                  onRowClick={(row) => console.log("Clicked row:", row)}
                 />
               </CardContent>
             </Card>
           </motion.div>
- 
+
           {/* System Health */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -417,9 +395,7 @@ export default function ConfiguredSystemDashboardPage() {
           >
             <Card>
               <CardHeader>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  System Health
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900">System Health</h2>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -433,9 +409,9 @@ export default function ConfiguredSystemDashboardPage() {
                         <div>
                           <p className="font-medium text-gray-900">{item.component}</p>
                           <p className="text-sm text-gray-500">
-                            {item.status === 'healthy' && 'All systems operational'}
-                            {item.status === 'degraded' && 'Some issues detected'}
-                            {item.status === 'down' && 'Service unavailable'}
+                            {item.status === "healthy" && "All systems operational"}
+                            {item.status === "degraded" && "Some issues detected"}
+                            {item.status === "down" && "Service unavailable"}
                           </p>
                         </div>
                       </div>
@@ -451,7 +427,7 @@ export default function ConfiguredSystemDashboardPage() {
               </CardContent>
             </Card>
           </motion.div>
- 
+
           {/* Recent Activity */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -460,9 +436,7 @@ export default function ConfiguredSystemDashboardPage() {
           >
             <Card>
               <CardHeader>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Recent Activity
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
               </CardHeader>
               <CardContent className="p-0">
                 <Table
@@ -473,7 +447,7 @@ export default function ConfiguredSystemDashboardPage() {
               </CardContent>
             </Card>
           </motion.div>
- 
+
           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -482,9 +456,7 @@ export default function ConfiguredSystemDashboardPage() {
           >
             <Card>
               <CardHeader>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Quick Actions
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-3 sm:grid-cols-2">

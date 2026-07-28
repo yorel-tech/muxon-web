@@ -1,12 +1,7 @@
-'use client';
+"use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  type ReactNode,
-} from 'react';
-import { cn } from '@/lib/utils';
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface TabsContextValue {
   value: string;
@@ -17,7 +12,7 @@ const TabsContext = createContext<TabsContextValue | null>(null);
 
 function useTabsContext() {
   const ctx = useContext(TabsContext);
-  if (!ctx) throw new Error('Tabs components must be used within <Tabs>');
+  if (!ctx) throw new Error("Tabs components must be used within <Tabs>");
   return ctx;
 }
 
@@ -45,24 +40,18 @@ export function Tabs({
   };
   return (
     <TabsContext.Provider value={{ value, setValue }}>
-      <div className={cn('w-full', className)}>{children}</div>
+      <div className={cn("w-full", className)}>{children}</div>
     </TabsContext.Provider>
   );
 }
 
-export function TabsList({
-  className,
-  children,
-}: {
-  className?: string;
-  children: ReactNode;
-}) {
+export function TabsList({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <div
       role="tablist"
       className={cn(
-        'inline-flex h-10 flex-wrap items-center justify-start gap-1 rounded-lg border border-panel bg-surface p-1 text-gray-600',
-        className,
+        "inline-flex h-10 flex-wrap items-center justify-start gap-1 rounded-lg border border-panel bg-surface p-1 text-gray-600",
+        className
       )}
     >
       {children}
@@ -87,11 +76,11 @@ export function TabsTrigger({
       role="tab"
       aria-selected={selected}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         selected
-          ? 'bg-surface text-primary-600 border border-panel'
-          : 'text-gray-600 hover:text-gray-900',
-        className,
+          ? "bg-surface text-primary-600 border border-panel"
+          : "text-gray-600 hover:text-gray-900",
+        className
       )}
       onClick={() => setValue(value)}
     >
@@ -112,7 +101,7 @@ export function TabsContent({
   const { value: active } = useTabsContext();
   if (active !== value) return null;
   return (
-    <div role="tabpanel" className={cn('mt-2 focus-visible:outline-none', className)}>
+    <div role="tabpanel" className={cn("mt-2 focus-visible:outline-none", className)}>
       {children}
     </div>
   );

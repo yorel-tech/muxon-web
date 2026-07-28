@@ -3,8 +3,8 @@
  * Automatically adds Bearer token from OIDC session to all requests
  */
 
-import { fetchOidcConfigIfNeeded, getUserManager, clearUserSession } from './oidc';
-import { Link } from '@/types/provider';
+import { fetchOidcConfigIfNeeded, getUserManager, clearUserSession } from "./oidc";
+import { Link } from "@/types/provider";
 
 // Global auth state for components to check
 let authCheckPromise: Promise<void> | null = null;
@@ -14,8 +14,8 @@ let authCheckPromise: Promise<void> | null = null;
  */
 export function triggerAuthCheck() {
   // Dispatch a custom event to notify all components to re-check auth
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('infron:auth-changed'));
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("muxon:auth-changed"));
   }
 }
 
@@ -41,7 +41,7 @@ export interface ApiRequestOptions extends RequestInit {
  * Get the current access token from OIDC session
  */
 async function getAccessToken(): Promise<string | null> {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     await fetchOidcConfigIfNeeded();
   }
   const um = getUserManager();
@@ -51,7 +51,7 @@ async function getAccessToken(): Promise<string | null> {
     const user = await um.getUser();
     return user?.access_token || null;
   } catch (error) {
-    console.error('Error getting access token:', error);
+    console.error("Error getting access token:", error);
     return null;
   }
 }
@@ -102,16 +102,16 @@ export async function apiRequest<T = any>(
 
   // Check if auth is required but no token is available
   if (requireAuth && !token) {
-    throw new Error('Authentication required but no access token available');
+    throw new Error("Authentication required but no access token available");
   }
 
   // Build URL
   let url: string;
-  if (typeof input === 'string') {
+  if (typeof input === "string") {
     // If baseUrl is provided and input is a relative path, prepend baseUrl
-    if (baseUrl && !input.startsWith('http')) {
-      url = `${baseUrl}${input.startsWith('/') ? '' : '/'}${input}`;
-    } else if (!input.startsWith('http') && !input.startsWith('/')) {
+    if (baseUrl && !input.startsWith("http")) {
+      url = `${baseUrl}${input.startsWith("/") ? "" : "/"}${input}`;
+    } else if (!input.startsWith("http") && !input.startsWith("/")) {
       // Default to relative path for Next.js API routes
       url = `/api/${input}`;
     } else {
@@ -123,16 +123,21 @@ export async function apiRequest<T = any>(
 
   // Build headers with Authorization
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...headersToRecord(customHeaders),
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  let signal: AbortSignal | undefined = fetchOptions.signal;
-  if (timeoutMs != null && timeoutMs > 0 && typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal) {
+  let signal: AbortSignal | undefined = fetchOptions.signal ?? undefined;
+  if (
+    timeoutMs != null &&
+    timeoutMs > 0 &&
+    typeof AbortSignal !== "undefined" &&
+    "timeout" in AbortSignal
+  ) {
     const timeoutSignal = AbortSignal.timeout(timeoutMs);
     signal =
       fetchOptions.signal != null
@@ -149,18 +154,18 @@ export async function apiRequest<T = any>(
 
   // Handle non-OK responses
   if (!response.ok) {
-    let errorBodyText = '';
+    let errorBodyText = "";
     let errorCode: string | null = null;
-    const responseContentType = response.headers.get('content-type') || '';
+    const responseContentType = response.headers.get("content-type") || "";
 
-    if (responseContentType.includes('application/json')) {
+    if (responseContentType.includes("application/json")) {
       try {
         const errorJson = await response.json();
-        errorCode = typeof errorJson?.code === 'string' ? errorJson.code : null;
-        const apiMessage = typeof errorJson?.message === 'string' ? errorJson.message : null;
+        errorCode = typeof errorJson?.code === "string" ? errorJson.code : null;
+        const apiMessage = typeof errorJson?.message === "string" ? errorJson.message : null;
         errorBodyText = apiMessage ?? JSON.stringify(errorJson);
       } catch {
-        errorBodyText = '';
+        errorBodyText = "";
       }
     } else {
       errorBodyText = await response.text();
@@ -170,23 +175,23 @@ export async function apiRequest<T = any>(
     if (response.status === 401) {
       // Clear the user session and redirect to home page
       await clearUserSession();
-      window.location.href = '/';
+      window.location.href = "/";
       // Throw to prevent further processing
-      throw new Error('Authentication expired. Redirecting to login...');
+      throw new Error("Authentication expired. Redirecting to login...");
     }
 
     // Handle invalid tenant context and force tenant re-selection.
-    if (response.status === 403 && errorCode === 'INVALID_TENANT_CONTEXT') {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('activeTenantId');
-        window.dispatchEvent(new CustomEvent('infron:tenant-context-changed'));
-        window.location.href = '/tenant/select';
+    if (response.status === 403 && errorCode === "INVALID_TENANT_CONTEXT") {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("activeTenantId");
+        window.dispatchEvent(new CustomEvent("muxon:tenant-context-changed"));
+        window.location.href = "/tenant/select";
       }
-      throw new Error('Tenant context is no longer valid. Redirecting to tenant selection...');
+      throw new Error("Tenant context is no longer valid. Redirecting to tenant selection...");
     }
 
     throw new Error(
-      `API request failed: ${response.status} ${response.statusText}${errorBodyText ? ` - ${errorBodyText}` : ''}`
+      `API request failed: ${response.status} ${response.statusText}${errorBodyText ? ` - ${errorBodyText}` : ""}`
     );
   }
 
@@ -195,8 +200,8 @@ export async function apiRequest<T = any>(
     return undefined as T;
   }
   // Parse response
-  const contentType = response.headers.get('content-type');
-  if (contentType?.includes('application/json')) {
+  const contentType = response.headers.get("content-type");
+  if (contentType?.includes("application/json")) {
     return response.json();
   }
   return response.text() as T;
@@ -207,9 +212,9 @@ export async function apiRequest<T = any>(
  */
 export async function apiGet<T = any>(
   input: RequestInfo | URL,
-  options?: Omit<ApiRequestOptions, 'method'>
+  options?: Omit<ApiRequestOptions, "method">
 ): Promise<T> {
-  return apiRequest<T>(input, { ...options, method: 'GET' });
+  return apiRequest<T>(input, { ...options, method: "GET" });
 }
 
 /**
@@ -218,11 +223,11 @@ export async function apiGet<T = any>(
 export async function apiPost<T = any>(
   input: RequestInfo | URL,
   body?: any,
-  options?: Omit<ApiRequestOptions, 'method' | 'body'>
+  options?: Omit<ApiRequestOptions, "method" | "body">
 ): Promise<T> {
   return apiRequest<T>(input, {
     ...options,
-    method: 'POST',
+    method: "POST",
     body: body ? JSON.stringify(body) : undefined,
   });
 }
@@ -233,11 +238,11 @@ export async function apiPost<T = any>(
 export async function apiPut<T = any>(
   input: RequestInfo | URL,
   body?: any,
-  options?: Omit<ApiRequestOptions, 'method' | 'body'>
+  options?: Omit<ApiRequestOptions, "method" | "body">
 ): Promise<T> {
   return apiRequest<T>(input, {
     ...options,
-    method: 'PUT',
+    method: "PUT",
     body: body ? JSON.stringify(body) : undefined,
   });
 }
@@ -247,9 +252,9 @@ export async function apiPut<T = any>(
  */
 export async function apiDelete<T = any>(
   input: RequestInfo | URL,
-  options?: Omit<ApiRequestOptions, 'method'>
+  options?: Omit<ApiRequestOptions, "method">
 ): Promise<T> {
-  return apiRequest<T>(input, { ...options, method: 'DELETE' });
+  return apiRequest<T>(input, { ...options, method: "DELETE" });
 }
 
 /**
@@ -258,11 +263,11 @@ export async function apiDelete<T = any>(
 export async function apiPatch<T = any>(
   input: RequestInfo | URL,
   body?: any,
-  options?: Omit<ApiRequestOptions, 'method' | 'body'>
+  options?: Omit<ApiRequestOptions, "method" | "body">
 ): Promise<T> {
   return apiRequest<T>(input, {
     ...options,
-    method: 'PATCH',
+    method: "PATCH",
     body: body ? JSON.stringify(body) : undefined,
   });
 }
@@ -272,15 +277,15 @@ export async function apiPatch<T = any>(
  */
 export async function apiGetWithLinks<T extends { _links?: Link[] }>(
   input: RequestInfo | URL,
-  options?: Omit<ApiRequestOptions, 'method'>
+  options?: Omit<ApiRequestOptions, "method">
 ): Promise<T> {
   const response = await apiGet<T>(input, options);
-  
+
   // Ensure _links array exists
   if (response && !response._links) {
     (response as any)._links = [];
   }
-  
+
   return response;
 }
 
@@ -290,7 +295,7 @@ export async function apiGetWithLinks<T extends { _links?: Link[] }>(
  * so the request hits Next.js /api/v1 proxy and is authenticated.
  */
 function normalizeLinkHref(href: string): string {
-  if (typeof href !== 'string' || !href.startsWith('http')) {
+  if (typeof href !== "string" || !href.startsWith("http")) {
     return href;
   }
   try {
@@ -307,7 +312,7 @@ function normalizeLinkHref(href: string): string {
 export async function executeLinkAction<T = any>(
   link: Link,
   payload?: any,
-  options?: Omit<ApiRequestOptions, 'method' | 'body' | 'url'>
+  options?: Omit<ApiRequestOptions, "method" | "body" | "url">
 ): Promise<T> {
   const url = normalizeLinkHref(link.href);
   return apiRequest<T>(url, {
@@ -322,8 +327,8 @@ export async function executeLinkAction<T = any>(
  * Fetches from backend /api/v1/providers (proxied via Next.js rewrites)
  */
 export async function fetchProvidersWithLinks(): Promise<any[]> {
-  const data = await apiGetWithLinks('/api/v1/providers');
-  const providersList = Array.isArray(data) ? data : ((data as any)?.items || []);
+  const data = await apiGetWithLinks("/api/v1/providers");
+  const providersList = Array.isArray(data) ? data : (data as any)?.items || [];
   // Ensure all providers have _links array
   return providersList.map((provider: any) => ({
     ...provider,
@@ -337,71 +342,71 @@ export async function fetchProvidersWithLinks(): Promise<any[]> {
 function generateDefaultLinks(provider: any): Link[] {
   const baseLinks: Link[] = [
     {
-      rel: 'self',
+      rel: "self",
       href: `/api/v1/providers/${provider.id}`,
-      method: 'GET',
-      title: 'View Details',
-      enabled: true
-    },
-    {
-      rel: 'edit',
-      href: `/api/v1/providers/${provider.id}`,
-      method: 'PUT',
-      title: 'Edit',
+      method: "GET",
+      title: "View Details",
       enabled: true,
-      reason: 'Requires provider:update permission'
     },
     {
-      rel: 'sync',
+      rel: "edit",
+      href: `/api/v1/providers/${provider.id}`,
+      method: "PUT",
+      title: "Edit",
+      enabled: true,
+      reason: "Requires provider:update permission",
+    },
+    {
+      rel: "sync",
       href: `/api/v1/providers/${provider.id}/sync`,
-      method: 'POST',
-      title: 'Sync',
-      enabled: provider.status !== 'offline',
-      reason: provider.status === 'offline' ? 'Provider is offline' : undefined
+      method: "POST",
+      title: "Sync",
+      enabled: provider.status !== "offline",
+      reason: provider.status === "offline" ? "Provider is offline" : undefined,
     },
     {
-      rel: 'testConnection',
+      rel: "testConnection",
       href: `/api/v1/providers/${provider.id}/test-connection`,
-      method: 'POST',
-      title: 'Test Connection',
-      enabled: true
-    }
+      method: "POST",
+      title: "Test Connection",
+      enabled: true,
+    },
   ];
 
   // Add provider-specific actions
-  if (provider.type === 'libvirt') {
+  if (provider.type === "libvirt") {
     baseLinks.push(
       {
-        rel: 'addCluster',
+        rel: "addCluster",
         href: `/api/v1/providers/${provider.id}/node-clusters`,
-        method: 'POST',
-        title: 'Add Cluster',
+        method: "POST",
+        title: "Add Cluster",
         enabled: true,
-        reason: 'Requires cluster:create permission'
+        reason: "Requires cluster:create permission",
       },
       {
-        rel: 'addNode',
+        rel: "addNode",
         href: `/api/v1/providers/${provider.id}/nodes`,
-        method: 'POST',
-        title: 'Add Node',
+        method: "POST",
+        title: "Add Node",
         enabled: true,
-        reason: 'Requires node:create permission'
+        reason: "Requires node:create permission",
       }
     );
   }
 
   // Add delete action with conditions
   baseLinks.push({
-    rel: 'delete',
+    rel: "delete",
     href: `/api/v1/providers/${provider.id}`,
-    method: 'DELETE',
-    title: 'Delete',
+    method: "DELETE",
+    title: "Delete",
     enabled: (provider.nodes || 0) === 0 && (provider.vms || 0) === 0,
-    reason: ((provider.nodes || 0) > 0 || (provider.vms || 0) > 0)
-      ? 'Cannot delete provider with active resources'
-      : 'Requires provider:delete permission'
+    reason:
+      (provider.nodes || 0) > 0 || (provider.vms || 0) > 0
+        ? "Cannot delete provider with active resources"
+        : "Requires provider:delete permission",
   });
 
   return baseLinks;
 }
-

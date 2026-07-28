@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useCallback, useRef } from 'react';
-import { Button } from '@/components/ui/atoms/button';
-import type { FileWithMetadata } from '@/types/vm-template-spec';
-import { formatBytes } from '@/lib/vm-template-defaults';
+import { useCallback, useRef } from "react";
+import { Button } from "@/components/ui/atoms/button";
+import type { FileWithMetadata } from "@/types/vm-template-spec";
+import { formatBytes } from "@/lib/vm-template-defaults";
 
 interface MultiFileUploadZoneProps {
   files: FileWithMetadata[];
@@ -20,7 +20,7 @@ export function MultiFileUploadZone({
   files,
   onFilesSelected,
   onFileRemove,
-  accept = '.qcow2,.vmdk,.raw,.img,.ova,.ovf,.iso',
+  accept = ".qcow2,.vmdk,.raw,.img,.ova,.ovf,.iso",
   maxSizeBytes = 50 * 1024 * 1024 * 1024, // 50 GiB
   disabled = false,
   allowMultiple = true,
@@ -30,10 +30,10 @@ export function MultiFileUploadZone({
   const handleFileSelect = useCallback(
     (selectedFiles: FileList | null) => {
       if (!selectedFiles || selectedFiles.length === 0) return;
-      
+
       const validFiles: File[] = [];
       const errors: string[] = [];
-      
+
       Array.from(selectedFiles).forEach((file) => {
         if (file.size > maxSizeBytes) {
           errors.push(`${file.name}: File too large (max ${formatBytes(maxSizeBytes)})`);
@@ -41,11 +41,11 @@ export function MultiFileUploadZone({
           validFiles.push(file);
         }
       });
-      
+
       if (errors.length > 0) {
-        alert(errors.join('\n'));
+        alert(errors.join("\n"));
       }
-      
+
       if (validFiles.length > 0) {
         onFilesSelected(validFiles);
       }
@@ -73,7 +73,7 @@ export function MultiFileUploadZone({
       handleFileSelect(e.target.files);
       // Reset input so the same file can be selected again
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     },
     [handleFileSelect]
@@ -91,8 +91,8 @@ export function MultiFileUploadZone({
         onDragOver={handleDragOver}
         className={`
           relative rounded-lg border-2 border-dashed p-8 text-center transition-colors
-          ${disabled ? 'cursor-not-allowed bg-gray-50 dark:bg-gray-800' : 'cursor-pointer hover:border-primary'}
-          ${files.length > 0 ? 'border-gray-300 dark:border-gray-600' : 'border-gray-400 dark:border-gray-500'}
+          ${disabled ? "cursor-not-allowed bg-gray-50 dark:bg-gray-800" : "cursor-pointer hover:border-primary"}
+          ${files.length > 0 ? "border-gray-300 dark:border-gray-600" : "border-gray-400 dark:border-gray-500"}
         `}
       >
         <input
@@ -104,7 +104,7 @@ export function MultiFileUploadZone({
           disabled={disabled}
           className="hidden"
         />
-        
+
         <div className="space-y-2">
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
@@ -129,7 +129,7 @@ export function MultiFileUploadZone({
             >
               Browse files
             </button>
-            {' or drag and drop'}
+            {" or drag and drop"}
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-500">
             Supported: QCOW2, VMDK, RAW, OVA, OVF, ISO files (max {formatBytes(maxSizeBytes)} each)
@@ -158,10 +158,10 @@ export function MultiFileUploadZone({
                     {fileData.diskIndex !== undefined && ` • Disk ${fileData.diskIndex}`}
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-2 ml-4">
                   {/* Status indicator */}
-                  {fileData.status === 'complete' && (
+                  {fileData.status === "complete" && (
                     <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
@@ -170,7 +170,7 @@ export function MultiFileUploadZone({
                       />
                     </svg>
                   )}
-                  {fileData.status === 'error' && (
+                  {fileData.status === "error" && (
                     <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
@@ -179,9 +179,9 @@ export function MultiFileUploadZone({
                       />
                     </svg>
                   )}
-                  
+
                   {/* Remove button */}
-                  {fileData.status === 'pending' && !disabled && (
+                  {fileData.status === "pending" && !disabled && (
                     <button
                       type="button"
                       onClick={() => onFileRemove(fileData.id)}
@@ -206,12 +206,7 @@ export function MultiFileUploadZone({
 
       {/* Add more files button */}
       {allowMultiple && files.length > 0 && !disabled && (
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleBrowseClick}
-          className="w-full"
-        >
+        <Button type="button" variant="secondary" onClick={handleBrowseClick} className="w-full">
           + Add more files
         </Button>
       )}

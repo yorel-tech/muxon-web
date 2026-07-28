@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { forwardRef, useEffect, type ReactNode } from 'react';
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { forwardRef, useEffect, type ReactNode } from "react";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -11,18 +11,18 @@ export interface ModalProps {
   /** Rendered between the title and the close button (e.g. extra actions). */
   titleActions?: ReactNode;
   children: ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: "sm" | "md" | "lg" | "xl" | "full";
   showClose?: boolean;
   closeOnOverlayClick?: boolean;
   closeOnEscapeKey?: boolean;
 }
 
 const sizeStyles: Record<string, string> = {
-  sm: 'max-w-md',
-  md: 'max-w-lg',
-  lg: 'max-w-xl',
-  xl: 'max-w-2xl',
-  full: 'max-w-5xl',
+  sm: "max-w-md",
+  md: "max-w-lg",
+  lg: "max-w-xl",
+  xl: "max-w-2xl",
+  full: "max-w-5xl",
 };
 
 export const Modal = forwardRef<HTMLDivElement, ModalProps>(
@@ -33,7 +33,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
       title,
       titleActions,
       children,
-      size = 'md',
+      size = "md",
       showClose = true,
       closeOnOverlayClick = true,
       closeOnEscapeKey = true,
@@ -42,19 +42,19 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
   ) => {
     useEffect(() => {
       const handleEscape = (event: KeyboardEvent) => {
-        if (event.key === 'Escape' && closeOnEscapeKey) {
+        if (event.key === "Escape" && closeOnEscapeKey) {
           onClose();
         }
       };
 
       if (isOpen) {
-        document.addEventListener('keydown', handleEscape);
-        document.body.style.overflow = 'hidden';
+        document.addEventListener("keydown", handleEscape);
+        document.body.style.overflow = "hidden";
       }
 
       return () => {
-        document.removeEventListener('keydown', handleEscape);
-        document.body.style.overflow = '';
+        document.removeEventListener("keydown", handleEscape);
+        document.body.style.overflow = "";
       };
     }, [isOpen, onClose, closeOnEscapeKey]);
 
@@ -104,9 +104,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
                     )}
                   </div>
                 </div>
-                <div className="p-6 overflow-y-auto flex-1">
-                  {children}
-                </div>
+                <div className="p-6 overflow-y-auto flex-1">{children}</div>
               </motion.div>
             </motion.div>
           </>
@@ -116,4 +114,4 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
   }
 );
 
-Modal.displayName = 'Modal';
+Modal.displayName = "Modal";

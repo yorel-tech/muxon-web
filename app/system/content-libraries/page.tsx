@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Loader2, Plus } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Button } from '@/components/ui/atoms/button';
-import { CreatePlatformContentLibraryModal } from '@/components/content-library/CreatePlatformContentLibraryModal';
-import { fetchPlatformContentLibraries } from '@/lib/api/content-library';
-import type { ContentLibraryRow } from '@/types/content-library';
-import { formatDetailDate } from '@/components/entity-detail/DetailRow';
+import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Loader2, Plus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Button } from "@/components/ui/atoms/button";
+import { CreatePlatformContentLibraryModal } from "@/components/content-library/CreatePlatformContentLibraryModal";
+import { fetchPlatformContentLibraries } from "@/lib/api/content-library";
+import type { ContentLibraryRow } from "@/types/content-library";
+import { formatDetailDate } from "@/components/entity-detail/DetailRow";
 
 export default function SystemContentLibrariesPage() {
   const [libraries, setLibraries] = useState<ContentLibraryRow[]>([]);
@@ -36,8 +36,8 @@ export default function SystemContentLibrariesPage() {
 
   const columns: Column<ContentLibraryRow>[] = [
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row) => (
         <Link
           href={`/system/content-libraries/${row.id}`}
@@ -49,44 +49,54 @@ export default function SystemContentLibrariesPage() {
       sortable: true,
     },
     {
-      key: 'description',
-      header: 'Description',
+      key: "description",
+      header: "Description",
       cell: (row) => (
-        <span className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{row.description ?? '—'}</span>
+        <span className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+          {row.description ?? "—"}
+        </span>
       ),
       sortable: false,
     },
     {
-      key: 'type',
-      header: 'Type',
+      key: "type",
+      header: "Type",
+      cell: (row) => <Badge variant="secondary">{row.type ?? "—"}</Badge>,
+      sortable: true,
+    },
+    {
+      key: "accessMode",
+      header: "Access",
       cell: (row) => (
-        <Badge variant="secondary">{row.type ?? '—'}</Badge>
+        <span className="text-sm text-gray-600 dark:text-gray-400">{row.accessMode ?? "—"}</span>
       ),
       sortable: true,
     },
     {
-      key: 'accessMode',
-      header: 'Access',
+      key: "syncStatus",
+      header: "Sync",
       cell: (row) => (
-        <span className="text-sm text-gray-600 dark:text-gray-400">{row.accessMode ?? '—'}</span>
-      ),
-      sortable: true,
-    },
-    {
-      key: 'syncStatus',
-      header: 'Sync',
-      cell: (row) => (
-        <Badge variant={row.syncStatus === 'synced' ? 'success' : row.syncStatus === 'failed' ? 'error' : 'default'}>
-          {row.syncStatus ?? '—'}
+        <Badge
+          variant={
+            row.syncStatus === "synced"
+              ? "success"
+              : row.syncStatus === "failed"
+                ? "error"
+                : "default"
+          }
+        >
+          {row.syncStatus ?? "—"}
         </Badge>
       ),
       sortable: true,
     },
     {
-      key: 'lastSyncedAt',
-      header: 'Last synced',
+      key: "lastSyncedAt",
+      header: "Last synced",
       cell: (row) => (
-        <span className="text-sm text-gray-500 dark:text-gray-400">{formatDetailDate(row.lastSyncedAt)}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          {formatDetailDate(row.lastSyncedAt)}
+        </span>
       ),
       sortable: true,
     },
@@ -103,7 +113,9 @@ export default function SystemContentLibrariesPage() {
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Content Libraries</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                Content Libraries
+              </h1>
               <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
                 Platform content libraries visible to operators (shared with tenants as read-only).
               </p>
@@ -119,7 +131,11 @@ export default function SystemContentLibrariesPage() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           <Card>
             <CardContent className="p-0">
               {loading ? (
@@ -138,7 +154,10 @@ export default function SystemContentLibrariesPage() {
           </Card>
         </motion.div>
 
-        <CreatePlatformContentLibraryModal isOpen={createOpen} onClose={() => setCreateOpen(false)} />
+        <CreatePlatformContentLibraryModal
+          isOpen={createOpen}
+          onClose={() => setCreateOpen(false)}
+        />
       </div>
     </div>
   );

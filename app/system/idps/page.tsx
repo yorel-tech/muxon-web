@@ -1,23 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/atoms/card';
-import { Table, Column } from '@/components/ui/organisms/table';
-import { Badge } from '@/components/ui/atoms/badge';
-import { Dropdown, DropdownOption } from '@/components/ui/molecules/dropdown';
-import { motion } from 'framer-motion';
-import {
-  Shield,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  RefreshCw,
-  Ban,
-  Loader2,
-} from 'lucide-react';
-import { RowActionsTrigger } from '@/components/DynamicContextMenu';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
+import { Table, Column } from "@/components/ui/organisms/table";
+import { Badge } from "@/components/ui/atoms/badge";
+import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
+import { motion } from "framer-motion";
+import { Shield, Plus, Edit, Trash2, Eye, RefreshCw, Ban, Loader2 } from "lucide-react";
+import { RowActionsTrigger } from "@/components/DynamicContextMenu";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 
 interface IdpServer {
   id: string;
@@ -35,7 +26,7 @@ interface IdpUser {
   name?: string;
 }
 
-const DEFAULT_IDP_ID = '62083d54-cb8c-521f-9374-65e9f21c8991';
+const DEFAULT_IDP_ID = "62083d54-cb8c-521f-9374-65e9f21c8991";
 
 export default function IdpsPage() {
   const [idpServers, setIdpServers] = useState<IdpServer[]>([]);
@@ -52,13 +43,13 @@ export default function IdpsPage() {
     setIsLoading(true);
     try {
       // Fetch IDP settings to get the configured IDP (same logic as page.tsx)
-      const idpData = await apiGet('/api/v1/system-settings/idp');
+      const idpData = await apiGet("/api/v1/system-settings/idp");
       if (idpData && idpData.name) {
         // Create IDP server entry from the configured IDP
         const idpServer: IdpServer = {
           id: DEFAULT_IDP_ID,
           name: idpData.name,
-          protocol: idpData.type || 'OIDC',
+          protocol: idpData.type || "OIDC",
           enabled: idpData.enabled || false,
           isSystem: true,
         };
@@ -72,7 +63,7 @@ export default function IdpsPage() {
         setUsers([]);
       }
     } catch (error) {
-      console.error('Error fetching IDP data:', error);
+      console.error("Error fetching IDP data:", error);
       setIdpServers([]);
       setUsers([]);
     } finally {
@@ -86,7 +77,7 @@ export default function IdpsPage() {
       const data = await apiGet(`/api/v1/idps/${idpId}/users`);
       // Handle both array and wrapped response formats
       // API returns OidcUserList with 'items' property
-      const usersList = Array.isArray(data) ? data : (data.items || []);
+      const usersList = Array.isArray(data) ? data : data.items || [];
       // Map snake_case properties to camelCase if needed (same logic as page.tsx)
       const mappedUsers = usersList.map((user: any) => ({
         sub: user.sub,
@@ -96,40 +87,40 @@ export default function IdpsPage() {
       }));
       setUsers(mappedUsers);
     } catch (error) {
-      console.error('Error fetching IDP users:', error);
+      console.error("Error fetching IDP users:", error);
       setUsers([]);
     }
   };
 
   const handleViewDetails = (idp: IdpServer) => {
-    console.log('View details for:', idp.id);
+    console.log("View details for:", idp.id);
     // Navigate to IDP details page
   };
 
   const handleEdit = (idp: IdpServer) => {
-    console.log('Edit IDP:', idp.id);
+    console.log("Edit IDP:", idp.id);
     // Open edit modal
   };
 
   const handleSync = async (idp: IdpServer) => {
-    console.log('Sync IDP:', idp.id);
+    console.log("Sync IDP:", idp.id);
     try {
       await apiPost(`/api/v1/idps/${idp.id}/sync`, {});
       await fetchIdpData();
     } catch (error) {
-      console.error('Error syncing IDP:', error);
-      alert('Failed to sync IDP.');
+      console.error("Error syncing IDP:", error);
+      alert("Failed to sync IDP.");
     }
   };
 
   const handleDisable = async (idp: IdpServer) => {
-    console.log('Disable IDP:', idp.id);
+    console.log("Disable IDP:", idp.id);
     try {
       await apiPut(`/api/v1/idps/${idp.id}`, { enabled: false });
       await fetchIdpData();
     } catch (error) {
-      console.error('Error disabling IDP:', error);
-      alert('Failed to disable IDP.');
+      console.error("Error disabling IDP:", error);
+      alert("Failed to disable IDP.");
     }
   };
 
@@ -139,46 +130,46 @@ export default function IdpsPage() {
         await apiDelete(`/api/v1/idps/${idp.id}`);
         await fetchIdpData();
       } catch (error) {
-        console.error('Error deleting IDP:', error);
-        alert('Failed to delete IDP.');
+        console.error("Error deleting IDP:", error);
+        alert("Failed to delete IDP.");
       }
     }
   };
 
   const getContextMenuOptions = (idp: IdpServer): DropdownOption[] => [
     {
-      label: 'View Details',
+      label: "View Details",
       icon: <Eye size={14} />,
       onClick: () => handleViewDetails(idp),
     },
     {
-      label: 'Edit',
+      label: "Edit",
       icon: <Edit size={14} />,
       onClick: () => handleEdit(idp),
     },
     {
-      label: 'Sync',
+      label: "Sync",
       icon: <RefreshCw size={14} />,
       onClick: () => handleSync(idp),
     },
     {
-      label: 'Disable',
+      label: "Disable",
       icon: <Ban size={14} />,
-      variant: 'warning',
+      variant: "warning",
       onClick: () => handleDisable(idp),
     },
     {
-      label: 'Delete',
+      label: "Delete",
       icon: <Trash2 size={14} />,
-      variant: 'danger',
+      variant: "danger",
       onClick: () => handleDelete(idp),
     },
   ];
 
   const idpColumns: Column<IdpServer>[] = [
     {
-      key: 'actions',
-      header: '',
+      key: "actions",
+      header: "",
       cell: (row: IdpServer) => (
         <div className="flex justify-start" onClick={(e) => e.stopPropagation()}>
           <Dropdown
@@ -192,8 +183,8 @@ export default function IdpsPage() {
       sortable: false,
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row: IdpServer) => (
         <div className="flex items-center gap-2">
           <span className="font-medium text-gray-900 dark:text-gray-100">{row.name}</span>
@@ -202,21 +193,17 @@ export default function IdpsPage() {
       sortable: true,
     },
     {
-      key: 'protocol',
-      header: 'Protocol',
-      cell: (row: IdpServer) => (
-        <Badge variant="default">{row.protocol || 'N/A'}</Badge>
-      ),
+      key: "protocol",
+      header: "Protocol",
+      cell: (row: IdpServer) => <Badge variant="default">{row.protocol || "N/A"}</Badge>,
       sortable: true,
     },
     {
-      key: 'enabled',
-      header: 'Status',
+      key: "enabled",
+      header: "Status",
       cell: (row: IdpServer) => (
-        <Badge
-          variant={row.enabled ? 'success' : 'default'}
-        >
-          {row.enabled ? 'Enabled' : 'Disabled'}
+        <Badge variant={row.enabled ? "success" : "default"}>
+          {row.enabled ? "Enabled" : "Disabled"}
         </Badge>
       ),
       sortable: true,
@@ -225,27 +212,27 @@ export default function IdpsPage() {
 
   const userColumns: Column<IdpUser>[] = [
     {
-      key: 'preferredUsername',
-      header: 'Username',
+      key: "preferredUsername",
+      header: "Username",
       cell: (row: IdpUser) => (
-        <span className="font-medium text-gray-900 dark:text-gray-100">{row.preferredUsername}</span>
+        <span className="font-medium text-gray-900 dark:text-gray-100">
+          {row.preferredUsername}
+        </span>
       ),
       sortable: true,
     },
     {
-      key: 'name',
-      header: 'Name',
+      key: "name",
+      header: "Name",
       cell: (row: IdpUser) => (
-        <span className="text-gray-600 dark:text-gray-400">{row.name || '-'}</span>
+        <span className="text-gray-600 dark:text-gray-400">{row.name || "-"}</span>
       ),
       sortable: true,
     },
     {
-      key: 'email',
-      header: 'Email',
-      cell: (row: IdpUser) => (
-        <span className="text-gray-600 dark:text-gray-400">{row.email}</span>
-      ),
+      key: "email",
+      header: "Email",
+      cell: (row: IdpUser) => <span className="text-gray-600 dark:text-gray-400">{row.email}</span>,
       sortable: true,
     },
   ];
@@ -262,9 +249,7 @@ export default function IdpsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Identity Providers
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">Identity Providers</h1>
               <p className="text-gray-600 mt-2">
                 Manage your identity providers for user authentication
               </p>
@@ -284,9 +269,7 @@ export default function IdpsPage() {
         >
           <Card>
             <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Identity Provider Servers
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900">Identity Provider Servers</h2>
             </CardHeader>
             <CardContent className="p-0">
               {isLoading ? (
@@ -299,7 +282,7 @@ export default function IdpsPage() {
                   data={idpServers}
                   emptyMessage="No IDP servers configured"
                   onRowClick={(row) => handleViewDetails(row)}
-                  overflowVisibleColumnKeys={['actions']}
+                  overflowVisibleColumnKeys={["actions"]}
                 />
               )}
             </CardContent>
@@ -314,9 +297,7 @@ export default function IdpsPage() {
         >
           <Card>
             <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">
-                IDP Users
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900">IDP Users</h2>
             </CardHeader>
             <CardContent className="p-0">
               {isLoading ? (
@@ -324,11 +305,7 @@ export default function IdpsPage() {
                   <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
                 </div>
               ) : (
-                <Table
-                  columns={userColumns}
-                  data={users}
-                  emptyMessage="No users found"
-                />
+                <Table columns={userColumns} data={users} emptyMessage="No users found" />
               )}
             </CardContent>
           </Card>

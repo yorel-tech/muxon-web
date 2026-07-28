@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/atoms/card";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useStorageOverridesAggregated, useRemoveStorageOverrideRow } from "../hooks/useStorageOverrides";
+import {
+  useStorageOverridesAggregated,
+  useRemoveStorageOverrideRow,
+} from "../hooks/useStorageOverrides";
 import StorageOverrideForm from "./StorageOverrideForm";
 import type { StorageOverrideRow } from "@/lib/types/storage";
 
@@ -96,7 +99,13 @@ export default function StorageOverrideList() {
                     </CardDescription>
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <Button variant="ghost" size="sm" className="!p-2" onClick={() => handleEdit(row)} aria-label="Edit">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="!p-2"
+                      onClick={() => handleEdit(row)}
+                      aria-label="Edit"
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button

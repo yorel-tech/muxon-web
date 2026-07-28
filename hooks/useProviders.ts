@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchProvidersWithLinks } from '@/lib/api';
-import type { Provider } from '@/types/provider';
+import { useQuery } from "@tanstack/react-query";
+import { fetchProvidersWithLinks } from "@/lib/api";
+import type { Provider } from "@/types/provider";
 
 export function useProviders() {
   return useQuery({
-    queryKey: ['providers'],
+    queryKey: ["providers"],
     queryFn: () => fetchProvidersWithLinks() as Promise<Provider[]>,
   });
 }

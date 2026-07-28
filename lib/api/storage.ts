@@ -1,8 +1,8 @@
 /**
- * Storage API helpers — aligned with infron-core openapi/storage.yaml
+ * Storage API helpers — aligned with muxon-core openapi/storage.yaml
  */
 
-import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api';
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from "@/lib/api";
 import type {
   StorageClass,
   StorageClassCreate,
@@ -10,16 +10,16 @@ import type {
   StorageClassOverrides,
   ProviderStorage,
   StorageSyncResponse,
-} from '@/lib/types/storage';
+} from "@/lib/types/storage";
 
-const V1 = '/api/v1';
+const V1 = "/api/v1";
 
 /** Normalize list responses that may be bare arrays or { items: T[] } */
 export function normalizeItems<T>(data: unknown): T[] {
   if (Array.isArray(data)) {
     return data as T[];
   }
-  if (data && typeof data === 'object' && Array.isArray((data as { items?: unknown }).items)) {
+  if (data && typeof data === "object" && Array.isArray((data as { items?: unknown }).items)) {
     return (data as { items: T[] }).items;
   }
   return [];
@@ -28,7 +28,7 @@ export function normalizeItems<T>(data: unknown): T[] {
 export const storageApi = {
   listStorageClasses: (): Promise<StorageClass[]> =>
     apiGet<StorageClass[] | { items?: StorageClass[] }>(`${V1}/storage-classes`).then((d) =>
-      normalizeItems<StorageClass>(d),
+      normalizeItems<StorageClass>(d)
     ),
 
   getStorageClass: (name: string): Promise<StorageClass> =>
@@ -48,16 +48,16 @@ export const storageApi = {
 
   getStorageClassOverrides: (storageClassName: string): Promise<StorageClassOverrides> =>
     apiGet<StorageClassOverrides>(
-      `${V1}/storage-classes/${encodeURIComponent(storageClassName)}/storage-overrides`,
+      `${V1}/storage-classes/${encodeURIComponent(storageClassName)}/storage-overrides`
     ),
 
   replaceStorageClassOverrides: (
     storageClassName: string,
-    body: StorageClassOverrides,
+    body: StorageClassOverrides
   ): Promise<StorageClassOverrides> =>
     apiPut<StorageClassOverrides>(
       `${V1}/storage-classes/${encodeURIComponent(storageClassName)}/storage-overrides`,
-      body,
+      body
     ),
 
   listProviderStorageGlobal: (params?: {
@@ -66,38 +66,41 @@ export const storageApi = {
     storageClass?: string;
   }): Promise<ProviderStorage[]> => {
     const sp = new URLSearchParams();
-    if (params?.providerId) sp.set('providerId', params.providerId);
-    if (params?.datacenterId) sp.set('datacenterId', params.datacenterId);
-    if (params?.storageClass) sp.set('storageClass', params.storageClass);
+    if (params?.providerId) sp.set("providerId", params.providerId);
+    if (params?.datacenterId) sp.set("datacenterId", params.datacenterId);
+    if (params?.storageClass) sp.set("storageClass", params.storageClass);
     const q = sp.toString();
     return apiGet<ProviderStorage[] | { items?: ProviderStorage[] }>(
-      `${V1}/provider-storage${q ? `?${q}` : ''}`,
+      `${V1}/provider-storage${q ? `?${q}` : ""}`
     ).then((d) => normalizeItems<ProviderStorage>(d));
   },
 
   listProviderStorageByProvider: (
     providerId: string,
-    params?: { storageClass?: string },
+    params?: { storageClass?: string }
   ): Promise<ProviderStorage[]> => {
     const sp = new URLSearchParams();
-    if (params?.storageClass) sp.set('storageClass', params.storageClass);
+    if (params?.storageClass) sp.set("storageClass", params.storageClass);
     const q = sp.toString();
     return apiGet<ProviderStorage[] | { items?: ProviderStorage[] }>(
-      `${V1}/providers/${encodeURIComponent(providerId)}/storage${q ? `?${q}` : ''}`,
+      `${V1}/providers/${encodeURIComponent(providerId)}/storage${q ? `?${q}` : ""}`
     ).then((d) => normalizeItems<ProviderStorage>(d));
   },
 
   /** Provider storage rows mapped to a storage class (same shape as provider-storage list). */
   listProviderStorageForStorageClass: (storageClassName: string): Promise<ProviderStorage[]> =>
     apiGet<ProviderStorage[] | { items?: ProviderStorage[] }>(
-      `${V1}/storage-classes/${encodeURIComponent(storageClassName)}/provider-storage`,
+      `${V1}/storage-classes/${encodeURIComponent(storageClassName)}/provider-storage`
     ).then((d) => normalizeItems<ProviderStorage>(d)),
 
   getProviderStorage: (id: string): Promise<ProviderStorage> =>
     apiGet<ProviderStorage>(`${V1}/provider-storage/${encodeURIComponent(id)}`),
 
   syncProviderStorage: (providerId: string): Promise<StorageSyncResponse> =>
-    apiPost<StorageSyncResponse>(`${V1}/providers/${encodeURIComponent(providerId)}/sync-storage`, {}),
+    apiPost<StorageSyncResponse>(
+      `${V1}/providers/${encodeURIComponent(providerId)}/sync-storage`,
+      {}
+    ),
 
   /** Optional scheduler dry-run — may 404 until backend implements it */
   resolveStorageClass: (name: string, body?: Record<string, unknown>): Promise<unknown> =>

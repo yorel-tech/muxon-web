@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { MultiFileUploadZone } from '../MultiFileUploadZone';
-import type { FileWithMetadata } from '@/types/vm-template-spec';
-import type { ContentTypeApi } from '@/types/content-library';
+import { MultiFileUploadZone } from "../MultiFileUploadZone";
+import type { FileWithMetadata } from "@/types/vm-template-spec";
+import type { ContentTypeApi } from "@/types/content-library";
 
 interface VmTemplateFilesStepProps {
   files: FileWithMetadata[];
@@ -20,9 +20,9 @@ interface VmTemplateFilesStepProps {
 }
 
 const CONTENT_TYPES: { value: ContentTypeApi; label: string; multiFile: boolean }[] = [
-  { value: 'vm_template', label: 'VM Template', multiFile: true },
-  { value: 'iso', label: 'ISO Image', multiFile: false },
-  { value: 'script', label: 'Script', multiFile: false },
+  { value: "vm_template", label: "VM Template", multiFile: true },
+  { value: "iso", label: "ISO Image", multiFile: false },
+  { value: "script", label: "Script", multiFile: false },
 ];
 
 export function VmTemplateFilesStep({
@@ -35,28 +35,28 @@ export function VmTemplateFilesStep({
   onVersionChange,
   contentType,
   onContentTypeChange,
-  description = '',
+  description = "",
   onDescriptionChange,
 }: VmTemplateFilesStepProps) {
-  const selectedType = CONTENT_TYPES.find(t => t.value === contentType);
-  const isSimpleSingleFile = contentType === 'iso' || contentType === 'script';
+  const selectedType = CONTENT_TYPES.find((t) => t.value === contentType);
+  const isSimpleSingleFile = contentType === "iso" || contentType === "script";
 
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          {contentType === 'iso'
-            ? 'ISO image'
-            : contentType === 'script'
-              ? 'Script'
-              : 'Files & Basic Information'}
+          {contentType === "iso"
+            ? "ISO image"
+            : contentType === "script"
+              ? "Script"
+              : "Files & Basic Information"}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          {contentType === 'iso'
-            ? 'Choose an ISO file, set the name and description, then upload.'
-            : contentType === 'script'
-              ? 'Choose a script file, set the name and description, then upload.'
-              : 'Select the content type and upload files. Multiple files are supported for VM templates only.'}
+          {contentType === "iso"
+            ? "Choose an ISO file, set the name and description, then upload."
+            : contentType === "script"
+              ? "Choose a script file, set the name and description, then upload."
+              : "Select the content type and upload files. Multiple files are supported for VM templates only."}
         </p>
       </div>
 
@@ -78,7 +78,8 @@ export function VmTemplateFilesStep({
         </select>
         {selectedType?.multiFile && (
           <p className="mt-1 text-xs text-primary">
-            Multiple files supported - useful for multi-disk VM templates (e.g., boot disk + data disks)
+            Multiple files supported - useful for multi-disk VM templates (e.g., boot disk + data
+            disks)
           </p>
         )}
       </div>
@@ -88,13 +89,19 @@ export function VmTemplateFilesStep({
         files={files}
         onFilesSelected={onFilesSelected}
         onFileRemove={onFileRemove}
-        accept={contentType === 'iso' ? '.iso' : contentType === 'script' ? '.sh,.yaml,.yml,.ps1,.txt' : '.qcow2,.vmdk,.raw,.img,.ova,.ovf'}
+        accept={
+          contentType === "iso"
+            ? ".iso"
+            : contentType === "script"
+              ? ".sh,.yaml,.yml,.ps1,.txt"
+              : ".qcow2,.vmdk,.raw,.img,.ova,.ovf"
+        }
         disabled={false}
         allowMultiple={!isSimpleSingleFile}
       />
 
       {/* Name and Version */}
-      <div className={`grid grid-cols-1 gap-4 ${isSimpleSingleFile ? '' : 'md:grid-cols-2'}`}>
+      <div className={`grid grid-cols-1 gap-4 ${isSimpleSingleFile ? "" : "md:grid-cols-2"}`}>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Name <span className="text-red-500">*</span>
@@ -121,9 +128,9 @@ export function VmTemplateFilesStep({
               value={description}
               onChange={(e) => onDescriptionChange(e.target.value)}
               placeholder={
-                contentType === 'script'
-                  ? 'e.g., Post-install cloud-init helper'
-                  : 'e.g., TinyCore Linux install media'
+                contentType === "script"
+                  ? "e.g., Post-install cloud-init helper"
+                  : "e.g., TinyCore Linux install media"
               }
               rows={3}
               className="w-full rounded-md border border-panel bg-surface px-4 py-2 text-gray-900 dark:text-gray-100"

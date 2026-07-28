@@ -1,16 +1,16 @@
-import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api';
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api";
 import type {
   ContentStorageListResponse,
   ContentStorageRow,
   ContentStorageTypeApi,
-} from '@/types/content-storage';
+} from "@/types/content-storage";
 
 export async function listContentStorages(
   page = 1,
-  perPage = 100,
+  perPage = 100
 ): Promise<ContentStorageListResponse> {
   return apiGet<ContentStorageListResponse>(
-    `/api/v1/platform/content-storages?page=${page}&perPage=${perPage}`,
+    `/api/v1/platform/content-storages?page=${page}&perPage=${perPage}`
   );
 }
 
@@ -24,12 +24,12 @@ export async function createContentStorage(body: {
   config: Record<string, unknown>;
   isDefault?: boolean;
 }): Promise<ContentStorageRow> {
-  return apiPost<ContentStorageRow>('/api/v1/platform/content-storages', body);
+  return apiPost<ContentStorageRow>("/api/v1/platform/content-storages", body);
 }
 
 export async function updateContentStorage(
   id: string,
-  body: { name?: string; config?: Record<string, unknown>; isDefault?: boolean },
+  body: { name?: string; config?: Record<string, unknown>; isDefault?: boolean }
 ): Promise<ContentStorageRow> {
   return apiPatch<ContentStorageRow>(`/api/v1/platform/content-storages/${id}`, body);
 }

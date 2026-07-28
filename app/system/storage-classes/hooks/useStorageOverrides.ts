@@ -5,7 +5,7 @@ import { useToast } from "@/lib/toast";
 
 function flattenOverrides(
   classes: { name: string }[],
-  results: StorageClassOverrides[],
+  results: StorageClassOverrides[]
 ): StorageOverrideRow[] {
   const rows: StorageOverrideRow[] = [];
   results.forEach((doc, i) => {
@@ -28,8 +28,8 @@ export function useStorageOverridesAggregated() {
           storageApi.getStorageClassOverrides(c.name).catch(() => ({
             storageClassName: c.name,
             overrides: [] as StorageClassOverride[],
-          })),
-        ),
+          }))
+        )
       );
       return flattenOverrides(classes, results);
     },
@@ -64,7 +64,13 @@ export function useReplaceStorageClassOverrides() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ storageClassName, body }: { storageClassName: string; body: StorageClassOverrides }) =>
+    mutationFn: async ({
+      storageClassName,
+      body,
+    }: {
+      storageClassName: string;
+      body: StorageClassOverrides;
+    }) =>
       storageApi.replaceStorageClassOverrides(storageClassName, {
         ...body,
         storageClassName,

@@ -128,34 +128,40 @@ export default function ProviderStorageList() {
                   }}
                 >
                   <Card className="h-full">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <CardTitle className="text-lg truncate">
-                          {storage.name ?? storage.externalId ?? storage.id}
-                        </CardTitle>
-                        <CardDescription className="!text-gray-600">{storage.storageType}</CardDescription>
-                      </div>
-                      {storage.enabled !== false ? (
-                        <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-red-500 shrink-0" />
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <StorageCapabilitiesBadgeGroup capabilities={storage.capabilities} />
-                    {storage.metrics && (
-                      <div className="text-xs text-gray-600 space-y-0.5">
-                        {storage.metrics.freeGb != null && <div>Free: {storage.metrics.freeGb} GB</div>}
-                        {storage.metrics.totalGb != null && <div>Total: {storage.metrics.totalGb} GB</div>}
-                        {storage.metrics.estimatedIops != null && (
-                          <div>IOPS: {storage.metrics.estimatedIops.toLocaleString()}</div>
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="text-lg truncate">
+                            {storage.name ?? storage.externalId ?? storage.id}
+                          </CardTitle>
+                          <CardDescription className="!text-gray-600">
+                            {storage.storageType}
+                          </CardDescription>
+                        </div>
+                        {storage.enabled !== false ? (
+                          <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-500 shrink-0" />
                         )}
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <StorageCapabilitiesBadgeGroup capabilities={storage.capabilities} />
+                      {storage.metrics && (
+                        <div className="text-xs text-gray-600 space-y-0.5">
+                          {storage.metrics.freeGb != null && (
+                            <div>Free: {storage.metrics.freeGb} GB</div>
+                          )}
+                          {storage.metrics.totalGb != null && (
+                            <div>Total: {storage.metrics.totalGb} GB</div>
+                          )}
+                          {storage.metrics.estimatedIops != null && (
+                            <div>IOPS: {storage.metrics.estimatedIops.toLocaleString()}</div>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
               ))}
             </div>
