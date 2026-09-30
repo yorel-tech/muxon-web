@@ -234,7 +234,7 @@ export default function DatacenterDetailPage({ params }: { params: Promise<{ id:
 
   if (error || !datacenter) {
     return (
-      <div className="min-h-screen bg-app px-3 py-8">
+      <div className="min-h-screen bg-app py-8">
         <Link
           href={
             backToTenant ? `/system/tenants/${tenantId}?tab=datacenters` : "/system/datacenters"
@@ -262,7 +262,7 @@ export default function DatacenterDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
+      <div className="w-full min-w-0 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

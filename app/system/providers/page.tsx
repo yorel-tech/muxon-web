@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Button } from "@/components/ui/atoms/button";
 import { Input } from "@/components/ui/atoms/input";
@@ -404,44 +405,37 @@ export default function ProvidersPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        {/* Header with enhanced actions */}
-        <motion.div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Providers</h1>
-              <p className="text-gray-600 mt-2">Manage your cloud infrastructure providers</p>
-            </div>
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader
+          title="Providers"
+          description="Manage your cloud infrastructure providers"
+          actions={
             <button
               onClick={handleOpenWizard}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 font-medium text-white transition-colors hover:bg-primary-700"
             >
               <Plus size={18} />
               <span>Add Provider</span>
             </button>
-          </div>
-        </motion.div>
+          }
+        />
 
-        {/* Enhanced Table with HATEOAS support */}
-        <motion.div>
-          <Card>
-            <CardContent className="p-0">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={columns}
-                  data={providers}
-                  emptyMessage="No providers configured"
-                  onRowClick={(row) => handleAction("viewDetails", row)}
-                  overflowVisibleColumnKeys={["actions", "quickActions"]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <DataRegion>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={columns}
+              data={providers}
+              emptyMessage="No providers configured"
+              onRowClick={(row) => handleAction("viewDetails", row)}
+              overflowVisibleColumnKeys={["actions", "quickActions"]}
+            />
+          )}
+        </DataRegion>
       </div>
 
       {/* Enhanced Wizard Modal */}

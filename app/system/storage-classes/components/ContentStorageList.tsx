@@ -135,6 +135,7 @@ export default function ContentStorageList({ onEdit }: ContentStorageListProps) 
 
   return (
     <Table
+      presentation="plain"
       columns={columns}
       data={rows}
       emptyMessage="No content storages configured."

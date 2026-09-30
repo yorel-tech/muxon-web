@@ -212,8 +212,9 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
           <Link
             href={item.href}
             className={cn(
-              "flex items-center gap-3 py-2.5 rounded-lg transition-colors",
+              "flex min-h-11 items-center gap-3 rounded-lg py-2.5 transition-colors",
               "hover:bg-sidebar-hover",
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--focus-ring)]",
               isOpen ? "px-3" : "justify-center px-0",
               isActive(item.href)
                 ? "bg-sidebar-active text-sidebar-active-fg"
@@ -280,9 +281,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         style={{ top: topOffset }}
         className={cn(
-          "fixed bottom-0 left-0 z-40 bg-sidebar border-r border-sidebar-border",
-          "shadow-[4px_0_24px_-4px_rgba(15,23,42,0.12)]",
-          "dark:shadow-[4px_0_28px_-4px_rgba(0,0,0,0.55)]",
+          "fixed bottom-0 left-0 z-40 border-r-2 border-nav bg-sidebar shadow-nav",
           className
         )}
       >
@@ -423,7 +422,7 @@ export const CollapsibleSidebar = forwardRef<HTMLDivElement, CollapsibleSidebarP
         {/* Toggle Button */}
         <button
           onClick={onToggle}
-          className="absolute top-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center bg-surface border border-sidebar-border shadow-md text-sidebar-item hover:bg-sidebar-hover transition-colors z-50"
+          className="absolute top-1/2 -right-5 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-nav bg-surface text-sidebar-item shadow-sm transition-colors hover:bg-sidebar-hover"
           aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
           {isOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}

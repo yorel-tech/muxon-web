@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Loader2, Plus } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Button } from "@/components/ui/atoms/button";
 import { CreateTenantContentLibraryModal } from "@/components/content-library/CreateTenantContentLibraryModal";
@@ -126,23 +126,12 @@ export default function TenantContentLibrariesPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Content Libraries
-              </h1>
-              <p className="mt-1 text-gray-600 dark:text-gray-400 text-sm">
-                Libraries shared by your provider and your tenant-owned libraries.
-              </p>
-            </div>
-            {tenantId ? (
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader
+          title="Content Libraries"
+          description="Libraries shared by your provider and your tenant-owned libraries."
+          actions={
+            tenantId ? (
               <Button
                 type="button"
                 leftIcon={<Plus className="h-4 w-4" />}
@@ -151,36 +140,29 @@ export default function TenantContentLibrariesPage() {
               >
                 Create library
               </Button>
-            ) : null}
-          </div>
-        </motion.div>
+            ) : null
+          }
+        />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card>
-            <CardContent className="p-0">
-              {!tenantId ? (
-                <p className="p-6 text-sm text-gray-500">
-                  Select a tenant to view content libraries.
-                </p>
-              ) : loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={columns}
-                  data={libraries}
-                  emptyMessage="No content libraries available."
-                  overflowVisibleColumnKeys={[]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <DataRegion>
+          {!tenantId ? (
+            <p className="py-6 text-sm text-console-muted">
+              Select a tenant to view content libraries.
+            </p>
+          ) : loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={columns}
+              data={libraries}
+              emptyMessage="No content libraries available."
+              overflowVisibleColumnKeys={[]}
+            />
+          )}
+        </DataRegion>
 
         {tenantId ? (
           <CreateTenantContentLibraryModal

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
 import { Button } from "@/components/ui/atoms/button";
@@ -376,55 +377,37 @@ export default function DatacentersPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Datacenters</h1>
-              <p className="text-gray-600 mt-2">
-                Manage and monitor your cloud infrastructure datacenters
-              </p>
-            </div>
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader
+          title="Datacenters"
+          description="Manage and monitor your cloud infrastructure datacenters"
+          actions={
             <button
               onClick={handleOpenWizard}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 font-medium text-white transition-colors hover:bg-primary-700"
             >
               <Plus size={18} />
               <span>Add Datacenter</span>
             </button>
-          </div>
-        </motion.div>
+          }
+        />
 
-        {/* Datacenters Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card>
-            <CardContent className="p-0">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={columns}
-                  data={datacenters}
-                  emptyMessage="No datacenters configured"
-                  onRowClick={(row) => handleViewDetails(row)}
-                  overflowVisibleColumnKeys={["actions"]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <DataRegion>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={columns}
+              data={datacenters}
+              emptyMessage="No datacenters configured"
+              onRowClick={(row) => handleViewDetails(row)}
+              overflowVisibleColumnKeys={["actions"]}
+            />
+          )}
+        </DataRegion>
       </div>
 
       {/* Add Datacenter Wizard Modal */}

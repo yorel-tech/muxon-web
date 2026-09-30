@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
-import { motion } from "framer-motion";
-import { Shield, Plus, Edit, Trash2, Eye, RefreshCw, Ban, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, RefreshCw, Ban, Loader2 } from "lucide-react";
 import { RowActionsTrigger } from "@/components/DynamicContextMenu";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
 
@@ -239,77 +239,57 @@ export default function IdpsPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Identity Providers</h1>
-              <p className="text-gray-600 mt-2">
-                Manage your identity providers for user authentication
-              </p>
-            </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader
+          title="Identity Providers"
+          description="Manage your identity providers for user authentication"
+          actions={
+            <button className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 font-medium text-white transition-colors hover:bg-primary-700">
               <Plus size={18} />
               <span>Add Provider</span>
             </button>
-          </div>
-        </motion.div>
+          }
+        />
 
-        {/* IDP Servers Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">Identity Provider Servers</h2>
-            </CardHeader>
-            <CardContent className="p-0">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={idpColumns}
-                  data={idpServers}
-                  emptyMessage="No IDP servers configured"
-                  onRowClick={(row) => handleViewDetails(row)}
-                  overflowVisibleColumnKeys={["actions"]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <section className="mb-10">
+          <h2 className="mb-3 text-lg font-semibold text-[color:var(--text-primary)]">
+            Identity Provider Servers
+          </h2>
+          <DataRegion>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+              </div>
+            ) : (
+              <Table
+                presentation="plain"
+                columns={idpColumns}
+                data={idpServers}
+                emptyMessage="No IDP servers configured"
+                onRowClick={(row) => handleViewDetails(row)}
+                overflowVisibleColumnKeys={["actions"]}
+              />
+            )}
+          </DataRegion>
+        </section>
 
-        {/* Users Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">IDP Users</h2>
-            </CardHeader>
-            <CardContent className="p-0">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table columns={userColumns} data={users} emptyMessage="No users found" />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-[color:var(--text-primary)]">IDP Users</h2>
+          <DataRegion>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+              </div>
+            ) : (
+              <Table
+                presentation="plain"
+                columns={userColumns}
+                data={users}
+                emptyMessage="No users found"
+              />
+            )}
+          </DataRegion>
+        </section>
       </div>
     </div>
   );

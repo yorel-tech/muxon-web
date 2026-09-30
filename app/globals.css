@@ -11,7 +11,7 @@
     --shell-surface: #ffffff;
     --border-default: #e2e8f0;
     --selection-bg: #bae6fd;
-    --focus-ring: #38bdf8;
+    --focus-ring: #0369a1;
     --logo-gradient: linear-gradient(to bottom right, #0ea5e9, #0284c7);
     /* Mark gradient (OSS primary). Lockup on light surfaces uses primary-500, word is primary-700. */
     --brand-mark-from: #0a52e6;
@@ -49,6 +49,17 @@
 
     --sidebar-bg: #f1f5f9;
     --sidebar-border: var(--border-default);
+
+    /* Console polish — OSS light. Divider and control edges meet 3:1; muted text meets 4.5:1 on the content surface. */
+    --nav-divider: #475569;
+    --nav-shadow: 1px 0 8px -6px rgb(15 23 42 / 0.16);
+    --text-muted: #334155;
+    --content-surface: #ffffff;
+    --data-separator: #7b8794;
+    --data-header-bg: #f8fafc;
+    --data-row-hover: #f1f5f9;
+    --control-border: #64748b;
+    --shell-gutter: 1rem;
 
     /* Semantic */
     --color-success-50: #f0fdf4;
@@ -232,6 +243,16 @@
 
     --sidebar-bg: #f5f3ff;
     --sidebar-border: var(--border-default);
+
+    --nav-divider: #5b21b6;
+    --nav-shadow: 1px 0 8px -6px rgb(76 29 149 / 0.18);
+    --text-muted: #4c1d95;
+    --content-surface: #ffffff;
+    --data-separator: #7e6bb8;
+    --data-header-bg: #f5f3ff;
+    --data-row-hover: #ede9fe;
+    --control-border: #6d28d9;
+    --focus-ring: #5b21b6;
   }
 
   /* Nexus / Enterprise — dark */
@@ -243,7 +264,7 @@
     --shell-surface: #1a1333;
     --border-default: #2e1065;
     --selection-bg: #7c3aed;
-    --focus-ring: rgba(167, 139, 250, 0.5);
+    --focus-ring: #ddd6fe;
     --logo-gradient: linear-gradient(to bottom right, #a78bfa, #ec4899);
     --brand-mark-from: #a78bfa;
     --brand-mark-to: #ec4899;
@@ -304,6 +325,21 @@
 
     --sidebar-bg: #0b0320;
     --sidebar-border: var(--border-default);
+
+    --nav-divider: #c4b5fd;
+    --nav-shadow: 1px 0 10px -6px rgb(0 0 0 / 0.35);
+    --text-muted: #e9d5ff;
+    --content-surface: #1a1333;
+    --data-separator: #a78bfa;
+    --data-header-bg: #241845;
+    --data-row-hover: #2e1065;
+    --control-border: #c4b5fd;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --shell-gutter: 1.5rem;
   }
 }
 
@@ -312,5 +348,33 @@
     font-family: var(--font-sans);
     background-color: var(--shell-bg);
     color: var(--text-primary);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .console-main {
+    box-sizing: border-box;
+    min-width: 0;
+    width: auto;
+    overflow-x: hidden;
+    padding-inline: var(--shell-gutter);
+  }
+
+  /* List cells still use gray utilities. Map them inside data regions so Enterprise dark stays readable. */
+  html.dark .console-data-region .text-gray-900,
+  html.dark .console-data-region .text-gray-800,
+  html.dark .console-data-region .text-gray-700 {
+    color: var(--text-primary);
+  }
+
+  html.dark .console-data-region .text-gray-600,
+  html.dark .console-data-region .text-gray-500,
+  html.dark .console-data-region .text-gray-400 {
+    color: var(--text-muted);
   }
 }

@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/atoms/label";
 import { Switch } from "@/components/ui/atoms/switch";
 import { Toast } from "@/components/ui/molecules/toast";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api";
@@ -303,24 +304,16 @@ export default function SystemSettingsPage() {
   ];
 
   return (
-    <div className="max-w-full px-3 py-8">
-      {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">System Settings</h1>
-            <p className="text-gray-600 mt-1">Configure platform-wide settings and preferences</p>
-          </div>
+    <div className="w-full min-w-0 py-8">
+      <ContentPageHeader
+        title="System Settings"
+        description="Configure platform-wide settings and preferences"
+        actions={
           <Button onClick={handleSave} leftIcon={<Save size={16} />}>
             Save Changes
           </Button>
-        </div>
-      </motion.div>
+        }
+      />
 
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">

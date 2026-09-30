@@ -255,7 +255,7 @@ export default function ConfiguredSystemDashboardPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
+      <div className="w-full min-w-0 py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

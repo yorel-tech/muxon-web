@@ -175,7 +175,7 @@ export function ContentLibraryDetailView({
 
   if (!libraryId) {
     return (
-      <div className="min-h-screen bg-app px-3 py-8">
+      <div className="min-h-screen bg-app py-8">
         <p className="text-gray-600 dark:text-gray-400">Invalid library.</p>
       </div>
     );
@@ -183,7 +183,7 @@ export function ContentLibraryDetailView({
 
   if (scope === "tenant" && !tenantId) {
     return (
-      <div className="min-h-screen bg-app px-3 py-8">
+      <div className="min-h-screen bg-app py-8">
         <p className="text-gray-600 dark:text-gray-400">Select a tenant to view this library.</p>
       </div>
     );
@@ -199,7 +199,7 @@ export function ContentLibraryDetailView({
 
   if (libError || !library) {
     return (
-      <div className="min-h-screen bg-app px-3 py-8">
+      <div className="min-h-screen bg-app py-8">
         <Link
           href={listHref}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
@@ -214,7 +214,7 @@ export function ContentLibraryDetailView({
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
+      <div className="w-full min-w-0 py-8">
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}

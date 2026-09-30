@@ -72,7 +72,7 @@ function TenantShell({ children }: { children: React.ReactNode }) {
         topOffset={HEADER_HEIGHT}
       />
       <div
-        className={`transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-16"}`}
+        className={`console-main transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-16"}`}
         style={{ paddingTop: HEADER_HEIGHT }}
       >
         {children}
