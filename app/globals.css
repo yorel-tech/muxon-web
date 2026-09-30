@@ -51,7 +51,7 @@
     --sidebar-border: var(--border-default);
 
     /* Console polish — OSS light. Divider and control edges meet 3:1; muted text meets 4.5:1 on the content surface. */
-    --nav-divider: #475569;
+    --nav-divider: #7e8896;
     --nav-shadow: 1px 0 8px -6px rgb(15 23 42 / 0.16);
     --text-muted: #334155;
     --content-surface: #ffffff;
@@ -244,7 +244,7 @@
     --sidebar-bg: #f5f3ff;
     --sidebar-border: var(--border-default);
 
-    --nav-divider: #5b21b6;
+    --nav-divider: #8c64cc;
     --nav-shadow: 1px 0 8px -6px rgb(76 29 149 / 0.18);
     --text-muted: #4c1d95;
     --content-surface: #ffffff;
@@ -326,7 +326,7 @@
     --sidebar-bg: #0b0320;
     --sidebar-border: var(--border-default);
 
-    --nav-divider: #c4b5fd;
+    --nav-divider: #d6cbfe;
     --nav-shadow: 1px 0 10px -6px rgb(0 0 0 / 0.35);
     --text-muted: #e9d5ff;
     --content-surface: #1a1333;
