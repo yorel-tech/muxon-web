@@ -13,6 +13,14 @@
     --selection-bg: #bae6fd;
     --focus-ring: #38bdf8;
     --logo-gradient: linear-gradient(to bottom right, #0ea5e9, #0284c7);
+    /* Mark gradient (OSS primary). Lockup on light surfaces uses primary-500, word is primary-700. */
+    --brand-mark-from: #0a52e6;
+    --brand-mark-to: #25c8ff;
+    --brand-lockup-mark: #0ea5e9;
+    --brand-lockup-word: #0369a1;
+    --brand-on-bar: #374151;
+    --brand-on-dark-mark: #0ea5e9;
+    --brand-on-dark-word: #0369a1;
 
     --sidebar-item: #334155;
     --sidebar-item-muted: #64748b;
@@ -191,6 +199,12 @@
     --selection-bg: #ddd6fe;
     --focus-ring: #a78bfa;
     --logo-gradient: linear-gradient(to bottom right, #8b5cf6, #ec4899);
+    --brand-mark-from: #8b5cf6;
+    --brand-mark-to: #ec4899;
+    --brand-lockup-mark: #8b5cf6;
+    --brand-lockup-word: #6d28d9;
+    --brand-on-dark-mark: #c4b5fd;
+    --brand-on-dark-word: #8b5cf6;
 
     --sidebar-item: #4c1d95;
     --sidebar-item-muted: #6b21a8;
@@ -231,6 +245,12 @@
     --selection-bg: #7c3aed;
     --focus-ring: rgba(167, 139, 250, 0.5);
     --logo-gradient: linear-gradient(to bottom right, #a78bfa, #ec4899);
+    --brand-mark-from: #a78bfa;
+    --brand-mark-to: #ec4899;
+    --brand-lockup-mark: #8b5cf6;
+    --brand-lockup-word: #6d28d9;
+    --brand-on-dark-mark: #c4b5fd;
+    --brand-on-dark-word: #8b5cf6;
 
     --sidebar-item: #e9d5ff;
     --sidebar-item-muted: #c4b5fd;
