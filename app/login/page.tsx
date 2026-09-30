@@ -1,12 +1,10 @@
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLockup } from "@/components/BrandLockup";
 
 export default function Login() {
   return (
     <main className="max-w-full px-3 py-8">
-      <div className="flex items-center gap-3 mb-4">
-        <BrandMark size={40} className="rounded-lg" />
-        <h1 className="text-2xl font-semibold">Login</h1>
-      </div>
+      <BrandLockup tone="theme" height={40} />
+      <h1 className="mt-4 text-2xl font-semibold">Login</h1>
       <p className="mt-2 text-gray-600">
         Configure OIDC with Keycloak/your IdP; this page will redirect to your provider.
       </p>

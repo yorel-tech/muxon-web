@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchOidcConfigIfNeeded, getUserManager, OIDC_NOT_CONFIGURED_MESSAGE } from "@lib/oidc";
 import { useProductInfo } from "@lib/product-info-context";
+import { BrandLockup } from "@/components/BrandLockup";
 import { BrandMark } from "@/components/BrandMark";
 
 type LoginType = "tenant" | "system";
@@ -97,14 +98,7 @@ export default function Home() {
       <div className="relative z-10">
         {/* Navigation */}
         <nav className="flex items-center justify-between px-8 py-6">
-          <div className="flex items-center space-x-2">
-            <BrandMark size={40} className="w-10 h-10 rounded-lg" priority />
-            <span
-              className={`text-xl font-bold ${isEnterprise ? "text-white" : "text-[color:var(--text-primary)]"}`}
-            >
-              Muxon
-            </span>
-          </div>
+          <BrandLockup tone={isEnterprise ? "onDark" : "theme"} height={40} />
           <div className="flex items-center space-x-4">
             {name ? (
               <>
@@ -196,7 +190,7 @@ export default function Home() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-surface rounded-xl border border-panel max-w-md w-full p-8">
             <div className="flex items-center gap-3 mb-6">
-              <BrandMark size={40} className="rounded-lg" />
+              <BrandMark size={40} />
               <h2 className="text-2xl font-bold text-gray-900">Login to Muxon</h2>
             </div>
             {oidcError && (

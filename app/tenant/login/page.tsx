@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { fetchOidcConfigIfNeeded, getUserManager, OIDC_NOT_CONFIGURED_MESSAGE } from "@lib/oidc";
 import { Button } from "@/components/ui/atoms/button";
 import { useProductInfo } from "@lib/product-info-context";
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLockup } from "@/components/BrandLockup";
 
 export default function TenantLoginPage() {
   const router = useRouter();
@@ -77,20 +77,18 @@ export default function TenantLoginPage() {
             : "bg-surface border border-panel"
         }`}
       >
-        <div className="flex items-center mb-6">
-          <BrandMark size={40} className="h-10 w-10 rounded-xl mr-3" priority />
-          <div>
-            <h1
-              className={`text-xl font-semibold ${isEnterprise ? "text-white" : "text-[color:var(--text-primary)]"}`}
-            >
-              Muxon Tenant Login
-            </h1>
-            <p
-              className={`text-sm ${isEnterprise ? "text-slate-300" : "text-[color:var(--text-secondary)]"}`}
-            >
-              Enter your tenant name to continue
-            </p>
-          </div>
+        <div className="mb-6">
+          <BrandLockup tone={isEnterprise ? "onDark" : "theme"} height={36} />
+          <h1
+            className={`mt-4 text-xl font-semibold ${isEnterprise ? "text-white" : "text-[color:var(--text-primary)]"}`}
+          >
+            Tenant Login
+          </h1>
+          <p
+            className={`text-sm ${isEnterprise ? "text-slate-300" : "text-[color:var(--text-secondary)]"}`}
+          >
+            Enter your tenant name to continue
+          </p>
         </div>
 
         <div className="space-y-4">

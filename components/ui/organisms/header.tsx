@@ -5,7 +5,7 @@ import { forwardRef, useRef, useState } from "react";
 import { Bell, ChevronDown, LogOut, Settings, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLockup } from "@/components/BrandLockup";
 import { useOnClickOutside } from "@/lib/use-on-click-outside";
 
 export interface HeaderProps {
@@ -41,11 +41,8 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
         <div className="flex items-center justify-between w-full px-4">
           {/* Left: Logo + Tenant Switcher */}
           <div className="flex items-center gap-5">
-            <div className="flex h-10 items-center gap-3 shrink-0">
-              <BrandMark size={32} className="h-8 w-8 rounded-md" />
-              <span className="text-xl font-bold text-[color:var(--text-primary)] whitespace-nowrap">
-                muxon
-              </span>
+            <div className="flex h-10 items-center shrink-0">
+              <BrandLockup tone="bar" height={28} />
             </div>
             {tenantSwitcher && <div className="ml-4 flex h-10 items-center">{tenantSwitcher}</div>}
           </div>

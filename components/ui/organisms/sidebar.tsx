@@ -27,7 +27,7 @@ import {
   HardDrive,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { BrandMark } from "@/components/BrandMark";
+import { BrandLockup } from "@/components/BrandLockup";
 
 export interface SidebarItem {
   id: string;
@@ -300,8 +300,7 @@ export const Sidebar = forwardRef<HTMLDivElement, SidebarProps>(
           {/* Logo / Brand */}
           <div className="flex items-center gap-3 p-6 border-b border-gray-200">
             <div className="flex items-center gap-2">
-              <BrandMark size={32} className="h-8 w-8 rounded-lg" />
-              <span className="text-lg font-bold text-gray-900">muxon</span>
+              <BrandLockup tone="theme" height={28} />
               {isEnterprise && (
                 <span className="ml-2 text-xs font-medium px-2 py-0.5 bg-nexus-100 text-nexus-700 rounded-full">
                   Enterprise
