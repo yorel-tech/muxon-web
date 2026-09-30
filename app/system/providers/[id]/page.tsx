@@ -206,7 +206,7 @@ export default function ProviderDetailsPage({ params }: ProviderDetailsPageProps
           <CardContent className="p-8 text-center">
             <p className="text-gray-900 font-medium">Provider not found</p>
             <p className="text-sm text-gray-500 mt-2">
-              The provider you're looking for doesn't exist or has been deleted.
+              {"The provider you're looking for doesn't exist or has been deleted."}
             </p>
             <Button className="mt-4" onClick={() => router.push("/system/providers")}>
               Back to Providers

@@ -120,8 +120,8 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 Welcome to Muxon Cloud Management
               </h3>
               <p className="text-center text-gray-600">
-                We'll guide you through the initial setup process to get your cloud infrastructure
-                up and running. This should take about 5 minutes.
+                We&apos;ll guide you through the initial setup process to get your cloud
+                infrastructure up and running. This should take about 5 minutes.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -321,7 +321,8 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
               </motion.div>
               <h3 className="text-2xl font-bold text-center text-gray-900 mb-2">Setup Complete!</h3>
               <p className="text-center text-gray-600 mb-8">
-                Your Muxon instance is now configured and ready to use. Here's what you can do next:
+                Your Muxon instance is now configured and ready to use. Here&apos;s what you can do
+                next:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                 <Card className="transition-colors hover:border-primary-500">

@@ -25,6 +25,48 @@ import { fetchProvidersWithLinks, executeLinkAction, apiGet, apiPost } from "@/l
 import { usePermissions } from "@/hooks/usePermissions";
 import { Provider } from "@/types/provider";
 
+function ProviderQuickActions({
+  row,
+  actionLoading,
+  onShowCapabilities,
+}: {
+  row: Provider;
+  actionLoading: string | null;
+  onShowCapabilities: (row: Provider) => void;
+}) {
+  const { canPerformAction } = usePermissions(row);
+
+  return (
+    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+      {canPerformAction("testConnection") && (
+        <ActionButton
+          entity={row}
+          action="testConnection"
+          size="sm"
+          variant="secondary"
+          loading={actionLoading === `${row.id}-testConnection`}
+          className="inline-flex items-center gap-1"
+        >
+          <Plug size={14} />
+          <span className="sr-only">Test connection</span>
+        </ActionButton>
+      )}
+      {canPerformAction("capabilities") && (
+        <button
+          type="button"
+          onClick={() => onShowCapabilities(row)}
+          disabled={actionLoading !== null}
+          className="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
+          title="Show capabilities"
+        >
+          <Layers size={14} />
+          <span className="sr-only">Show capabilities</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function ProvidersPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -367,38 +409,13 @@ export default function ProvidersPage() {
     {
       key: "quickActions",
       header: "Quick Actions",
-      cell: (row: Provider) => {
-        const { canPerformAction } = usePermissions(row);
-        return (
-          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            {canPerformAction("testConnection") && (
-              <ActionButton
-                entity={row}
-                action="testConnection"
-                size="sm"
-                variant="secondary"
-                loading={actionLoading === `${row.id}-testConnection`}
-                className="inline-flex items-center gap-1"
-              >
-                <Plug size={14} />
-                <span className="sr-only">Test connection</span>
-              </ActionButton>
-            )}
-            {canPerformAction("capabilities") && (
-              <button
-                type="button"
-                onClick={() => handleAction("capabilities", row)}
-                disabled={actionLoading !== null}
-                className="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
-                title="Show capabilities"
-              >
-                <Layers size={14} />
-                <span className="sr-only">Show capabilities</span>
-              </button>
-            )}
-          </div>
-        );
-      },
+      cell: (row: Provider) => (
+        <ProviderQuickActions
+          row={row}
+          actionLoading={actionLoading}
+          onShowCapabilities={(provider) => handleAction("capabilities", provider)}
+        />
+      ),
       sortable: false,
     },
   ];

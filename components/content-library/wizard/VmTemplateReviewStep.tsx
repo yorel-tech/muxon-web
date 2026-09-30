@@ -173,7 +173,7 @@ export function VmTemplateReviewStep({ templateSpec, files }: VmTemplateReviewSt
           <li>Content item will be created with your template specification</li>
           <li>Each disk file will be uploaded with checksum verification</li>
           <li>Backend will generate template.json and finalize the template</li>
-          <li>Template status will change to "available" when ready</li>
+          <li>{'Template status will change to "available" when ready'}</li>
         </ol>
       </div>
     </div>
