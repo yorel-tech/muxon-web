@@ -2,15 +2,15 @@
 
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Button } from "@/components/ui/atoms/button";
 import { Input } from "@/components/ui/atoms/input";
 import { Modal } from "@/components/ui/molecules/modal";
 import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
 import { RowActionsTrigger } from "@/components/DynamicContextMenu";
-import { motion } from "framer-motion";
 import { Plus, Loader2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { VmConsoleModal } from "@/components/ui/organisms/vm-console-modal";
 import { apiGet, apiPost } from "@/lib/api";
@@ -702,23 +702,16 @@ function TenantVmsPageInner() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8 flex items-center justify-between"
-        >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              Virtual Machines
-            </h1>
-          </div>
-          <Button onClick={handleOpenWizard} className="flex items-center gap-2">
-            <Plus size={18} />
-            Create VM
-          </Button>
-        </motion.div>
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader
+          title="Virtual Machines"
+          actions={
+            <Button onClick={handleOpenWizard} className="flex items-center gap-2">
+              <Plus size={18} />
+              Create VM
+            </Button>
+          }
+        />
 
         <Modal isOpen={createModalOpen} onClose={handleCloseWizard} title="Create VM" size="xl">
           <div className="flex flex-col max-h-[80vh]">
@@ -1456,28 +1449,21 @@ function TenantVmsPageInner() {
           </div>
         </Modal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card>
-            <CardContent className="p-0">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={columns}
-                  data={vms}
-                  emptyMessage="No VMs yet. Create one to get started."
-                  overflowVisibleColumnKeys={["actions"]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <DataRegion>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={columns}
+              data={vms}
+              emptyMessage="No VMs yet. Create one to get started."
+              overflowVisibleColumnKeys={["actions"]}
+            />
+          )}
+        </DataRegion>
       </div>
 
       {tenantId && attachIsoVm && (

@@ -39,6 +39,15 @@ module.exports = {
           badge: "var(--sidebar-badge-bg)",
           "badge-fg": "var(--sidebar-badge-fg)",
         },
+        nav: "var(--nav-divider)",
+        console: {
+          muted: "var(--text-muted)",
+          surface: "var(--content-surface)",
+          separator: "var(--data-separator)",
+          header: "var(--data-header-bg)",
+          hover: "var(--data-row-hover)",
+          control: "var(--control-border)",
+        },
         success: {
           50: "#f0fdf4",
           500: "#22c55e",
@@ -155,6 +164,7 @@ module.exports = {
         lg: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
         xl: "0 20px 25px -5px rgb(0 0 0 / 0.1)",
         "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        nav: "var(--nav-shadow)",
       },
       transitionDuration: {
         fast: "150ms",

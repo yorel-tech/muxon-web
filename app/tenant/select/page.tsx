@@ -54,7 +54,7 @@ export default function TenantSelectPage() {
   };
 
   return (
-    <div className="max-w-3xl px-3 py-8">
+    <div className="max-w-3xl w-full py-8">
       <Card>
         <CardHeader>
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Select Tenant</h1>

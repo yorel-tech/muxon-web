@@ -954,7 +954,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
 
   if (error || !tenant) {
     return (
-      <div className="min-h-screen bg-app px-3 py-8">
+      <div className="min-h-screen bg-app py-8">
         <Link
           href="/system/tenants"
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
@@ -976,7 +976,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
+      <div className="w-full min-w-0 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

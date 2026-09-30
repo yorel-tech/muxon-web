@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
-import { motion } from "framer-motion";
-import { BookMarked, Loader2 } from "lucide-react";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
+import { Loader2 } from "lucide-react";
 import { apiGet } from "@/lib/api";
 
 interface CatalogRow {
@@ -67,38 +67,23 @@ export default function TenantCatalogsPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Catalogs</h1>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card>
-            <CardContent className="p-0">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={columns}
-                  data={catalogs}
-                  emptyMessage="No catalogs available"
-                  overflowVisibleColumnKeys={[]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader title="Catalogs" />
+        <DataRegion>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={columns}
+              data={catalogs}
+              emptyMessage="No catalogs available"
+              overflowVisibleColumnKeys={[]}
+            />
+          )}
+        </DataRegion>
       </div>
     </div>
   );

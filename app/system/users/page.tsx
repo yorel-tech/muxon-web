@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Dropdown, DropdownOption } from "@/components/ui/molecules/dropdown";
-import { motion } from "framer-motion";
 import {
   Users,
   Plus,
@@ -266,53 +266,34 @@ export default function UsersPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">System Users</h1>
-              <p className="text-gray-600 mt-2">Manage system-level users and their permissions</p>
-            </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader
+          title="System Users"
+          description="Manage system-level users and their permissions"
+          actions={
+            <button className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 font-medium text-white transition-colors hover:bg-primary-700">
               <UserPlus size={18} />
               <span>Add User</span>
             </button>
-          </div>
-        </motion.div>
+          }
+        />
 
-        {/* Users Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">System Users</h2>
-            </CardHeader>
-            <CardContent className="p-0">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={userColumns}
-                  data={users}
-                  emptyMessage="No users found"
-                  onRowClick={(row) => handleViewDetails(row)}
-                  overflowVisibleColumnKeys={["actions"]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <DataRegion>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={userColumns}
+              data={users}
+              emptyMessage="No users found"
+              onRowClick={(row) => handleViewDetails(row)}
+              overflowVisibleColumnKeys={["actions"]}
+            />
+          )}
+        </DataRegion>
       </div>
     </div>
   );

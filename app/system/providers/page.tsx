@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Badge } from "@/components/ui/atoms/badge";
 import { Button } from "@/components/ui/atoms/button";
 import { Input } from "@/components/ui/atoms/input";
@@ -23,6 +24,48 @@ import { ActionButton } from "@/components/ActionButton";
 import { fetchProvidersWithLinks, executeLinkAction, apiGet, apiPost } from "@/lib/api";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Provider } from "@/types/provider";
+
+function ProviderQuickActions({
+  row,
+  actionLoading,
+  onShowCapabilities,
+}: {
+  row: Provider;
+  actionLoading: string | null;
+  onShowCapabilities: (row: Provider) => void;
+}) {
+  const { canPerformAction } = usePermissions(row);
+
+  return (
+    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+      {canPerformAction("testConnection") && (
+        <ActionButton
+          entity={row}
+          action="testConnection"
+          size="sm"
+          variant="secondary"
+          loading={actionLoading === `${row.id}-testConnection`}
+          className="inline-flex items-center gap-1"
+        >
+          <Plug size={14} />
+          <span className="sr-only">Test connection</span>
+        </ActionButton>
+      )}
+      {canPerformAction("capabilities") && (
+        <button
+          type="button"
+          onClick={() => onShowCapabilities(row)}
+          disabled={actionLoading !== null}
+          className="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
+          title="Show capabilities"
+        >
+          <Layers size={14} />
+          <span className="sr-only">Show capabilities</span>
+        </button>
+      )}
+    </div>
+  );
+}
 
 export default function ProvidersPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -366,82 +409,50 @@ export default function ProvidersPage() {
     {
       key: "quickActions",
       header: "Quick Actions",
-      cell: (row: Provider) => {
-        const { canPerformAction } = usePermissions(row);
-        return (
-          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            {canPerformAction("testConnection") && (
-              <ActionButton
-                entity={row}
-                action="testConnection"
-                size="sm"
-                variant="secondary"
-                loading={actionLoading === `${row.id}-testConnection`}
-                className="inline-flex items-center gap-1"
-              >
-                <Plug size={14} />
-                <span className="sr-only">Test connection</span>
-              </ActionButton>
-            )}
-            {canPerformAction("capabilities") && (
-              <button
-                type="button"
-                onClick={() => handleAction("capabilities", row)}
-                disabled={actionLoading !== null}
-                className="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700"
-                title="Show capabilities"
-              >
-                <Layers size={14} />
-                <span className="sr-only">Show capabilities</span>
-              </button>
-            )}
-          </div>
-        );
-      },
+      cell: (row: Provider) => (
+        <ProviderQuickActions
+          row={row}
+          actionLoading={actionLoading}
+          onShowCapabilities={(provider) => handleAction("capabilities", provider)}
+        />
+      ),
       sortable: false,
     },
   ];
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        {/* Header with enhanced actions */}
-        <motion.div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Providers</h1>
-              <p className="text-gray-600 mt-2">Manage your cloud infrastructure providers</p>
-            </div>
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader
+          title="Providers"
+          description="Manage your cloud infrastructure providers"
+          actions={
             <button
               onClick={handleOpenWizard}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 font-medium text-white transition-colors hover:bg-primary-700"
             >
               <Plus size={18} />
               <span>Add Provider</span>
             </button>
-          </div>
-        </motion.div>
+          }
+        />
 
-        {/* Enhanced Table with HATEOAS support */}
-        <motion.div>
-          <Card>
-            <CardContent className="p-0">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : (
-                <Table
-                  columns={columns}
-                  data={providers}
-                  emptyMessage="No providers configured"
-                  onRowClick={(row) => handleAction("viewDetails", row)}
-                  overflowVisibleColumnKeys={["actions", "quickActions"]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        <DataRegion>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={columns}
+              data={providers}
+              emptyMessage="No providers configured"
+              onRowClick={(row) => handleAction("viewDetails", row)}
+              overflowVisibleColumnKeys={["actions", "quickActions"]}
+            />
+          )}
+        </DataRegion>
       </div>
 
       {/* Enhanced Wizard Modal */}

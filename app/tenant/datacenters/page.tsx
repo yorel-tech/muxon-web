@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/atoms/card";
 import { Table, Column } from "@/components/ui/organisms/table";
-import { motion } from "framer-motion";
+import { ContentPageHeader } from "@/components/ui/organisms/content-page-header";
+import { DataRegion } from "@/components/ui/organisms/data-region";
 import { Loader2 } from "lucide-react";
 import { apiGet } from "@/lib/api";
 import { useTenantId } from "@/lib/use-tenant-id";
@@ -106,47 +106,32 @@ export default function TenantDatacentersPage() {
 
   return (
     <div className="min-h-screen bg-app">
-      <div className="max-w-full px-3 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Datacenters</h1>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card>
-            <CardContent className="p-0">
-              {tenantError && (
-                <div className="p-4 text-sm text-amber-700 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
-                  {tenantError}. Select a tenant from the system tenant list to open the portal.
-                </div>
-              )}
-              {tenantLoading || loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                </div>
-              ) : !tenantId ? (
-                <div className="py-12 text-center text-gray-500 dark:text-gray-400 text-sm">
-                  No tenant selected. Open the tenant portal from a tenant in the system area.
-                </div>
-              ) : (
-                <Table
-                  columns={columns}
-                  data={grants}
-                  emptyMessage="No datacenters available"
-                  overflowVisibleColumnKeys={[]}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+      <div className="w-full min-w-0 py-8">
+        <ContentPageHeader title="Datacenters" />
+        <DataRegion>
+          {tenantError && (
+            <div className="border-b border-amber-200 bg-amber-50 p-4 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+              {tenantError}. Select a tenant from the system tenant list to open the portal.
+            </div>
+          )}
+          {tenantLoading || loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-console-muted" />
+            </div>
+          ) : !tenantId ? (
+            <div className="py-12 text-center text-sm text-console-muted">
+              No tenant selected. Open the tenant portal from a tenant in the system area.
+            </div>
+          ) : (
+            <Table
+              presentation="plain"
+              columns={columns}
+              data={grants}
+              emptyMessage="No datacenters available"
+              overflowVisibleColumnKeys={[]}
+            />
+          )}
+        </DataRegion>
       </div>
     </div>
   );
